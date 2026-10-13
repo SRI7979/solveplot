@@ -3,4 +3,5 @@
 export const BRAND = {
   name: "Desmo",
   wordmark: "desmo",
+  contact: { href: "https://github.com/SRI7979", label: "the developer’s contact page" },
 } as const;
