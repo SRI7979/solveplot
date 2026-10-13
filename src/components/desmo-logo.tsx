@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BRAND } from "@/lib/brand";
 import styles from "./desmo-logo.module.css";
 
 export default function DesmoLogo({ centered = false, variant = "default" }: { centered?: boolean; variant?: "default" | "workspace" }) {
@@ -6,7 +7,7 @@ export default function DesmoLogo({ centered = false, variant = "default" }: { c
     <Link
       href="/"
       className={`${styles.logo}${centered ? ` ${styles.centered}` : ""}${variant === "workspace" ? ` ${styles.workspaceLogo}` : ""}`}
-      aria-label="Desmo home"
+      aria-label={`${BRAND.name} home`}
     >
       <span className={styles.mark} aria-hidden="true">
         <svg width="27" height="27" viewBox="0 0 24 24" fill="none" focusable="false">
@@ -18,7 +19,7 @@ export default function DesmoLogo({ centered = false, variant = "default" }: { c
           />
         </svg>
       </span>
-      <span className={styles.wordmark}>Desmo</span>
+      <span className={styles.wordmark}>{BRAND.name}</span>
     </Link>
   );
 }

@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { Landing } from "@/components/landing/landing";
+import { BRAND } from "@/lib/brand";
 
 export const metadata: Metadata = {
-  title: "Desmo — Desmos-first SAT Math",
-  description: "Upload a screenshot of an SAT Math question. Desmo finds the Desmos way to solve it, puts every line in the Desmos calculator, and explains each one.",
+  title: `${BRAND.name} | SAT Math with Desmos`,
+  description: `Upload an SAT Math question. ${BRAND.name} shows you how to solve it with the Desmos calculator and explains each entry.`,
 };
 
 export default function Page() {

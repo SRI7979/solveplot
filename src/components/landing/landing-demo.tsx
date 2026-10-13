@@ -8,6 +8,7 @@ import katex from 'katex'
 import 'katex/dist/katex.min.css'
 import { ArrowUpRight, Bookmark, Check, Copy, CornerDownRight, Expand, History, Monitor, Moon, Plus, RotateCcw, ScanLine, SlidersHorizontal, Sun } from 'lucide-react'
 import { DEFAULT_APPEARANCE, PALETTES } from '@/lib/appearance'
+import { BRAND } from '@/lib/brand'
 import { MATH_OPTIONS, type DesmosCalculatorInstance } from '@/lib/desmos-engine'
 import { calculatorPayload } from '@/lib/desmos-preflight'
 import './landing-product.css'
@@ -21,16 +22,16 @@ function Tex({ value, display = false }: { value: string; display?: boolean }) {
 
 /** The two routes Desmo lists for this question, with the labels the solver shows (shape, rows, hand steps, math needed). */
 const ROUTES = {
-  desmos: { name: 'Parameter regression', approach: 'Desmos way', recommended: true, shape: '4 rows · regression · 1 algebra step', rows: 4, hand: 1, level: 'Medium' },
+  desmos: { name: 'Bracket regression', approach: 'Desmos way', recommended: true, shape: '4 rows · fits both parameters from the clicked roots', rows: 4, hand: 0, level: 'Low' },
   math: { name: 'Quadratic formula', approach: 'Math way', recommended: false, shape: 'no calculator · quadratic formula · 3 algebra steps', rows: 0, hand: 3, level: 'High' },
 } as const
 type Route = keyof typeof ROUTES
 
 const DESMOS_LINES = [
-  { latex: '3x^{2}-16x+2', purpose: 'Graphs the quadratic from the question. Click its positive x-intercept: (5.20526, 0).' },
-  { latex: '\\frac{a+\\sqrt{b}}{6}\\sim5.20526', purpose: 'A regression: Desmos adjusts b until the given form equals the root you clicked, and shows the fitted b under the line.' },
-  { latex: 'a=16', purpose: 'Keeps a at 16, so b is the only number the regression changes.' },
-  { latex: 'a+b', purpose: 'Adds them. Desmos shows 248.00042.' },
+  { latex: '3x^{2}-16x+2', purpose: 'Graph the given quadratic and click both x-intercepts: approximately 5.20526 and 0.128073.' },
+  { latex: '[(a+\\sqrt{b})/6,(a-\\sqrt{b})/6]\\sim[5.20526,0.128073]', purpose: 'Match the plus form to the larger root and the minus form to the smaller root. Desmos fits both a and b, approximately 16 and 232.' },
+  { latex: 'a+b', purpose: 'Show their sum. The small decimal tail comes from copying approximate graph coordinates.' },
+  { latex: '\\operatorname{round}(a)+\\operatorname{round}(b)', purpose: 'The question requires integers. Round each fitted parameter, then add them to get exactly 248.' },
 ]
 
 const MATH_STEPS = [
@@ -40,7 +41,7 @@ const MATH_STEPS = [
 ]
 
 const IDEAS: Record<Route, string> = {
-  desmos: 'One root of this equation is a number Desmos can show you. Graph the quadratic, click its positive root, and let a regression find the b that makes the given form equal that root.',
+  desmos: 'Graph the quadratic and click both roots. One bracket regression matches the plus and minus radical forms to those roots and fits both a and b. Neither parameter needs a slider or a value worked out by hand.',
   math: 'The quadratic formula writes both roots in the same form as the question, so you can match the numbers directly.',
 }
 
@@ -90,7 +91,7 @@ function LandingCalculator({ route }: { route: Route }) {
 
   return <div className="calculator-live" data-ready={ready || undefined}>
     <div ref={host} className="calculator-host" aria-label="Interactive Desmos graphing calculator"/>
-    {!ready && route === 'desmos' && <img className="calculator-placeholder" src="/images/featured-solution.png" alt="The Desmos calculator with the four lines: the quadratic graphed, the regression fitting b near 232, a set to 16, and a plus b near 248." width={1795} height={1253}/>}
+    {!ready && route === 'desmos' && <div className="calculator-placeholder calculator-loading">Loading the calculator</div>}
     {route === 'math' && <p className="calculator-empty-note">The math way is worked on paper, so the calculator stays empty.</p>}
     {near && apiKey && <Script src={`https://www.desmos.com/api/v1.11/calculator.js?apiKey=${encodeURIComponent(apiKey)}`} onReady={() => setReady(true)}/>}
   </div>
@@ -112,16 +113,15 @@ export function LandingDemo() {
   const selected = ROUTES[route]
   return <section className="product-showcase" id="preview" aria-labelledby="showcase-title">
     <div className="showcase-intro">
-      <span className="product-eyebrow">HOW DESMO SOLVES IT</span>
-      <h2 id="showcase-title">Less algebra.<br/><span>More Desmos.</span></h2>
-      <p>Every solve shows the Desmos way first, with each calculator line explained.<br className="desktop-break"/> The math way is right beside it when you want it.</p>
+      <h2 id="showcase-title">How {BRAND.name} solves a problem</h2>
+      <p>Our goal is to minimize the work you do by hand and let Desmos handle as much of the problem as possible. Here’s an example you can try.</p>
     </div>
     <div className="showcase-stage"><div className="showcase-app" style={workspaceColors()}>
       <header className="showcase-toolbar">
-        <span className="showcase-brand"><span className="provided-mark" aria-hidden="true"><img src="/images/desmo-logo-source.png" alt=""/></span>desmo</span>
+        <span className="showcase-brand"><span className="provided-mark" aria-hidden="true"><img src="/images/desmo-logo-source.png" alt=""/></span>{BRAND.wordmark}</span>
         <span className="showcase-breadcrumb">Workspace <span>/</span> <b>Solver</b></span>
         <span className="showcase-theme" aria-hidden="true"><span data-on><Sun size={12}/></span><span><Moon size={12}/></span><span><Monitor size={12}/></span></span>
-        <Link href="/solve" aria-label="Open the Desmo solver"><ArrowUpRight size={17}/></Link>
+        <Link href="/solve" aria-label={`Open the ${BRAND.name} solver`}><ArrowUpRight size={17}/></Link>
       </header>
       <div className="showcase-panels" role="tablist" aria-label="Workspace panels">{(['explanation', 'calculator'] as const).map((item) => <button key={item} type="button" role="tab" aria-selected={panel === item} onClick={() => setPanel(item)}>{item === 'explanation' ? 'Explanation' : 'Calculator'}</button>)}</div>
       <div className="showcase-layout" data-panel={panel}>
@@ -166,7 +166,6 @@ export function LandingDemo() {
           <div className="showcase-idea">
             <div className="idea-heading"><h4>The idea</h4><span className="save-trick"><Bookmark size={12}/>Save this trick</span></div>
             <p>{IDEAS[route]}</p>
-            {route === 'desmos' && <div className="hand-math"><h5>Math you do by hand</h5><p>a = 16: it is the number already printed in the equation (−16x), so you read it off instead of solving for it.</p></div>}
           </div>
 
           {route === 'desmos' ? <div className="showcase-lines">
@@ -176,7 +175,7 @@ export function LandingDemo() {
               <div className="line-equation"><Tex value={line.latex}/></div>
               <p>{line.purpose}</p>
             </li>)}</ol>
-            <div className="read-result"><CornerDownRight size={14}/><div><h5>Read the result</h5><p>Line 4 shows 248.0004. <i>a</i> and <i>b</i> are integers, so <i>b</i> is 232 and <i>a</i> + <i>b</i> is 248: choice C.</p></div></div>
+            <div className="read-result"><CornerDownRight size={14}/><div><h5>Read the result</h5><p>The fit gives <i>a</i> ≈ 16 and <i>b</i> ≈ 232. Line 4 rounds the integer parameters and adds them to give exactly 248: choice C.</p></div></div>
           </div> : <div className="showcase-lines">
             <div className="lines-heading"><h4>Walkthrough</h4><span>3 steps</span></div>
             <ol className="walkthrough">{MATH_STEPS.map((step, index) => <li key={step.text}><b>{index + 1}</b><div><p>{step.text}</p>{step.latex && <Tex value={step.latex} display/>}</div></li>)}</ol>
@@ -184,14 +183,14 @@ export function LandingDemo() {
         </div>
 
         <div className="showcase-calculator">
-          <div className="calculator-bar"><span><span className="status-dot"/>Desmos</span><span className="calculator-icons" aria-hidden="true"><RotateCcw size={13}/><Expand size={13}/></span></div>
+          <div className="calculator-bar"><span>Calculator</span><span className="calculator-icons" aria-hidden="true"><RotateCcw size={13}/><Expand size={13}/></span></div>
           <div className="trace-bar"><span aria-hidden="true">↳</span>Select a calculator line to trace its reasoning</div>
           <LandingCalculator route={route}/>
-          <div className="calculator-foot"><span className="status-dot"/>{route === 'desmos' ? '4 lines added' : 'Ready'}</div>
+          <div className="calculator-foot">{route === 'desmos' ? '4 lines added' : 'Ready'}</div>
         </div>
       </div>
     </div></div>
-    <div className="showcase-under"><span>A real Desmo solve · Switch routes above</span><Link href="/solve">Solve your own question <ArrowUpRight size={15}/></Link></div>
+    <div className="showcase-under"><span>Compare the two methods above</span><Link href="/solve">Solve your own question <ArrowUpRight size={15}/></Link></div>
   </section>
 }
 
@@ -201,9 +200,8 @@ export function ProductPersonalization() {
   const [background, , , , soft, brand] = current.light
   return <section className="personalization-story" id="experience">
     <div className="personalization-copy">
-      <span className="product-eyebrow">A LITTLE MORE YOU</span>
-      <h2>Good tools.<br/>Your atmosphere.</h2>
-      <p>Six curated palettes, three typefaces, and your choice of buttons and corners, in light or dark. Your setup carries across the solver, History, and Saved tricks.</p>
+      <h2>Set up your workspace</h2>
+      <p>Choose a palette, typeface, and light or dark mode in Settings. Your choices apply to the solver, History, and Saved tricks.</p>
       <div className="palette-switches" aria-label="Preview workspace palette">{PALETTES.map((item, index) => <button key={item.name} type="button" aria-pressed={index === palette} onClick={() => setPalette(index)}><span style={{ background: item.light[5] }}/>{item.name}</button>)}</div>
       <Link href="/settings">Customize your workspace <ArrowUpRight size={15}/></Link>
     </div>
@@ -212,10 +210,10 @@ export function ProductPersonalization() {
         <header><SlidersHorizontal size={16}/><span>Customize appearance</span></header>
         <small>{current.name} · Modern · Raised · Round</small>
         <div className="appearance-swatches">{[brand, soft, background].map((color) => <span key={color} style={{ background: color }}/>)}</div>
-        <div className="appearance-type">Less algebra.<br/>More Desmos.</div>
+        <div className="appearance-type">Your workspace<br/>in {current.name}</div>
         <div className="appearance-bottom"><span>{current.note}</span><span style={{ background: brand, color: background }}><Check size={13}/>{current.name}</span></div>
       </div>
-      <span className="scene-caption">EVERY PALETTE HAS A DARK MODE TOO</span>
+      <span className="scene-caption">Available in light and dark mode</span>
     </div>
   </section>
 }

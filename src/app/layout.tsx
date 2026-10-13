@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/next";
 import ThemeProvider from "@/components/theme-provider";
 import AppearanceProvider from "@/components/appearance-provider";
 import { workspaceFonts } from "@/components/workspace-fonts";
+import { BRAND } from "@/lib/brand";
 import "katex/dist/katex.min.css";
 import "./globals.css";
 import "./solve/solver-ui.css";
@@ -11,7 +12,7 @@ import "./solve/solver-ui.css";
 const themeInit = `(()=>{try{const value=localStorage.getItem("desmo-theme");const dark=value==="dark"||(value==="system"&&matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.dataset.theme=dark?"dark":"light"}catch{document.documentElement.dataset.theme="light"}})()`;
 
 export const metadata: Metadata = {
-  title: "Desmo",
+  title: BRAND.name,
   description:
     "Solve SAT Math questions with Desmos and clear, step-by-step explanations.",
 };
