@@ -133,3 +133,26 @@ test("lesson 8: a visual ending is complete — clicking the intersection beats 
   assert.equal(winner.result.type, "intersection");
   assert.equal(winner.answer, "C) 7");
 });
+
+test("lesson 9: a system in its own unknowns — one bracket regression reads x + y + z; arithmetic is the last resort", () => {
+  const { winner, eligible } = select(
+    "7x + 4y + 8z = 61\n4x + y + 5z = 37\nIf (x, y, z) is a solution to the given system of equations, what is the value of x + y + z?",
+    [
+      paperCandidate({ techniqueId: "direct-arithmetic", answer: "8", result: written("x + y + z from the scaled difference of the equations"), cost: { ...zeroCost, derivationSteps: 2 } }),
+      graphCandidate({
+        techniqueId: "bracket-regression",
+        rung: 4,
+        rows: [row("[7x_{1}+4y_{1}+8z,4x_{1}+y_{1}+5z]\\sim[61,37]"), row("x_{1}+y_{1}+z")],
+        answer: "8",
+        result: numeric(2, 8, "x + y + z, the same for every solution"),
+        graphBounds: null,
+      }),
+    ],
+  );
+  // Three fitted unknowns against two equations: valid because line 2 is fixed.
+  assert.equal(winner.techniqueId, "bracket-regression");
+  assert.equal(winner.approach, "desmos");
+  assert.equal(winner.shape, "2 rows · regression · no algebra");
+  assert.deepEqual(winner.badges, ["Recommended"]);
+  assert.equal(eligible.at(-1)?.techniqueId, "direct-arithmetic", "the paper arithmetic stays listed, last, as the math way");
+});

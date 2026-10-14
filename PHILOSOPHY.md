@@ -171,7 +171,9 @@ numbers, or evaluate a formula the student recalls. Implementation: the vocabula
   steps), computes totals, and derives math level, shape, and badges. The
   model's preferred technique is logged, never obeyed.
 - Hard rejections run before any scoring: hidden derivation, rows that cannot
-  be inserted, underdetermined regressions, integer parameters not encoded as
+  be inserted, underdetermined regressions (unless exact linear algebra shows
+  the line the student reads is fixed, as two equations in x, y, and z fix
+  x+y+z), integer parameters not encoded as
   integers, incomplete no-solution / infinitely-many checks (verified, not
   taken on the model's word), sampling a continuous domain, and solving a
   "which equation represents" question instead of translating it, nested or

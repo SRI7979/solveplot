@@ -641,14 +641,15 @@ function validateCandidate(candidate: Candidate, context: CandidateContext): Val
         .join("; "),
     );
   }
-  const determinacy = findRegressionDeterminacyViolations(rows);
+  const determinacy = findRegressionDeterminacyViolations(rows, { readoutRow: resultRow });
   if (determinacy.length) {
     return reject(
       "underdetermined-regression",
       determinacy
         .map((violation) =>
           violation.kind === "underdetermined"
-            ? `Line ${violation.row} is an underdetermined regression: ${violation.freeParams} free parameters (${violation.params.join(", ")}) but only ${violation.constraints} data constraints.`
+            ? `Line ${violation.row} is an underdetermined regression: ${violation.freeParams} free parameters (${violation.params.join(", ")}) but only ${violation.constraints} data constraints, so its fitted values are not unique. ` +
+              "If the question asks for a combination those conditions fix (x+y+z from two equations in x, y, and z), read it on a later line that computes exactly that combination, such as x_{1}+y_{1}+z, and set the result row to that line; the server checks the value is fixed."
             : `Line ${violation.row} fits lists of mismatched length (${Object.entries(violation.lengths).map(([name, length]) => `${name}: ${length}`).join(", ")}).`,
         )
         .join("; "),

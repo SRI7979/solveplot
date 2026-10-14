@@ -169,7 +169,7 @@ export const TECHNIQUE_ANNOTATION = /^\[technique: ([a-z0-9-]+) \| ([^\]]+)\]$/;
  * (the strategies it matched, the one each candidate applies), so the schema
  * bounds the numbers; tests/technique-vocabulary.test.ts keeps this in sync.
  */
-export const LIBRARY_STRATEGY_COUNT = 78;
+export const LIBRARY_STRATEGY_COUNT = 79;
 
 /** Prompt text: the standard techniques the library does not cover. */
 export function standardTechniqueGuide(): string {

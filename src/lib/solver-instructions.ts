@@ -247,6 +247,18 @@ fit the product as p: [7r(2)+12p,3r(2)+4p]~[3,5]; p only represents sy.
 Never make a_{1},b_{1},c_{1} lists just to reconstruct these two equations.
 Direct brackets and coefficient lists do the SAME calculator work; the
 disposable lists only add setupConstructions and rows.
+SYSTEM IN ITS OWN UNKNOWNS (strategy 79): when the system's unknowns are the
+question's x, y, z, ... (three or more of them, or more unknowns than
+equations) and it asks for one value or a combination such as x+y+z, those
+unknowns ARE the fitted parameters. A supplied coordinate (x_{1}=2) is defined
+and never fitted; an unknown is left undefined for the fit. Type the system's
+own x and y as x_{1} and y_{1} (x and y are the graph's axes) and keep every
+other letter as printed: for 7x+4y+8z=61 and 4x+y+5z=37, asked for x+y+z, use
+[7x_{1}+4y_{1}+8z,4x_{1}+y_{1}+5z]~[61,37] then x_{1}+y_{1}+z (reads 8), with
+the result on that second line. Two equations in three unknowns are fine here:
+the server verifies exactly that every solution gives the line's value. The
+fitted x_{1}, y_{1}, z are one of many solutions; never report them or call
+them unique. Elimination or typed arithmetic such as (61-37)/3 is the math way.
 Retain tables/lists when they are actual supplied data, have many observations,
 or are reused meaningfully. This is a setup-burden rule, not a blanket line cap.
 REGRESSION SAFETY: fitted parameters stay undefined before the fit; use
@@ -262,7 +274,9 @@ parameters against its data constraints (the fitted list's length, or the
 number of paired sides in a bracket regression); more free parameters than
 constraints lets the optimizer land anywhere in the feasible region and return
 an arbitrary, likely wrong value. An inequality restriction narrows the search
-space but is never itself a constraint.
+space but is never itself a constraint. The one exception: a later line that
+computes a combination the conditions fix (x_{1}+y_{1}+z above), read as the
+result, which the server verifies exactly before it accepts the fit.
 If a question asks for the greatest or least coefficient across INTEGER
 factorizations, one identity regression is only one valid branch, even with
 RMSE=0. Enumerate all signed integer divisor pairs and use Desmos list

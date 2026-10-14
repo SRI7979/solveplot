@@ -3,6 +3,7 @@ import type { CacheEntry, Explanation } from "./solve-cache";
 import { parseNumber } from "./answer-consistency";
 import { selectMethods, type Candidate, type CandidatesResponse } from "./strategy-selection";
 import { repairCachedTwoFactorForms, repairTwoFactorForms, twoFactorFormsPlan } from "./two-factor-forms";
+import { linearSystemPlan } from "./linear-system-plan";
 import { presentMethod } from "./method-presentation";
 import type { Solution } from "./solver-schema";
 
@@ -224,7 +225,7 @@ function circleRadius(question: string): NativePlan | null {
 
 /** Complete structure matches only. Unrecognized questions retain normal model solving. */
 export function desmosNativePlan(question: string): NativePlan | null {
-  return quadraticRootGold(question) ?? twoFactorFormsPlan(question) ?? radicalRoots(question) ?? minimumFactorProduct(question) ?? tangentVertex(question) ?? universalNoSolution(question) ?? vertexCoefficientSum(question) ?? pyramidHeight(question) ?? circleRadius(question);
+  return quadraticRootGold(question) ?? twoFactorFormsPlan(question) ?? radicalRoots(question) ?? minimumFactorProduct(question) ?? tangentVertex(question) ?? universalNoSolution(question) ?? vertexCoefficientSum(question) ?? pyramidHeight(question) ?? circleRadius(question) ?? linearSystemPlan(question);
 }
 
 export function repairDesmosNativePlans(response: CandidatesResponse): CandidatesResponse {

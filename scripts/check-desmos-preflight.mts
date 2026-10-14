@@ -51,7 +51,8 @@ function staticFlags(plan: ExamplePlan): string[] {
   if (prose.length) flags.push(`prose rows ${prose.join(",")}`);
   for (const { row, variables } of findUndefinedVariables(rows)) flags.push(`line ${row} undefined ${variables.join(",")}`);
   for (const violation of findListShapeViolations(rows)) flags.push(`line ${violation.row} list-shape ${violation.kind}`);
-  for (const violation of findRegressionDeterminacyViolations(rows)) flags.push(`line ${violation.row} ${violation.kind}${violation.kind === "underdetermined" ? ` (${violation.params.join(",")} vs ${violation.constraints})` : ""}`);
+  // A worked example reads its answer on its last row.
+  for (const violation of findRegressionDeterminacyViolations(rows, { readoutRow: rows.length })) flags.push(`line ${violation.row} ${violation.kind}${violation.kind === "underdetermined" ? ` (${violation.params.join(",")} vs ${violation.constraints})` : ""}`);
   if (plan.context.trim()) {
     for (const { row, constants } of findDerivedConstants(rows, plan.context, null)) flags.push(`line ${row} hidden-derivation numbers ${constants.join(",")}`);
     if (hasUnnecessaryCoefficientLists(rows, plan.context)) flags.push("coefficient-lists");
@@ -200,6 +201,9 @@ try {
     { label: "mismatched literal sides", rows: plainRows(["[a+b,c]\\sim[1,2,3]", "a"]), answerState: null },
     // s and y_1 enter only as their product; Desmos must still fit r = 3.
     { label: "small-system bracket regression (product unknowns)", rows: plainRows(["x_{1}=2", "[7rx_{1}+12sy_{1},3rx_{1}+4sy_{1}]\\sim[3,5]", "r"]), answerState: null },
+    // Two equations in three unknowns: each fitted value is arbitrary, but line 2 must read 8.
+    { label: "system in its own unknowns (two equations, fixed sum)", rows: plainRows(["[7x_{1}+4y_{1}+8z,4x_{1}+y_{1}+5z]\\sim[61,37]", "x_{1}+y_{1}+z"]), answerState: null },
+    { label: "system in its own unknowns (three equations)", rows: plainRows(["[x_{1}+y_{1},y_{1}+z,x_{1}+z]\\sim[5,7,6]", "x_{1}+y_{1}+z"]), answerState: null },
   ];
   const fixtureResults: Checked[] = [];
   for (const plan of fixtures) fixtureResults.push(await check(plan));

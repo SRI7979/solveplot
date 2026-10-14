@@ -1,0 +1,56 @@
+{
+  "group": "hard",
+  "source": "original",
+  "domain": "Algebra",
+  "topic": "Systems of linear equations",
+  "problem": "5x + 4y + 6z = 47\n2x + y + 3z = 26\nIf (x, y, z) is a solution to the given system of equations, what is the value of x + y + z?",
+  "choices": [
+    "5",
+    "7",
+    "21",
+    "73"
+  ],
+  "correctAnswer": "7",
+  "expectedResultType": "numeric",
+  "gold": [
+    "bracket-regression"
+  ],
+  "acceptable": [],
+  "bad": [
+    {
+      "technique": "elimination",
+      "why": "Subtracting the second equation from the first (3x + 3y + 3z = 21) and dividing by 3 is the hand derivation that one bracket regression and a sum line replace."
+    },
+    {
+      "technique": "direct-arithmetic",
+      "why": "Computing (47 - 26)/3 needs the student to see that the difference of the equations is 3(x + y + z): elimination done in the head."
+    },
+    {
+      "technique": "calculator-arithmetic",
+      "why": "Typing (47-26)/3 into Desmos is arithmetic on a combination the student derived; Desmos removes none of the math."
+    }
+  ],
+  "goldRows": [
+    "[5x_{1}+4y_{1}+6z,2x_{1}+y_{1}+3z]\\sim[47,26]",
+    "x_{1}+y_{1}+z"
+  ],
+  "burden": {
+    "gold": {
+      "manualMath": 0,
+      "hiddenDerivation": 0
+    },
+    "algebraFirst": {
+      "manualMath": 2,
+      "hiddenDerivation": 0,
+      "description": "Subtracts the second equation from the first (3x + 3y + 3z = 21), notices every coefficient is 3, and divides by 3."
+    }
+  },
+  "routing": {
+    "representation": false,
+    "condition": null,
+    "integerParameters": [],
+    "continuousInterval": false,
+    "integerFactorExtremum": false
+  },
+  "explanationNotes": "Explain that one bracket regression fits both equations at once, that x and y are typed x_1 and y_1 because Desmos uses them for the graph's axes, and that the fitted x_1, y_1, and z are only one of many solutions while x + y + z is the same for every one of them. The trap choices are 21 (forgetting to divide by 3) and 73 (adding the two equations)."
+}

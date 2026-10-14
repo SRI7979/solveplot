@@ -12,6 +12,7 @@
  * strategy teaches is a library miss: the visible sign of a solve that went
  * to ordinary math without consulting the trick that fits.
  */
+import { needsSystemRegression, parseLinearSystem } from "./linear-system-plan";
 import type { AnswerChoice } from "./solver-schema";
 import {
   continuousInterval,
@@ -109,6 +110,17 @@ export const STRUCTURE_DETECTORS: readonly Detector[] = [
     id: "points-on-a-model-with-constants",
     techniques: ["parameter-regression", "three-point-regression", "linear-regression", "bracket-regression"],
     test: (question) => /\bconstants?\b/i.test(question) && coordinatePairs(question) >= 2,
+  },
+  {
+    // 7x+4y+8z=61 and 4x+y+5z=37: three unknowns cannot be graphed in 2D, so
+    // one bracket regression and a combination line answer it (strategy 79).
+    // Two equations in two unknowns stay with graphing (strategy 5).
+    id: "system-in-own-unknowns",
+    techniques: ["bracket-regression"],
+    test: (question) => {
+      const system = parseLinearSystem(question);
+      return system !== null && needsSystemRegression(system);
+    },
   },
   {
     // Not on a "which equation represents" question: translating the words is the task there.

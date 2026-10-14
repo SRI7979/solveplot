@@ -198,6 +198,15 @@ test("the structure detectors fire on the wording that names a trick, and stay q
   assert.deepEqual(detectors("For 0 <= x <= 90, sin(x) = cos(2x). What is the value of x?"), [], "a domain alone is not an extremum");
   assert.deepEqual(detectors("Which equation represents the total cost?", [{ label: "A", text: "y = 2x + 5" }, { label: "B", text: "y = 5x + 2" }]), [], "translating is the task");
   assert.ok(detectors("The line and the parabola intersect at exactly one point. What is k?").includes("exactly-one-intersection"));
+  assert.deepEqual(
+    detectors("7x + 4y + 8z = 61\n4x + y + 5z = 37\nIf (x, y, z) is a solution to the given system of equations, what is the value of x + y + z?"),
+    ["system-in-own-unknowns"],
+  );
+  assert.deepEqual(
+    detectors("3x - 4y = 26\n5x + 2y = 0\nThe solution to the given system of equations is (x, y). What is the value of x - y?"),
+    [],
+    "two equations in two unknowns stay with graphing",
+  );
 });
 
 test("a fresh solve records the library trace for evals and logs it only when diagnostics are on", async () => {

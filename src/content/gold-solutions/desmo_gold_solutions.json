@@ -301,5 +301,21 @@
     "why_preferred": "The graph supplies both roots, and one bracket regression matches both conjugate forms to those roots so Desmos fits a and b together. The student does not have to infer a from the equation, calculate a discriminant, or simplify a radical; they only read the two fitted integer values and add them. Typing the discriminant 16^2-4(3)(2) into Desmos would be the quadratic formula with a calculator, the math-first approach this replaces.",
     "needs_review": false,
     "techniqueId": "parameter-regression"
+  },
+  {
+    "id": "016",
+    "question": "7x + 4y + 8z = 61 and 4x + y + 5z = 37. If (x, y, z) is a solution to the given system of equations, what is the value of x + y + z?",
+    "answer_choices": {},
+    "correct_answer": "8",
+    "strategy_name": "Bracket regression for a combination of a system's own unknowns",
+    "trigger_pattern": "Two or three linear equations in the question's own unknowns, with three or more unknowns or fewer equations than unknowns, and the question asks for one value or a combination such as x + y + z. Copy the equations into one bracket regression and compute the combination on the next line. Two equations in three unknowns are fine: the combination is fixed even though the separate values are not.",
+    "desmos_steps": [
+      "[7x_{1}+4y_{1}+8z,4x_{1}+y_{1}+5z]~[61,37]",
+      "x_{1}+y_{1}+z",
+      "Read 8 on line 2. Desmos reserves x and y for the graph's axes, so the system's x and y are typed x_1 and y_1; z stays as printed. The values Desmos fits for x_1, y_1, and z are only one of many solutions, so the answer is read from line 2, never from them."
+    ],
+    "why_preferred": "Two typed lines replace elimination: Desmos fits both equations at once, and the second line computes x + y + z from the fitted values. Three unknowns cannot be graphed in the 2D calculator, and with two equations the separate values are not unique, but every solution gives the same sum, so the fit answers the question. Scaling and subtracting the equations by hand (3x + 3y + 3z = 24), or typing (61-37)/3 into Desmos, is the math way.",
+    "needs_review": false,
+    "techniqueId": "bracket-regression"
   }
 ]

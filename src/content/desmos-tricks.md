@@ -126,7 +126,7 @@ distinguishes them.
 
 Each listed technique is one canonical method: its ordered calculator
 entries, their purposes, and the final answer instruction describe exactly
-that method. The routing policy at the end applies across all 78 strategies.
+that method. The routing policy at the end applies across all 79 strategies.
 
 1. Graph two equations and click the intersection
 [technique: graph-both-sides | Graph both sides]
@@ -226,6 +226,11 @@ Enter both exactly.
 Click intersection.
 
 Usually faster than substitution/elimination.
+
+Three or more unknowns (x, y, z) cannot be graphed in the 2D calculator, and
+fewer equations than unknowns leave no single intersection. When the question
+asks for one value or a combination such as x+y+z, use strategy 79: one
+bracket regression of the equations, then a line that computes the combination.
 
 6. Linear + quadratic system
 [technique: graph-both-sides | Graph both sides]
@@ -1731,6 +1736,38 @@ or 16^{2}-4(3)(2) is the quadratic formula and its discriminant with a
 calculator. The student still recalls and sets up the formula; Desmos only does
 the arithmetic. It is listed, at most, as the math way.
 
+79. System in its own unknowns → bracket regression, then read the combination
+[technique: bracket-regression | Bracket regression]
+
+High-priority trigger: two or three equations in the question's own unknowns
+(x, y, z, ...) with three or more unknowns, or fewer equations than unknowns,
+and the question asks for one value or a combination of them (x+y+z, 2x-y,
+(x+y)/2). Strategy 5's graph cannot show three unknowns, and with fewer
+equations than unknowns there is no single intersection to click. Copy the
+complete left sides into one bracket and the right sides into another, in the
+same order, replace = with ~, and type the requested combination on the next
+line.
+
+7x+4y+8z=61 and 4x+y+5z=37; find x+y+z:
+[7x_{1}+4y_{1}+8z,4x_{1}+y_{1}+5z]\sim[61,37]
+x_{1}+y_{1}+z
+
+Line 2 shows 8. Desmos reserves x and y for the graph's axes, so the system's
+own x and y are typed x_{1} and y_{1}; every other letter stays as printed.
+These unknowns are fitted parameters, unlike a supplied coordinate such as
+x_{1}=2, which is defined and never fitted. With two equations in three
+unknowns, the values under line 1 (here something like x_{1}=9.67,
+y_{1}=-1.67, z=0) are only one of infinitely many solutions: never report them
+as the answer or call them unique. The combination is the same for every
+solution, and the server verifies that exactly before it accepts the fit, so
+an underdetermined fit is valid here. The readout must be its own line, such
+as x_{1}+y_{1}+z, never a parameter read off line 1.
+
+BAD, the math way: scaling the equations by hand (subtract the second from the
+first to get 3x+3y+3z=24, then divide by 3) or typing (61-37)/3 into Desmos.
+That is elimination, or Desmos as a calculator over a combination the student
+derived. It is listed, at most, as the math way.
+
 REGRESSION SAFETY
 
 Regression is the highest-value tool in this library and the easiest to abuse.
@@ -1767,7 +1804,10 @@ inapplicable approaches rather than inventing data or a fake executable plan. St
    numerical condition, then regression, parameter regression, or derivative
    regression that lets Desmos infer the unknowns from those conditions. A
    root stated in a form such as (a+√b)/6 is a clicked root fitted to that
-   form (78), never the quadratic formula.
+   form (78), never the quadratic formula. A system in three unknowns, or with
+   fewer equations than unknowns, asking for x+y+z or another combination is
+   one bracket regression plus a line computing that combination (79), never
+   elimination or arithmetic.
 2. Lists/tables and answer-choice testing that compare possibilities together,
    including strategic-value testing for symbolic choices.
 3. Direct graphing of the original equations: intersections, zeros, intercepts,

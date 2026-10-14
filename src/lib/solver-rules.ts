@@ -1,4 +1,5 @@
 import { analyzePlan } from "./desmos-latex";
+import { affineForm, determinedValue, differenceForm, parseDecimal, type AffineForm, type NameRole, type Rational } from "./linear-forms";
 import type { ConditionType, DistinguishMethod, Parameter, Solution } from "./solver-schema";
 
 function escapeRegExp(text: string): string {
@@ -111,6 +112,13 @@ export function findIntegerParameterViolations(
  * each row's free (fitted) symbols against the length of the list(s) it fits.
  * Inequality restrictions bound the search; they never pin a value, so they
  * do not count as constraints.
+ *
+ * An underdetermined fit can still answer the question when the plan reads a
+ * value the conditions fix: two equations in x, y, and z leave each of them
+ * free but fix x+y+z (PHILOSOPHY.md: the requested value may be determined
+ * when nuisance parameters are not, checked internally). That is accepted
+ * only when exact linear algebra shows every exact fit gives the line the
+ * student reads the same value; anything it cannot verify stays rejected.
  */
 
 function balancedSplit(text: string, separator: string): string[] {
@@ -247,8 +255,66 @@ function productMerges(rows: readonly string[], free: ReadonlySet<string>): numb
   return merges;
 }
 
+const NUMERIC_DEFINITION = /^\s*([A-Za-z])(?:_\{([A-Za-z0-9]+)\}|_([A-Za-z0-9]))?\s*=\s*(-?\d+(?:\.\d+)?)\s*$/;
+
+/** The elements of one `~` side: a literal bracket's entries, or the side itself when it holds no list. */
+function regressionElements(side: string): string[] | null {
+  const trimmed = stripDelimiters(side).trim();
+  const list = trimmed.match(/^\[([\s\S]*)\]$/);
+  if (list && bracketEnd(trimmed, 0) === trimmed.length - 1 && !/\.\.\.|\bfor\b/.test(list[1])) {
+    return balancedSplit(list[1], ",").map((element) => element.trim());
+  }
+  return /[[\]]/.test(trimmed) ? null : [trimmed];
+}
+
+/**
+ * Whether line `readoutRow` reads a value the regression on line
+ * `regressionIndex + 1` fixes, though its fitted parameters are not unique.
+ * The readout must be a later bare expression in those parameters (a+b,
+ * x_{1}+y_{1}+z), the fit a literal bracket or scalar one with no
+ * restriction, and its only known values numbers defined on earlier lines.
+ */
+function fixesReadout(
+  expressions: ReadonlyArray<{ latex: string }>,
+  regressionIndex: number,
+  sides: readonly [string, string],
+  free: ReadonlySet<string>,
+  readoutRow: number | null | undefined,
+): boolean {
+  if (!readoutRow || readoutRow <= regressionIndex + 1 || readoutRow > expressions.length) return false;
+  if (trailingRestriction(expressions[regressionIndex].latex) !== null) return false;
+  const readout = stripDelimiters(expressions[readoutRow - 1].latex);
+  if (REGRESSION_OP.test(readout) || /[=<>[\]]/.test(readout)) return false;
+  // Supplied values such as x_{1}=2; a bare x or y is a coordinate, never one.
+  const known = new Map<string, Rational>();
+  for (const { latex } of expressions.slice(0, regressionIndex)) {
+    const definition = latex.match(NUMERIC_DEFINITION);
+    if (!definition) continue;
+    const subscript = definition[2] ?? definition[3];
+    if (subscript === undefined && /^[xy]$/.test(definition[1])) continue;
+    known.set(subscript === undefined ? definition[1] : `${definition[1]}_{${subscript}}`, parseDecimal(definition[4]));
+  }
+  const role: NameRole = (name) => known.get(name) ?? (free.has(name) ? "variable" : null);
+  const [left, right] = sides.map(regressionElements);
+  if (!left || !right || left.length !== right.length) return false;
+  const conditions: AffineForm[] = [];
+  for (const [index, element] of left.entries()) {
+    const [fitted, target] = [affineForm(element, role), affineForm(right[index], role)];
+    if (!fitted || !target) return false;
+    conditions.push(differenceForm(fitted, target));
+  }
+  const value = affineForm(readout, role);
+  return value !== null && value.terms.size > 0 && determinedValue(conditions, value) !== null;
+}
+
+export type DeterminacyOptions = {
+  /** The line the plan reads its answer from (result.row): an underdetermined fit that fixes it passes. */
+  readoutRow?: number | null;
+};
+
 export function findRegressionDeterminacyViolations(
   expressions: ReadonlyArray<{ latex: string }>,
+  options: DeterminacyOptions = {},
 ): RegressionDeterminacyViolation[] {
   const { rows, defined, isKnown } = analyzePlan(expressions);
   const declaredLengths = declaredListLengths(expressions);
@@ -304,7 +370,7 @@ export function findRegressionDeterminacyViolations(
     const constraints = Math.max(...constraintCandidates);
 
     const effective = free.size - productMerges(expressions.map((expression) => expression.latex), free);
-    if (effective > constraints) {
+    if (effective > constraints && !fixesReadout(expressions, index, [left, right], free, options.readoutRow)) {
       violations.push({
         row: index + 1,
         kind: "underdetermined",
