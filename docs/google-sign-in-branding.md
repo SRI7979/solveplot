@@ -24,9 +24,9 @@ and [Supabase's Google branding guide](https://supabase.com/docs/guides/auth/soc
    A logo is optional; upload the actual product mark if desired.
 3. Set the homepage to `https://desmomath.com`, Privacy Policy to
    `https://desmomath.com/privacy`, and Terms to `https://desmomath.com/terms`.
-   These pages now exist in the local app and are linked from its footer.
-   Confirm the public contact details and policy text, then deploy the pages
-   before submission: Google must be able to open those exact public URLs.
+   These pages are deployed and publicly readable on `desmomath.com`, with
+   links in the footer and `desmomathsupport@gmail.com` as the contact address.
+   Confirm the policy text before submission and use those exact public URLs.
    The Desmos provider's privacy policy is a separate document.
 4. Add `desmomath.com` under **Authorized domains**. Verify ownership in
    [Google Search Console](https://search.google.com/search-console) using a

@@ -55,4 +55,7 @@ The landing stays light independently of a user's workspace theme, matching the
 existing source's marketing page behavior. The solver's Tidal tokens, Appearance
 studio, authentication, API routes, and storage behavior are unchanged.
 
-This update is local only; it has not been deployed or merged.
+Deployed to `https://desmomath.com` on October 13, 2026 at the user's request,
+with the policy pages and support email from source commit `33ff5a2`. Production
+checks repeated the navigation, FAQ, real Desmos, and mobile checks above and
+passed without browser errors or model requests. No branch was merged.

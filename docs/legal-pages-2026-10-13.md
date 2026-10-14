@@ -47,6 +47,16 @@ passed. No AI requests were made.
 Local screenshots: `/tmp/desmo-privacy-{1242,390}.png` and
 `/tmp/desmo-terms-{1242,390}.png`.
 
-The Google branding guide now points to `https://desmomath.com/privacy` and
-`https://desmomath.com/terms`. Those production URLs become usable after this
-local update is deployed. No deployment or Google-console change was made.
+Deployed at the user's request on October 13, 2026:
+
+- Website: `https://desmomath.com`
+- Source commit: `33ff5a2125d445b76122f5a0404aaaabfbe26535`
+- Deployment: `dpl_5HDnDEyLPCkL4Uapa5sq5ctUEdf4`, production, Ready
+- Inspector: `https://vercel.com/sri7979/desmo/5HDnDEyLPCkL4Uapa5sq5ctUEdf4`
+
+Both `https://desmomath.com/privacy` and `https://desmomath.com/terms` are now
+publicly readable without a session or JavaScript, with the approved support
+email and working footer links. Production checks at both viewports above
+passed with no horizontal overflow or browser errors. All 395 tests, lint,
+the production build, and the client-secret audit passed. No Google-console
+change or paid AI request was made during deployment verification.
