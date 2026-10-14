@@ -34,7 +34,7 @@ export function LandingFooter() {
         <span className="prototype-label">Independent of Desmos</span>
       </div>
       <div><h3>Product</h3><Link href="/solve">Solver</Link><Link href="/history">History</Link><Link href="/tricks">Saved tricks</Link><Link href="/#preview">How it works</Link></div>
-      <div><h3>Resources</h3><Link href="/faq">FAQ</Link><a href="https://www.desmos.com/calculator" target="_blank" rel="noreferrer">Desmos calculator</a><a href={BRAND.contact.href}>Contact developer</a></div>
+      <div><h3>Resources</h3><Link href="/faq">FAQ</Link><a href="https://www.desmos.com/calculator" target="_blank" rel="noreferrer">Desmos calculator</a><a href={BRAND.contact.href}>Contact support</a></div>
       <div><h3>Project</h3><Link href="/privacy">Privacy Policy</Link><Link href="/terms">Terms of Use</Link><a href="#project-notices">Attribution &amp; licenses</a><a href="#how-desmo-works">How {BRAND.name} works</a></div>
     </div>
     <div className="footer-notices" id="project-notices">

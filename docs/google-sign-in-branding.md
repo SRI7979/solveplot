@@ -17,6 +17,10 @@ and [Supabase's Google branding guide](https://supabase.com/docs/guides/auth/soc
    don't create or swap clients just to rename the app.
 2. Under **Branding**, set **App name** to **Desmo** (or the final chosen name),
    select a monitored support email, and provide developer contact details.
+   The website's public support address is `desmomathsupport@gmail.com`.
+   Google's support-email dropdown only lists eligible addresses for the
+   signed-in project account; add the support account to the project and sign
+   in with it if the address is not available there.
    A logo is optional; upload the actual product mark if desired.
 3. Set the homepage to `https://desmomath.com`, Privacy Policy to
    `https://desmomath.com/privacy`, and Terms to `https://desmomath.com/terms`.

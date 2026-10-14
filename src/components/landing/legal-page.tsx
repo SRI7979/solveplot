@@ -26,7 +26,7 @@ export function LegalPage({ title, intro, children }: { title: string; intro: st
   </div>;
 }
 
-/** Replace the public contact in brand.ts when an approved support email exists. */
+/** All public policies use the same support address as the footer. */
 export function LegalContact() {
   return <a href={BRAND.contact.href}>{BRAND.contact.label}</a>;
 }

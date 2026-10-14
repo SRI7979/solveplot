@@ -25,9 +25,9 @@ outside the app. A legal/privacy review can determine additional requirements
 for the jurisdictions in which the service operates. This is not a claim that
 these pages by themselves establish legal compliance or Google approval.
 
-The user chose to supply a support email; the exact address is still pending.
-`BRAND.contact` in `src/lib/brand.ts` currently retains the existing developer
-contact link. Updating that value updates policy/Terms contacts and the footer.
+The user supplied `desmomathsupport@gmail.com` as the public support email.
+`BRAND.contact` in `src/lib/brand.ts` provides the address and mailto link for
+both policy pages and the footer's Contact support link.
 
 Reference material consulted:
 
