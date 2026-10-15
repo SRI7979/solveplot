@@ -10,9 +10,11 @@ const output = "docs/auto-solve-video-review";
 (async () => {
   await fs.mkdir(output, { recursive: true });
   const browser = await chromium.launch({ executablePath: process.env.BROWSER_PATH || "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge", headless: true });
-  const evidence = [];
+  const onlyVariant = process.env.DEMO_REVIEW_VARIANT;
+  const evidence = onlyVariant ? JSON.parse(await fs.readFile(path.join(output, "hero-checks.json"), "utf8")).filter(item => item.variant !== onlyVariant) : [];
   try {
     for (const [variant, width, height] of [["desktop", 1363, 936], ["phone", 390, 844]]) {
+      if (onlyVariant && variant !== onlyVariant) continue;
       const page = await browser.newPage({ viewport: { width, height }, reducedMotion: "no-preference" });
       const errors = [];
       const paid = [];
@@ -32,18 +34,22 @@ const output = "docs/auto-solve-video-review";
         const v = document.querySelector(".auto-solve-film video");
         return v && v.readyState >= 2 && Number.isFinite(v.duration) && !v.paused;
       }, { timeout: 30000 });
-      const before = await video.evaluate(v => ({ duration: v.duration, muted: v.muted, loop: v.loop, controls: v.controls, src: v.currentSrc }));
+      const before = await video.evaluate(v => ({ duration: v.duration, muted: v.muted, loop: v.loop, controls: v.controls, src: v.currentSrc, nativeWidth: v.videoWidth, nativeHeight: v.videoHeight }));
       assert.ok(Math.abs(before.duration - 11) < .1, "Video must be approximately 11 seconds");
       assert.equal(before.muted, true);
       assert.equal(before.loop, true);
       assert.equal(before.controls, false);
       assert.ok(before.src.includes(`auto-solve-${variant}.webm`));
+      assert.equal(new URL(before.src).searchParams.get("v"), "4", "Player must request the new recording rather than a cached old video");
+      const expectedPixels = variant === "desktop" ? [3600, 2250] : [1260, 2340];
+      assert.ok(before.nativeWidth >= expectedPixels[0] && before.nativeHeight >= expectedPixels[1], "Recording must retain native triple-density resolution");
       assert.equal(await film.locator("button").count(), 0, "No buttons on/below film");
       assert.ok(await film.locator("figcaption").evaluate(el => getComputedStyle(el).clip !== "auto"), "Caption stays accessible but visually hidden");
       // Observe a complete uninterrupted cycle in the browser before seeking.
       await video.evaluate(v => {
         v.currentTime = 0;
-        window.__heroPlayback = { previous: 0, wraps: 0, samples: [] };
+        const quality = v.getVideoPlaybackQuality?.();
+        window.__heroPlayback = { previous: 0, wraps: 0, samples: [], quality: quality ? { total: quality.totalVideoFrames, dropped: quality.droppedVideoFrames } : null };
         v.addEventListener("timeupdate", () => {
           const state = window.__heroPlayback;
           if (state.previous > 9 && v.currentTime < 2) state.wraps++;
@@ -53,14 +59,33 @@ const output = "docs/auto-solve-video-review";
         return v.play();
       });
       await page.waitForFunction(() => window.__heroPlayback.wraps >= 1, { timeout: 18000 });
-      const playback = await page.evaluate(() => ({ wraps: window.__heroPlayback.wraps, samples: window.__heroPlayback.samples.length, last: window.__heroPlayback.previous }));
-      for (const time of [1.5, 2.8, 4.4, 8.5]) {
+      const playback = await video.evaluate(v => {
+        const state = window.__heroPlayback;
+        const quality = v.getVideoPlaybackQuality?.();
+        const frames = quality && state.quality ? quality.totalVideoFrames - state.quality.total : null;
+        const dropped = quality && state.quality ? quality.droppedVideoFrames - state.quality.dropped : null;
+        return { wraps: state.wraps, samples: state.samples.length, last: state.previous, decodedFrames: frames, droppedFrames: dropped, droppedFrameRatio: frames ? dropped / frames : null };
+      });
+      const finalSamples = [];
+      for (const time of [0, 1.5, 2.6, 3.6, 5.2, 9.4, 10.85]) {
         await video.evaluate(async (v, seconds) => {
           v.pause();
           await new Promise(resolve => { v.addEventListener("seeked", resolve, { once: true }); v.currentTime = seconds; });
         }, time);
         await film.screenshot({ path: path.join(output, `film-${variant}-${String(time).replace(".", "-")}.png`) });
+        if (time >= 9.4) finalSamples.push(await video.evaluate(v => {
+          const canvas = document.createElement("canvas");
+          canvas.width = 128;
+          canvas.height = 80;
+          const context = canvas.getContext("2d");
+          context.drawImage(v, 0, 0, canvas.width, canvas.height);
+          return Array.from(context.getImageData(0, 0, canvas.width, canvas.height).data);
+        }));
       }
+      // The completed solution must remain intact through the last frame.
+      // A fade or reset overlay changes most pixels; cursor movement does not.
+      const finalFrameDifference = finalSamples[0].reduce((sum, value, index) => sum + (index % 4 === 3 ? 0 : Math.abs(value - finalSamples[1][index])), 0) / (128 * 80 * 3);
+      assert.ok(finalFrameDifference < 3, `No fade before the direct loop (mean pixel difference ${finalFrameDifference.toFixed(2)})`);
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth);
       assert.equal(overflow, false, "No horizontal overflow");
       const geometry = await film.boundingBox();
@@ -71,7 +96,19 @@ const output = "docs/auto-solve-video-review";
       await video.evaluate(async v => {
         window.__heroScreenshotPause = setInterval(() => v.pause(), 30);
         v.pause();
-        await new Promise(resolve => { v.addEventListener("seeked", resolve, { once: true }); v.currentTime = 8.5; });
+        await new Promise(resolve => { v.addEventListener("seeked", resolve, { once: true }); v.currentTime = 9.4; });
+        // Freeze the decoded frame while Playwright expands its screenshot
+        // clip to include the full hero. Browser video compositing otherwise
+        // occasionally paints the first frame during that large capture.
+        const canvas = document.createElement("canvas");
+        canvas.width = v.videoWidth;
+        canvas.height = v.videoHeight;
+        canvas.getContext("2d").drawImage(v, 0, 0);
+        const frame = document.createElement("img");
+        frame.src = canvas.toDataURL("image/png");
+        frame.style.cssText = "position:absolute;inset:0;width:100%;height:100%;object-fit:cover";
+        v.parentElement.append(frame);
+        await frame.decode();
       });
       await page.locator(".auto-solve-hero").screenshot({ path: path.join(output, `hero-${variant}.png`) });
       assert.deepEqual(errors, []);
@@ -86,7 +123,7 @@ const output = "docs/auto-solve-video-review";
       const reducedState = await reduced.locator(".auto-solve-film video").evaluate(v => ({ paused: v.paused, hasSource: !!v.getAttribute("src") }));
       assert.equal(reducedState.paused, true);
       assert.equal(reducedState.hasSource, false);
-      evidence.push({ variant, viewport: { width, height }, ...before, uninterruptedPlayback: playback, centered: true, overflow, buttons: 0, reducedMotion: reducedState, paidApiCalls: paid.length, browserErrors: errors });
+      evidence.push({ variant, viewport: { width, height }, ...before, uninterruptedPlayback: playback, finalFrameDifference, noEndFade: true, centered: true, overflow, buttons: 0, reducedMotion: reducedState, paidApiCalls: paid.length, browserErrors: errors });
       console.log(`Reviewed ${variant}: full loop, readable frame captures, centered, reduced-motion poster, zero paid API calls`);
       await reduced.close();
       await page.close();

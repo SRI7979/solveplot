@@ -1,20 +1,27 @@
 [
   {
-    "variant": "desktop",
+    "variant": "phone",
     "viewport": {
-      "width": 1363,
-      "height": 936
+      "width": 390,
+      "height": 844
     },
     "duration": 11,
     "muted": true,
     "loop": true,
     "controls": false,
-    "src": "http://localhost:3000/demo/auto-solve-desktop.webm",
+    "src": "http://localhost:3000/demo/auto-solve-phone.webm?v=4",
+    "nativeWidth": 1260,
+    "nativeHeight": 2340,
     "uninterruptedPlayback": {
       "wraps": 1,
       "samples": 43,
-      "last": 0.000142
+      "last": 0.000446,
+      "decodedFrames": 269,
+      "droppedFrames": 0,
+      "droppedFrameRatio": 0
     },
+    "finalFrameDifference": 0.17076822916666667,
+    "noEndFade": true,
     "centered": true,
     "overflow": false,
     "buttons": 0,
@@ -26,21 +33,28 @@
     "browserErrors": []
   },
   {
-    "variant": "phone",
+    "variant": "desktop",
     "viewport": {
-      "width": 390,
-      "height": 844
+      "width": 1363,
+      "height": 936
     },
     "duration": 11,
     "muted": true,
     "loop": true,
     "controls": false,
-    "src": "http://localhost:3000/demo/auto-solve-phone.webm",
+    "src": "http://localhost:3000/demo/auto-solve-desktop.webm?v=4",
+    "nativeWidth": 3600,
+    "nativeHeight": 2250,
     "uninterruptedPlayback": {
       "wraps": 1,
       "samples": 43,
-      "last": 0.000422
+      "last": 0.000186,
+      "decodedFrames": 269,
+      "droppedFrames": 0,
+      "droppedFrameRatio": 0
     },
+    "finalFrameDifference": 0.14889322916666667,
+    "noEndFade": true,
     "centered": true,
     "overflow": false,
     "buttons": 0,

@@ -1,6 +1,12 @@
 [
   {
     "variant": "desktop",
+    "width": 3600,
+    "height": 2250,
+    "fps": 24,
+    "camera": "problem close-up → full workspace → result close-up",
+    "dragFrom": "left",
+    "ending": "hold then direct loop",
     "requests": 1,
     "liveModelCalls": 0,
     "result": {
@@ -36,6 +42,12 @@
   },
   {
     "variant": "phone",
+    "width": 1260,
+    "height": 2340,
+    "fps": 24,
+    "camera": "problem close-up → full workspace → result close-up",
+    "dragFrom": "left",
+    "ending": "hold then direct loop",
     "requests": 1,
     "liveModelCalls": 0,
     "result": {
