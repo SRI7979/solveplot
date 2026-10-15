@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { createPreflightEngine, type DesmosApi, type PreflightEngine } from "@/lib/desmos-engine";
+import { createPreflightEngine, type PreflightEngine } from "@/lib/desmos-engine";
 import { calculatorPayload, type CalculatorPayload, type PreflightVerdict } from "@/lib/desmos-preflight";
+import { DESMOS_READY_EVENT, loadDesmos } from "@/lib/desmos-loader";
 import type { AnswerState } from "@/lib/solver-schema";
 
 /**
@@ -13,29 +14,16 @@ import type { AnswerState } from "@/lib/solver-schema";
  * the solve flow already checked renders with no second check.
  */
 
-const LOAD_TIMEOUT_MS = 20_000;
-
 let engine: Promise<PreflightEngine> | null = null;
 const settled = new Map<string, PreflightVerdict>();
 const inFlight = new Map<string, Promise<PreflightVerdict>>();
 
-function waitForDesmos(): Promise<DesmosApi> {
-  return new Promise((resolve, reject) => {
-    const started = Date.now();
-    const poll = () => {
-      if (window.Desmos) resolve(window.Desmos);
-      else if (Date.now() - started > LOAD_TIMEOUT_MS) reject(new Error("Desmos did not load"));
-      else setTimeout(poll, 50);
-    };
-    poll();
-  });
-}
-
 function getEngine(): Promise<PreflightEngine> {
-  engine ??= waitForDesmos().then((desmos) => createPreflightEngine(desmos, document));
-  engine.catch(() => {
-    engine = null;
-  });
+  if (!engine) {
+    const pending = loadDesmos().then((desmos) => createPreflightEngine(desmos, document));
+    engine = pending;
+    pending.catch(() => { if (engine === pending) engine = null; });
+  }
   return engine;
 }
 
@@ -93,6 +81,14 @@ export function usePreflightGate(
 ): { payload: CalculatorPayload; gate: GateState } {
   const payload = useMemo(() => calculatorPayload(rows, answerState), [rows, answerState]);
   const [result, setResult] = useState<{ key: string; gate: GateState } | null>(null);
+  const [readyRevision, setReadyRevision] = useState(0);
+  useEffect(() => {
+    // A later successful retry rechecks unverified rows in both the graph and
+    // explanation. Never memoize a network failure as a bad math verdict.
+    const ready = () => setReadyRevision((value) => value + 1);
+    window.addEventListener(DESMOS_READY_EVENT, ready);
+    return () => window.removeEventListener(DESMOS_READY_EVENT, ready);
+  }, []);
   useEffect(() => {
     if (payload.items.length === 0 || settled.has(payload.key)) return;
     let active = true;
@@ -109,7 +105,7 @@ export function usePreflightGate(
     return () => {
       active = false;
     };
-  }, [payload]);
+  }, [payload, readyRevision]);
   const known = stateFor(payload);
   const gate = known.status !== "pending" ? known : result?.key === payload.key ? result.gate : known;
   return { payload, gate };

@@ -62,11 +62,8 @@ test("keeps f's y-intercept out of g's table and repairs the exact rational-func
   assert.equal(selected.methods[0].answer, "6.2");
   assert.equal(selected.methods[0].result.value, 6.2);
   assert.deepEqual(selected.methods[0].rows.map(({ latex }) => latex), [
-    "f(x)=a x^{2}+b x+10",
-    "x_{1}=[1,4]",
-    "y_{1}=[5,7]",
-    "y_{1}\\sim\\frac{f(x_{1})}{x_{1}+2}",
-    "g(x)=\\frac{f(x)}{x+2}",
+    "g(x)=\\frac{a x^{2}+b x+10}{x+2}",
+    "[g(1),g(4)]\\sim[5,7]",
     "g(3)",
   ]);
 });
@@ -120,6 +117,103 @@ test("asks for missing table rows instead of trusting an algebra-only guess", ()
   const algebra = { ...candidate("1,4", "5,7"), rows: [] };
   const withoutTable = question.replace("x = 1, 4 and g(x) = 5, 7. ", "");
   assert.throws(() => repairQuadraticRationalIntercept(response([algebra], withoutTable)), /paired x and g\(x\) values/);
+});
+
+const tableFormats = {
+  "plain rows": "x  g(x)\n1  5\n4  7",
+  "plain inline rows": "x g(x) 1 5 4 7",
+  "Markdown rows": "| x | g(x) |\n| --- | --- |\n| 1 | 5 |\n| 4 | 7 |",
+  "LaTeX array": String.raw`\begin{array}{c|c}x & g(x) \\ \hline 1 & 5 \\ 4 & 7\end{array}`,
+  "LaTeX matrix": String.raw`\begin{bmatrix}x & g(x) \\ 1 & 5 \\ 4 & 7\end{bmatrix}`,
+  "bracketed columns": "x: [1, 4]\ng(x): [5, 7]",
+  "space-separated columns": "x: 1 4\ng(x): 5 7",
+  "horizontal table": "x | 1 | 4\ng(x) | 5 | 7",
+  "coordinate pairs": "(1,5), (4,7)",
+};
+
+for (const [format, table] of Object.entries(tableFormats)) {
+  test(`reads ${format} from the question and recommends a three-row bracket regression`, () => {
+    const text = question.replace("x = 1, 4 and g(x) = 5, 7.", `\n${table}\n`);
+    const repaired = repairQuadraticRationalIntercept(response([candidate("0,1,4", "10,15,42")], text));
+    if (format.startsWith("LaTeX")) {
+      const [before, after] = text.split(table);
+      assert.equal(repaired.question, `${before}x | g(x)\n1 | 5\n4 | 7\n${after}`, "only the table wrapper changes; every cell and surrounding word stays intact");
+    } else assert.equal(repaired.question, text, "the user's transcription remains unchanged");
+    const regression = repaired.candidates[0];
+    assert.equal(regression.techniqueId, "parameter-regression");
+    assert.equal(regression.result.value, 6.2);
+    assert.equal(regression.result.row, 3);
+    assert.deepEqual(regression.rows.map(({ latex }) => latex), [
+      "g(x)=\\frac{a x^{2}+b x+10}{x+2}",
+      "[g(1),g(4)]\\sim[5,7]",
+      "g(3)",
+    ]);
+    assert.equal(selectMethods(repaired).winnerId, "parameter-regression");
+  });
+}
+
+test("keeps all transcribed pairs in the bracket fit and checks redundant rows independently", () => {
+  const text = question.replace("x = 1, 4 and g(x) = 5, 7.", "\nx | g(x)\n1 | 5\n4 | 7\n3 | 6.2\n");
+  const repaired = repairQuadraticRationalIntercept(response([candidate("1,4", "15,42")], text));
+  assert.equal(repaired.candidates[0].rows[1].latex, "[g(1),g(4),g(3)]\\sim[5,7,6.2]");
+  assert.throws(
+    () => repairQuadraticRationalIntercept(response([candidate("1,4", "5,7")], text.replace("3 | 6.2", "3 | 8"))),
+    /values disagree/,
+  );
+});
+
+for (const malformed of [
+  "x | g(x)\n1 | 5\n4 | ?",
+  "x | g(x)\n1 | 5\n4 | 7\n8 | ?",
+  "x | g(x)\n1 | 5\n4 | 7\n| ? | 9 |",
+  "x | g(x)\n1 | 5\n4 | 7 + 2",
+  "x: [1,4,8]\ng(x): [5,7]",
+  "x: [1,4]\ng(x): [5,7,?]",
+  "x: 1,4\ng(x): 5,7?",
+  "x: 1,4\ng(x): 5,7 + 2",
+  "x | g(x)\n1 | 5 | 4",
+]) {
+  test(`rejects malformed paired data instead of recovering it from candidates: ${JSON.stringify(malformed)}`, () => {
+    const text = question.replace("x = 1, 4 and g(x) = 5, 7.", `\n${malformed}\n`);
+    assert.throws(
+      () => repairQuadraticRationalIntercept(response([candidate("1,4", "5,7")], text)),
+      (error: unknown) => error instanceof Error && /paired x and g\(x\) values/.test(error.message),
+    );
+  });
+}
+
+test("does not silently prefer one table representation when the transcription conflicts", () => {
+  const base = question.replace("x = 1, 4 and g(x) = 5, 7.", "\nx | g(x)\n1 | 5\n4 | 7\n");
+  for (const conflicting of ["g(1)=15; g(4)=42.", "Table: x=[1,4]; g(x)=[15,42].", "Table:\nx | g(x)\n1 | 15\n4 | 42"]) {
+    assert.throws(
+      () => repairQuadraticRationalIntercept(response([candidate("1,4", "5,7")], `${base}\n${conflicting}`)),
+      (error: unknown) => error instanceof Error && /two different values for g\(1\)/.test(error.message),
+    );
+  }
+});
+
+test("separately stated f-intercepts never fill missing g-table cells", () => {
+  const text = question.replace("x = 1, 4 and g(x) = 5, 7.", "g(1)=5. Also f(4)=42.");
+  assert.throws(() => repairQuadraticRationalIntercept(response([candidate("1,4", "5,7")], text)), /paired x and g\(x\) values/);
+  const coordinates = question.replace("x = 1, 4 and g(x) = 5, 7.", "(1,5), (4,7). The graph of f also passes through (8,106).");
+  assert.equal(repairQuadraticRationalIntercept(response([candidate("1,4", "5,7")], coordinates)).candidates[0].rows[1].latex, "[g(1),g(4)]\\sim[5,7]");
+});
+
+test("table layout normalization keeps the plain-prose guard strict for unrelated or malformed math", () => {
+  const table = String.raw`\begin{array}{c|c}x & g(x) \\ 1 & 5 \\ 4 & 7\end{array}`;
+  const text = question.replace("x = 1, 4 and g(x) = 5, 7.", table);
+  const unknownCommand = `${text} ${String.raw`\unknowncommand{anything}`}`;
+  assert.throws(
+    () => selectMethods(repairQuadraticRationalIntercept(response([candidate("1,4", "5,7")], unknownCommand))),
+    /plain text, not LaTeX/,
+  );
+  for (const malformed of [
+    table.replace("4 & 7", String.raw`4 & \sqrt{49}`),
+    table.replace("4 & 7", "4 & 7 & 9"),
+    table.replace("x & g(x)", "x & f(x)"),
+  ]) {
+    assert.throws(() => selectMethods(repairQuadraticRationalIntercept(response([candidate("1,4", "5,7")], text.replace(table, malformed)))));
+  }
 });
 
 const factorQuestion =

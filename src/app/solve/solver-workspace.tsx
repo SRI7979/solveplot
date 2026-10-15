@@ -9,6 +9,7 @@ import { CalculatorVerificationProvider } from "@/components/calculator-verifica
 import DesmosCalculator from "@/components/desmos-calculator";
 import DesmoLogo from "@/components/desmo-logo";
 import { preflight } from "@/components/preflight-gate";
+import { DESMOS_READY_EVENT, loadDesmos } from "@/lib/desmos-loader";
 import SolutionExplanation from "@/components/solution-explanation";
 import TechniqueSelector from "@/components/technique-selector";
 import { isNewProblemShortcut, NEW_PROBLEM_EVENT } from "@/lib/workspace-events";
@@ -80,7 +81,9 @@ type PreflightReply =
 const HONEST_FAILURE =
   "Every method found for this problem has a Desmos line that errors, so none is shown. Try a tighter crop of just this question.";
 const UNVERIFIED =
-  "The calculator could not check this method's Desmos lines, so they are not shown. Reload the page and solve again.";
+  "The calculator has not connected yet. Your solution is kept here. Retry the calculator to check and display it.";
+
+type PreflightOptions = { retried?: boolean; distrust?: boolean; resuming?: boolean };
 
 function isEvent(value: unknown): value is Record<string, unknown> & { type: string } {
   return Boolean(value) && typeof value === "object" && typeof (value as { type?: unknown }).type === "string";
@@ -95,6 +98,7 @@ export default function SolverWorkspace({ accountNav, fontClassName = "" }: { ac
   const [explanationStatus, setExplanationStatus] = useState<ExplanationStatus>("ready");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [awaitingCalculator, setAwaitingCalculator] = useState(false);
   const [sampleLoading, setSampleLoading] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [imageZoomed, setImageZoomed] = useState(false);
@@ -120,6 +124,7 @@ export default function SolverWorkspace({ accountNav, fontClassName = "" }: { ac
   // One per solve: pre-flight results, stream events, and reports from an
   // earlier solve are ignored once a new one starts.
   const solveToken = useRef(0);
+  const waitingPreflight = useRef<{ payload: MethodsPayload; token: number; options: PreflightOptions } | null>(null);
   // What async handlers read after an await, where state would be stale.
   const current = useRef<{
     methods: MethodSummary[];
@@ -157,6 +162,8 @@ export default function SolverWorkspace({ accountNav, fontClassName = "" }: { ac
   }, [cooldownUntil]);
 
   const resetResult = useCallback(() => {
+    waitingPreflight.current = null;
+    setAwaitingCalculator(false);
     solveToken.current += 1;
     switchToken.current += 1;
     switchRequest.current?.abort();
@@ -328,13 +335,15 @@ export default function SolverWorkspace({ accountNav, fontClassName = "" }: { ac
    * call 1 once with the Desmos errors attached; if that fails too, this is an
    * honest failure with no rows.
    */
-  async function runPreflight(payload: MethodsPayload, token: number, options: { retried?: boolean; distrust?: boolean } = {}) {
+  async function runPreflight(payload: MethodsPayload, token: number, options: PreflightOptions = {}) {
+    waitingPreflight.current = null;
+    setAwaitingCalculator(false);
     current.current = {
       ...current.current,
       methods: payload.methods,
       cacheKey: payload.cacheKey,
       base: baseSolution(payload),
-      streamMethodId: options.retried || options.distrust ? null : payload.selectedMethodId,
+      streamMethodId: options.retried || options.distrust ? null : options.resuming ? current.current.streamMethodId : payload.selectedMethodId,
     };
     setMethods(payload.methods);
     setCacheKey(payload.cacheKey);
@@ -356,7 +365,15 @@ export default function SolverWorkspace({ accountNav, fontClassName = "" }: { ac
       },
     }).catch(() => null);
     if (solveToken.current !== token) return;
-    if (!run) return fail(UNVERIFIED);
+    const waitForCalculator = () => {
+      // Keep the already-generated methods and any streamed explanation. A
+      // CDN failure must not turn reconnecting into another paid solve.
+      waitingPreflight.current = { payload, token, options };
+      setAwaitingCalculator(true);
+      setLoading(false);
+      setError(UNVERIFIED);
+    };
+    if (!run) return waitForCalculator();
     if (run.promoted) {
       if (reports.length > 0) void sendReport(payload.cacheKey, reports);
       return;
@@ -364,7 +381,7 @@ export default function SolverWorkspace({ accountNav, fontClassName = "" }: { ac
     const everyMethodErrored = payload.methods.every((method) => run.verdicts.get(method.id)?.status === "error");
     if (!everyMethodErrored) {
       if (reports.length > 0) void sendReport(payload.cacheKey, reports);
-      return fail(UNVERIFIED);
+      return waitForCalculator();
     }
     const reply = await sendReport(payload.cacheKey, reports);
     if (solveToken.current !== token) return;
@@ -376,6 +393,38 @@ export default function SolverWorkspace({ accountNav, fontClassName = "" }: { ac
     }
     fail(reply?.status === "failed" ? reply.error : HONEST_FAILURE);
   }
+
+  function resumeCalculatorCheck() {
+    const waiting = waitingPreflight.current;
+    if (!waiting || solveToken.current !== waiting.token) return;
+    waitingPreflight.current = null;
+    setError(null);
+    setLoading(true);
+    void runPreflight(waiting.payload, waiting.token, { ...waiting.options, resuming: true });
+  }
+
+  async function retryCalculatorCheck() {
+    const waiting = waitingPreflight.current;
+    if (!waiting || solveToken.current !== waiting.token) return;
+    setLoading(true);
+    setError(null);
+    try {
+      await loadDesmos();
+      // Loading can itself announce readiness; resume once per pending batch.
+      if (waitingPreflight.current === waiting) resumeCalculatorCheck();
+    } catch {
+      if (solveToken.current !== waiting.token) return;
+      setLoading(false);
+      setError(UNVERIFIED);
+    }
+  }
+
+  // Refresh this listener with the current handlers after each render. A
+  // reconnect resumes only the still-current solve, never a discarded one.
+  useEffect(() => {
+    window.addEventListener(DESMOS_READY_EVENT, resumeCalculatorCheck);
+    return () => window.removeEventListener(DESMOS_READY_EVENT, resumeCalculatorCheck);
+  });
 
   /**
    * A method the server's cache marked verified is shown without a
@@ -694,7 +743,7 @@ export default function SolverWorkspace({ accountNav, fontClassName = "" }: { ac
               className={styles.solveButton}
               type="button"
               disabled={!image || busy || cooldownSeconds > 0 || needsSignIn}
-              onClick={solve}
+              onClick={awaitingCalculator ? retryCalculatorCheck : solve}
             >
               {loading ? (
                 <>
@@ -704,7 +753,7 @@ export default function SolverWorkspace({ accountNav, fontClassName = "" }: { ac
                 `Try again in ${cooldownSeconds}s`
               ) : (
                 <>
-                  {error && image ? "Try again" : "Solve"} <ArrowIcon />
+                  {awaitingCalculator ? "Retry calculator" : error && image ? "Try again" : "Solve"} <ArrowIcon />
                 </>
               )}
             </button>

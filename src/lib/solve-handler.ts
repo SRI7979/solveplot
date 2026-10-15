@@ -239,11 +239,14 @@ function matchesImageSignature(bytes: Buffer, mime: string) {
 function errorFor(error: unknown, diagnosticId: string): Response {
   if (error instanceof SolveValidationError) {
     const development = process.env.NODE_ENV === "development";
+    const message = error.stage === "semantic_inputs"
+      ? "The solver could not read all of the problem's values reliably. Try a clearer screenshot showing the full question and any tables or diagrams."
+      : error.stage === "transcription_conflict"
+        ? "Some values in the screenshot could not be read consistently. Try a clearer crop of the full question."
+        : "The solver could not verify a reliable solution after one correction. Please try again.";
     return Response.json(
       {
-        error: development
-          ? `Solution validation failed [${error.stage}]: ${error.message}`
-          : "The solver could not produce a valid solution after one correction. Please try again.",
+        error: message,
         diagnosticId,
         ...(development ? { validation: { stage: error.stage, message: error.message, issues: error.issues } } : {}),
       },
@@ -412,6 +415,7 @@ export function createSolveHandler(dependencies: SolveDependencies) {
     let currentUserId: string | null = null;
     let meter: Meter | null = null;
     let techniqueId: string | null = null;
+    let streaming = false;
     const context = (details: TelemetryContext = {}): TelemetryContext => ({
       userId: currentUserId,
       solveId: diagnosticId,
@@ -585,6 +589,9 @@ export function createSolveHandler(dependencies: SolveDependencies) {
         await deliver(await run);
         controller.close();
       } else {
+        // The first calculator rows must not wait for telemetry database
+        // writes. The continuation below flushes once the stream finishes.
+        streaming = true;
         void run
           .then(deliver)
           .catch((error: unknown) => {
@@ -607,7 +614,7 @@ export function createSolveHandler(dependencies: SolveDependencies) {
       }
       return errorFor(error, diagnosticId);
     } finally {
-      await telemetry.flush();
+      if (!streaming) await telemetry.flush();
     }
   };
 }

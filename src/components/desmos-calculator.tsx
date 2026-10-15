@@ -1,11 +1,11 @@
 "use client";
 
-import Script from "next/script";
 import { useEffect, useRef, useState } from "react";
 import { useTheme } from "./theme-provider";
 import type { RowEvaluation } from "@/lib/answer-consistency";
 import { displayColor, MATH_OPTIONS, type DesmosCalculatorInstance } from "@/lib/desmos-engine";
 import { ROW_ID_PREFIX, verdictFromAnalysis, type DesmosAnalysis } from "@/lib/desmos-preflight";
+import { DESMOS_READY_EVENT, loadDesmos } from "@/lib/desmos-loader";
 import type { AnswerState } from "@/lib/solver-schema";
 import {
   expressionsKey,
@@ -85,6 +85,7 @@ export default function DesmosCalculator({
   const containerRef = useRef<HTMLDivElement>(null);
   const calculatorRef = useRef<DesmosInstance | null>(null);
   const [scriptReady, setScriptReady] = useState(false);
+  const [loadAttempt, setLoadAttempt] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [expressionError, setExpressionError] = useState(false);
   const [entriesEdited, setEntriesEdited] = useState(false);
@@ -112,14 +113,33 @@ export default function DesmosCalculator({
   const loaded = useRef<{ key: string; rows: string; payloadKey: string; ids: string[]; colors: string[] } | null>(null);
 
   useEffect(() => {
-    if (!apiKey || scriptReady) return;
-    const timeout = window.setTimeout(() => {
-      setError(
-        "Desmos is taking too long to load. Check your connection and reload.",
-      );
-    }, 20_000);
-    return () => window.clearTimeout(timeout);
-  }, [apiKey, scriptReady]);
+    // Preflight or the workspace retry can reconnect independently after this
+    // component's first attempt failed. Reuse that API without remounting an
+    // already running calculator or touching its equations and viewport.
+    const ready = () => {
+      if (!window.Desmos?.GraphingCalculator) return;
+      setError(null);
+      setScriptReady(true);
+    };
+    window.addEventListener(DESMOS_READY_EVENT, ready);
+    return () => window.removeEventListener(DESMOS_READY_EVENT, ready);
+  }, []);
+
+  useEffect(() => {
+    if (!apiKey) return;
+    let active = true;
+    loadDesmos().then(() => {
+      if (!active) return;
+      setError(null);
+      setScriptReady(true);
+      // Also covers an API that finished after a previous timeout, before the
+      // retry. Cached API readiness still needs to wake unverified gates.
+      window.dispatchEvent(new Event(DESMOS_READY_EVENT));
+    }, () => {
+      if (active) setError("Desmos could not connect. Check your connection and try again.");
+    });
+    return () => { active = false; };
+  }, [apiKey, loadAttempt]);
 
   useEffect(() => {
     if (!scriptReady || !containerRef.current) return;
@@ -217,7 +237,22 @@ export default function DesmosCalculator({
       publishRows(null);
       select(null);
     };
-  }, [scriptReady, publishRows, select]);
+  }, [scriptReady, loadAttempt, publishRows, select]);
+
+  function retryCalculator() {
+    const calculator = calculatorRef.current;
+    if (calculator) {
+      // An existing calculator may contain the student's own equations and
+      // viewport. A reconnect must not clear them or reload the whole page.
+      calculator.resize();
+      setError(null);
+      window.dispatchEvent(new Event(DESMOS_READY_EVENT));
+      return;
+    }
+    setError(null);
+    setScriptReady(false);
+    setLoadAttempt((value) => value + 1);
+  }
 
   // Change only the visible calculator's palette. The hidden pre-flight math
   // instance stays untouched, and no expressions are cleared or revalidated:
@@ -334,22 +369,6 @@ export default function DesmosCalculator({
           }}>Line {String(selection.row).padStart(2, "0")} <span>View its explanation</span> <span aria-hidden="true">↗</span></button>
         ) : <span>Select a calculator line to trace its reasoning</span>}
       </div>}
-      {apiKey && (
-        <Script
-          id="desmo-desmos-api"
-          src={`https://www.desmos.com/api/v1.11/calculator.js?apiKey=${encodeURIComponent(apiKey)}`}
-          strategy="afterInteractive"
-          onReady={() => {
-            setError(null);
-            setScriptReady(true);
-          }}
-          onError={() =>
-            setError(
-              "Desmos could not load. Check your internet connection and API key, then reload.",
-            )
-          }
-        />
-      )}
       <div className={styles.calculatorFrame}>
         <div
           ref={containerRef}
@@ -363,9 +382,9 @@ export default function DesmosCalculator({
               <button
                 className={styles.reload}
                 type="button"
-                onClick={() => window.location.reload()}
+                onClick={retryCalculator}
               >
-                Reload calculator
+                Retry calculator
               </button>
             )}
           </div>
@@ -393,11 +412,12 @@ export default function DesmosCalculator({
         </button>
       </div>}
       {withheld && !unavailableMessage && scriptReady && (
-        <p className={styles.expressionWarning} role="status" data-testid="rows-withheld">
-          {gate.status === "unverified"
-            ? "These lines could not be checked in Desmos, so they are not shown. Reload to try again."
-            : "These lines did not run cleanly in Desmos, so they are not shown. Solve the problem again for a working method."}
-        </p>
+        <div className={styles.expressionWarning} role="status" data-testid="rows-withheld">
+          {gate.status === "unverified" ? <>
+            These lines could not be checked in Desmos, so they are not shown.{" "}
+            <button type="button" className={styles.replay} onClick={retryCalculator}>Retry check</button>
+          </> : "These lines did not run cleanly in Desmos, so they are not shown. Solve the problem again for a working method."}
+        </div>
       )}
       {expressionError && !withheld && !unavailableMessage && (
         <p className={styles.expressionWarning} role="status">

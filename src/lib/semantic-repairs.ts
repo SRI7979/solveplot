@@ -3,9 +3,16 @@ import { findTranscriptionConflicts, isIntegerFactorExtremumQuestion, StrategySe
 
 type Pair = { x: number; y: number };
 
+const TABLE_NUMBER = String.raw`[+-]?(?:\d+(?:\.\d+)?|\.\d+)`;
+
 function numbers(list: string): number[] | null {
-  const values = list.split(",").map((value) => Number(value.trim().replace(/[−–]/g, "-")));
-  return values.length > 0 && values.every(Number.isFinite) ? values : null;
+  const text = list.trim().replace(/^\[|\]$/g, "").replace(/\.(?=\s*$)/, "").trim();
+  // Empty cells must not become zero, and a prefix of a malformed cell must
+  // never become valid data (for example "5?" or "7 + 2").
+  const cells = text.includes("|") ? text.replace(/^\||\|$/g, "").split("|")
+    : text.includes(",") ? text.split(",") : text.split(/\s+/);
+  return cells.length && cells.every((cell) => new RegExp(`^${TABLE_NUMBER}$`).test(cell.trim()))
+    ? cells.map((cell) => Number(cell.trim())) : null;
 }
 
 /**
@@ -13,29 +20,109 @@ function numbers(list: string): number[] | null {
  * a source of data: they may hold values it computed (f(1)=15 from g(1)=5).
  */
 function questionPoints(question: string): Pair[] {
-  const gValues = [
-    ...[...question.matchAll(/\bg\s*\(\s*(-?\d+(?:\.\d+)?)\s*\)\s*=\s*(-?\d+(?:\.\d+)?)/gi)].map((match) => ({ x: Number(match[1]), y: Number(match[2]) })),
-    // "x: 1 → g(x)=5"
-    ...[...question.matchAll(/\bx\s*[:=]\s*(-?\d+(?:\.\d+)?)\s*(?:→|->|,|;|\|)\s*g\s*\(\s*x\s*\)\s*=\s*(-?\d+(?:\.\d+)?)/gi)].map((match) => ({ x: Number(match[1]), y: Number(match[2]) })),
-  ].filter((point, index, all) => all.findIndex((other) => other.x === point.x) === index);
-  if (gValues.length >= 2) return gValues;
+  // Retain row boundaries while converting presentation-only LaTeX/Markdown.
+  // Headers still determine what a number means; candidate rows are never read.
+  const text = question.replace(/[−–]/g, "-")
+    .replace(/\\begin\{(?:array|[bpvV]?matrix|tabular)\}(?:\{[^}]*\})?/g, "\n")
+    .replace(/\\end\{(?:array|[bpvV]?matrix|tabular)\}/g, "\n")
+    .replace(/\\(?:hline|toprule|midrule|bottomrule|left|right)\b/g, "")
+    .replace(/\\[()[\]]|[$`*]/g, "")
+    .replace(/\\\\(?:\[[^\]]*\])?/g, "\n").replace(/&/g, "|");
+  const points: Pair[] = [];
+  const add = (x: number, y: number) => {
+    const previous = points.find((point) => point.x === x);
+    if (previous && previous.y !== y) {
+      throw new StrategySelectionError(
+        `The transcription gives two different values for g(${x}) (${previous.y} and ${y}). Recheck the original table and transcribe each cell once, without computed values.`,
+        "transcription_conflict",
+      );
+    }
+    if (!previous) points.push({ x, y });
+  };
+  const malformed = () => {
+    throw new StrategySelectionError("The table's paired x and g(x) values are incomplete or malformed. Transcribe every table cell exactly as printed, with one g(x) value for each x.", "semantic_inputs");
+  };
+  const completeValue = String.raw`(?=\s*(?:$|[,;!?\n]|\.(?!\d)|\b(?:and|where|what|the)\b))`;
+  for (const match of text.matchAll(new RegExp(String.raw`\bg\s*\(\s*(${TABLE_NUMBER})\s*\)\s*=\s*(${TABLE_NUMBER})${completeValue}`, "gi"))) {
+    add(Number(match[1]), Number(match[2]));
+  }
+  for (const match of text.matchAll(new RegExp(String.raw`\bx\s*[:=]\s*(${TABLE_NUMBER})\s*(?:→|->|,|;|\|)\s*g\s*\(\s*x\s*\)\s*=\s*(${TABLE_NUMBER})${completeValue}`, "gi"))) {
+    add(Number(match[1]), Number(match[2]));
+  }
 
+  const tableStart = text.search(/\b(?:table|g\s+passes\s+through)\b/i);
+  if (tableStart < 0) return points;
+  const table = text.slice(tableStart);
+  // Coordinate pairs are accepted only when the transcription explicitly
+  // identifies them as table data, not from f's separately stated intercept.
+  const pairLabel = table.match(/\b(?:table\s*(?:below)?\s*[:=]|points\s*[:=])\s*(?=\()/i);
+  if (pairLabel) {
+    let remainder = table.slice(pairLabel.index! + pairLabel[0].length);
+    const pairPattern = new RegExp(String.raw`^\(\s*(${TABLE_NUMBER})\s*,\s*(${TABLE_NUMBER})\s*\)`);
+    for (let match = remainder.match(pairPattern); match; match = remainder.match(pairPattern)) {
+      add(Number(match[1]), Number(match[2]));
+      remainder = remainder.slice(match[0].length).replace(/^\s*(?:[,;]\s*)?(?:and\s+)?/, "");
+    }
+    if (remainder.startsWith("(")) malformed();
+  }
+
+  // Named columns/rows: x=[1,4]; g(x)=[5,7], or horizontal table rows
+  // x | 1 | 4 / g(x) | 5 | 7. Parse complete cells, not numeric prefixes.
+  const column = String.raw`(\[[^\]\n]*\]|${TABLE_NUMBER}(?:[\t ,|]+${TABLE_NUMBER})*[,|]?)`;
+  const columns = new RegExp(String.raw`\bx\s*(?:values?)?\s*[:=|]\s*${column}\s*(?:and\s*|[;\n]\s*|\|?\s*)g\s*\(\s*x\s*\)\s*(?:values?)?\s*[:=|]\s*${column}`, "gi");
+  for (const match of table.matchAll(columns)) {
+    const xs = numbers(match[1]);
+    const ys = numbers(match[2]);
+    if (!xs || !ys || xs.length !== ys.length) malformed();
+    const remainder = table.slice(match.index! + match[0].length);
+    if (/^[^\s.;!\n]|^[\t ]*[+*/?=]|^[\t ]*-\s*\d/.test(remainder)) malformed();
+    xs!.forEach((x, index) => add(x, ys![index]));
+  }
+
+  // Column headers establish row order for Markdown, plaintext and LaTeX
+  // matrices. Whitespace-only inline tables follow the same printed order.
+  const headers = /\bx[\t ]*(?:\||[\t ]+)[\t ]*g\s*\(\s*x\s*\)[\t ]*\|?/gi;
+  for (const header of table.matchAll(headers)) {
+    const body = table.slice(header.index! + header[0].length)
+      .split(/\b(?:what|which|find|answer choices)\b/i)[0];
+    for (const line of body.split(/[\n;]/)) {
+      const row = line.trim().replace(/^[:=]\s*/, "");
+      if (!row || /^[|:\s-]+$/.test(row)) continue;
+      // A prose line ends this table; a partly numeric row is an error.
+      if (!/^[|\s]*[+\-\d.]/.test(row)) {
+        if (/^(?:[|?]|(?:NA|N\/A|undefined|blank|missing)\b)/i.test(row)) malformed();
+        break;
+      }
+      const cells = numbers(row);
+      if (!cells || cells.length % 2) malformed();
+      for (let index = 0; index < cells!.length; index += 2) add(cells![index], cells![index + 1]);
+    }
+  }
+  return points;
+}
+
+/**
+ * The prose contract forbids LaTeX control sequences. A complete numeric
+ * x/g(x) table is presentation, so convert only its verified array/matrix
+ * wrapper to plain rows. Preserve every printed cell and surrounding word;
+ * unknown commands or malformed matrices remain subject to strict rejection.
+ */
+function plainQuestionTableLayout(question: string): string {
   const tableStart = question.search(/\b(?:table|g\s+passes\s+through)\b/i);
-  if (tableStart < 0) return [];
-  const table = question.slice(tableStart);
-  const pairs = [...table.matchAll(/\(\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*\)/g)]
-    .map((match) => ({ x: Number(match[1]), y: Number(match[2]) }));
-  if (pairs.length >= 2) return pairs;
-
-  const markdownRows = [...table.matchAll(/\|\s*(-?\d+(?:\.\d+)?)\s*\|\s*(-?\d+(?:\.\d+)?)\s*\|/g)]
-    .map((match) => ({ x: Number(match[1]), y: Number(match[2]) }));
-  if (markdownRows.length >= 2) return markdownRows;
-
-  const xValues = table.match(/\bx\s*(?:values?)?\s*[:=]\s*\[?\s*((?:-?\d+(?:\.\d+)?\s*,\s*)+-?\d+(?:\.\d+)?)\s*\]?/i);
-  const yValues = table.match(/\bg\s*\(\s*x\s*\)\s*(?:values?)?\s*[:=]\s*\[?\s*((?:-?\d+(?:\.\d+)?\s*,\s*)+-?\d+(?:\.\d+)?)\s*\]?/i);
-  const xs = xValues ? numbers(xValues[1]) : null;
-  const ys = yValues ? numbers(yValues[1]) : null;
-  return xs && ys && xs.length === ys.length ? xs.map((x, index) => ({ x, y: ys[index] })) : [];
+  if (tableStart < 0) return question;
+  return question.replace(
+    /\\begin\{(array|[bpvV]?matrix|tabular)\}(\{[clr|\s]+\})?([\s\S]*?)\\end\{\1\}/g,
+    (source: string, kind: string, columns: string | undefined, body: string, offset: number) => {
+      if (offset < tableStart || ((kind === "array" || kind === "tabular") && !columns)) return source;
+      const rows = body.replace(/\\(?:hline|toprule|midrule|bottomrule)\b/g, "")
+        .split(/\\\\/).map((row) => row.trim()).filter(Boolean);
+      const cells = rows.map((row) => row.split("&").map((cell) => cell.trim()));
+      if (cells.length < 3 || cells.some((row) => row.length !== 2)) return source;
+      if (cells[0][0] !== "x" || !/^g\s*\(\s*x\s*\)$/.test(cells[0][1])) return source;
+      if (cells.slice(1).some((row) => row.some((cell) => !new RegExp(`^${TABLE_NUMBER}$`).test(cell.replace(/[−–]/g, "-"))))) return source;
+      return `${cells.map((row) => row.join(" | ")).join("\n")}\n`;
+    },
+  );
 }
 
 function parseProblem(question: string) {
@@ -108,15 +195,12 @@ export function repairQuadraticRationalIntercept(response: CandidatesResponse): 
     strategy: null,
     rung: 4,
     rows: [
-      { latex: `f(x)=a x^{2}+b x${interceptTerm}`, slider: null, copiesRow: null },
-      { latex: `x_{1}=[${p1.x},${p2.x}]`, slider: null, copiesRow: null },
-      { latex: `y_{1}=[${p1.y},${p2.y}]`, slider: null, copiesRow: null },
+      { latex: `g(x)=\\frac{a x^{2}+b x${interceptTerm}}{${denominator("x")}}`, slider: null, copiesRow: null },
       {
-        latex: `y_{1}\\sim\\frac{f(x_{1})}{${denominator("x_{1}")}}`,
+        latex: `[${points.map(({ x }) => `g(${x})`).join(",")}]\\sim[${points.map(({ y }) => y).join(",")}]`,
         slider: null,
         copiesRow: null,
       },
-      { latex: `g(x)=\\frac{f(x)}{${denominator("x")}}`, slider: null, copiesRow: null },
       {
         latex: `g(${problem.target})`,
         slider: null,
@@ -126,7 +210,7 @@ export function repairQuadraticRationalIntercept(response: CandidatesResponse): 
     answer: resultValue.toPrecision(12).replace(/\.?0+$/, ""),
     result: {
       type: "numeric",
-      row: 6,
+      row: 3,
       value: resultValue,
       listIndex: null,
       answerFrom: "value",
@@ -172,8 +256,9 @@ export function repairQuadraticRationalIntercept(response: CandidatesResponse): 
     });
   }
   alternatives.sort((left, right) => Number(left.rows.length > 0) - Number(right.rows.length > 0));
-  // The transcription is never rewritten: the table came from it, unchanged.
-  return { ...response, candidates: [candidate, ...alternatives].slice(0, 6), preferredTechniqueId: candidate.techniqueId };
+  // Numeric cells are never rewritten or inferred; only complete table
+  // presentation may be flattened to satisfy the existing plain-prose schema.
+  return { ...response, question: plainQuestionTableLayout(response.question), candidates: [candidate, ...alternatives].slice(0, 6), preferredTechniqueId: candidate.techniqueId };
 }
 
 type FactorExtremum = { leading: number; constant: number; exponent: number; kind: "max" | "min" };

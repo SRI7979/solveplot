@@ -632,9 +632,9 @@ test("an algebra-only reply to the rational table problem offers Desmos first an
         ],
         readAnswer: null,
       })
-      : explanation(6, {
+      : explanation(3, {
         why: "Keep f(0)=10 in the quadratic and let Desmos fit the two unknown coefficients from the g table.",
-        readAnswer: "Line 6 displays g(3)=6.2, which is 31/5.",
+        readAnswer: "Line 3 displays g(3)=6.2, which is 31/5.",
       }),
   });
   const solved = await POST(upload());
@@ -650,6 +650,126 @@ test("an algebra-only reply to the rational table problem offers Desmos first an
   const alternative = await switched.json();
   assert.equal(alternative.solution.method, "algebra");
   assert.equal(alternative.solution.answer, "31/5");
+});
+
+const rationalQuestion = (table: string) =>
+  "The function g is a rational function defined by g(x)=f(x)/(x+2), where f is a quadratic function. " +
+  "The y-intercept of the graph of f is (0,10), and g passes through the points shown in the table below. " +
+  `${table}\nWhat is the value of g(3)?`;
+
+const rationalExplanation = () => explanation(3, {
+  why: "The intercept supplies the constant term 10 in f. Bracket regression fits the two coefficients directly to the printed g values, with no rearranging of the table.",
+  readAnswer: "Line 3 evaluates g(3) and displays 6.2, which is 31/5.",
+  purposes: [
+    "Define g with the quadratic numerator ax²+bx+10. The 10 comes from f's y-intercept, not a point on g.",
+    "Fit a and b to both printed table pairs together: g(1)=5 and g(4)=7.",
+    "Evaluate g(3) using the fitted coefficients and read 6.2.",
+  ],
+});
+
+for (const [format, table] of [
+  ["plain text", "x  g(x)\n1  5\n4  7"],
+  ["Markdown", "| x | g(x) |\n| --- | --- |\n| 1 | 5 |\n| 4 | 7 |"],
+  ["LaTeX", String.raw`\begin{array}{c|c}x & g(x) \\ \hline 1 & 5 \\ 4 & 7\end{array}`],
+] as const) {
+  test(`the solve API reads a ${format} rational table once and returns the complete bracket regression`, async () => {
+    const question = rationalQuestion(table);
+    const { requests } = mockModel({
+      candidates: candidatesResponse([paperCandidate({ techniqueId: "substitution", answer: "31/5" })], { question }),
+      explanation: rationalExplanation(),
+    });
+    const save = mock.method(dependencies, "saveProblem");
+    const response = await POST(upload());
+    const data = await response.json();
+    assert.equal(response.status, 200, JSON.stringify(data));
+    assert.equal(requests.candidates.length, 1, "valid table formatting never needs a paid correction");
+    assert.equal(requests.explanation.length, 1);
+    const expectedQuestion = format === "LaTeX" ? rationalQuestion("x | g(x)\n1 | 5\n4 | 7\n") : question;
+    assert.equal(data.question, expectedQuestion, "only table presentation changes; every cell and all surrounding prose stay intact");
+    assert.equal(data.selectedMethodId, "parameter-regression");
+    assert.deepEqual(data.solution.expressions.map((row: { latex: string }) => row.latex), [
+      "g(x)=\\frac{a x^{2}+b x+10}{x+2}",
+      "[g(1),g(4)]\\sim[5,7]",
+      "g(3)",
+    ]);
+    assert.equal(data.solution.result.row, 3);
+    assert.equal(data.solution.result.value, 6.2);
+    assert.equal(data.solution.answer, "6.2");
+    assert.equal(data.solution.handMath, null);
+    assert.equal(save.mock.callCount(), 1);
+  });
+}
+
+test("an omitted rational table row is recovered once from the original image before showing or saving an answer", async () => {
+  const incomplete = rationalQuestion("x  g(x)\n1  5");
+  const complete = rationalQuestion("x  g(x)\n1  5\n4  7");
+  const { requests } = mockModel({
+    candidates: (_body: unknown, call: number) => candidatesResponse(
+      [paperCandidate({ techniqueId: "substitution", answer: "31/5" })],
+      { question: call === 1 ? incomplete : complete },
+    ),
+    explanation: rationalExplanation(),
+  });
+  const save = mock.method(dependencies, "saveProblem");
+  const response = await POST(upload());
+  const data = await response.json();
+  assert.equal(response.status, 200, JSON.stringify(data));
+  assert.equal(requests.candidates.length, 2, "only one automatic correction");
+  assert.equal(requests.explanation.length, 1, "no explanation is generated for the incomplete transcription");
+  const retry = JSON.stringify(requests.candidates[1].input);
+  assert.match(retry, /semantic_inputs/);
+  assert.match(retry, /Include every table row/);
+  assert.match(retry, new RegExp(png.toString("base64").replace(/[.*+?^${}()|[\]\\]/g, "\\$&")), "correction re-reads the identical source image");
+  assert.equal(data.solution.result.value, 6.2);
+  assert.equal(data.solution.result.row, 3);
+  assert.equal(save.mock.callCount(), 1, "only the complete corrected solution is saved");
+});
+
+test("a rational table row missing twice fails without a guessed answer or raw validation text, including in development", async (t) => {
+  const previous = process.env.NODE_ENV;
+  Object.assign(process.env, { NODE_ENV: "development" });
+  t.after(() => {
+    if (previous === undefined) delete (process.env as Record<string, string | undefined>).NODE_ENV;
+    else Object.assign(process.env, { NODE_ENV: previous });
+  });
+  mock.method(console, "error", () => undefined);
+  const { requests } = mockModel({
+    candidates: candidatesResponse([paperCandidate({ techniqueId: "substitution", answer: "31/5" })], {
+      question: rationalQuestion("x  g(x)\n1  5"),
+    }),
+  });
+  const save = mock.method(dependencies, "saveProblem");
+  const response = await POST(upload());
+  const data = await response.json();
+  assert.equal(response.status, 502);
+  assert.equal(requests.candidates.length, 2);
+  assert.equal(requests.explanation.length, 0);
+  assert.equal(save.mock.callCount(), 0);
+  assert.equal("solution" in data, false);
+  assert.equal("methods" in data, false);
+  assert.match(data.error, /could not read.*values reliably/);
+  assert.doesNotMatch(data.error, /semantic_inputs|validation failed|paired x|transcribed|31\/5|6\.2/i);
+  assert.equal(data.validation.stage, "semantic_inputs", "developers retain the precise rejection separately");
+  assert.ok(data.diagnosticId);
+  for (const attempt of [1, 2]) t.after(() => unlink(`.desmo-debug/${data.diagnosticId}-${attempt}.json`));
+});
+
+test("conflicting rational table cells are retried once and then explained without exposing transcription internals", async () => {
+  const { requests } = mockModel({
+    candidates: candidatesResponse([paperCandidate({ techniqueId: "substitution", answer: "31/5" })], {
+      question: rationalQuestion("g(1)=5 and g(1)=6; g(4)=7."),
+    }),
+  });
+  const save = mock.method(dependencies, "saveProblem");
+  const response = await POST(upload());
+  const data = await response.json();
+  assert.equal(response.status, 502);
+  assert.equal(requests.candidates.length, 2);
+  assert.equal(requests.explanation.length, 0);
+  assert.equal(save.mock.callCount(), 0);
+  assert.match(data.error, /could not be read consistently/);
+  assert.doesNotMatch(data.error, /transcription_conflict|validation failed|two different values|31\/5|6\.2/i);
+  assert.equal("solution" in data, false);
 });
 
 test("no solver-mode remnant survives in the workspace UI: no segmented control, no mode field, no dead badge usage", () => {
@@ -691,6 +811,52 @@ test("streaming sends the calculator rows and answer before the explanation", as
   assert.equal(solution.problemId, undefined);
   assert.equal(saved.type, "saved");
   assert.equal(saved.problemId, problemId);
+});
+
+test("the first streamed methods arrive before a blocked telemetry flush, which still runs on completion", async () => {
+  let releaseExplanation!: () => void;
+  const explanationPending = new Promise<void>((resolve) => (releaseExplanation = resolve));
+  let releaseFlush!: () => void;
+  const flushPending = new Promise<void>((resolve) => (releaseFlush = resolve));
+  let announceFlush!: () => void;
+  const flushStarted = new Promise<"flush">((resolve) => (announceFlush = () => resolve("flush")));
+  const flush = mock.method(dependencies.telemetry!, "flush", () => {
+    announceFlush();
+    return flushPending;
+  });
+  mockModel({
+    candidates: candidatesResponse(),
+    explanation: async () => {
+      await explanationPending;
+      return explanation();
+    },
+  });
+  const pending = POST(upload(png, "image/png", { Accept: "application/x-ndjson" }));
+  try {
+    // This race is controlled entirely by promises, not a timing threshold:
+    // the former handler entered flush before it could return the response.
+    const first = await Promise.race([pending, flushStarted]);
+    assert.notEqual(first, "flush", "telemetry must not hold back the first methods response");
+    const response = first as Response;
+    const reader = response.body!.getReader();
+    const initial = await reader.read();
+    assert.equal(JSON.parse(new TextDecoder().decode(initial.value).trim()).type, "methods");
+    assert.equal(flush.mock.callCount(), 0, "rows are delivered while the explanation remains pending");
+    releaseExplanation();
+    let remaining = "";
+    while (true) {
+      const next = await reader.read();
+      if (next.done) break;
+      remaining += new TextDecoder().decode(next.value);
+    }
+    assert.deepEqual(remaining.trim().split("\n").map((line) => JSON.parse(line).type), ["solution", "saved"]);
+    await flushStarted;
+    assert.equal(flush.mock.callCount(), 1, "telemetry is flushed exactly once after delivery");
+  } finally {
+    releaseExplanation();
+    releaseFlush();
+    await pending;
+  }
 });
 
 test("a stream whose history save fails still delivers the explanation first, then the warning", async () => {
@@ -827,7 +993,7 @@ test("slider rows keep their bounds, the calculator opens at the answer state, a
   assert.deepEqual(data.solution.parameters, [{ name: "b", integer: true, min: -1000, max: 1000 }], "the question's integer parameter is recorded");
 });
 
-test("development rejection exposes the exact stage and stores the raw response without request credentials", async (t) => {
+test("development rejection keeps a student-facing message and stores exact diagnostics without request credentials", async (t) => {
   const previous = process.env.NODE_ENV;
   Object.assign(process.env, { NODE_ENV: "development" });
   t.after(() => {
@@ -842,7 +1008,9 @@ test("development rejection exposes the exact stage and stores the raw response 
   assert.equal(requests.candidates.length, 2);
   const rejected = await response.json();
   assert.equal(rejected.validation.stage, "result_contract");
-  assert.match(rejected.error, /numeric requires an existing calculator row/);
+  assert.match(rejected.validation.message, /numeric requires an existing calculator row/);
+  assert.match(rejected.error, /could not verify a reliable solution/);
+  assert.doesNotMatch(rejected.error, /result_contract|numeric requires|validation failed/i);
   for (const attempt of [1, 2]) {
     const file = `.desmo-debug/${rejected.diagnosticId}-${attempt}.json`;
     t.after(() => unlink(file));

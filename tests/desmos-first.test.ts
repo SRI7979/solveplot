@@ -198,7 +198,7 @@ test("the rational-function table is read from the transcription as printed: y_1
   assert.equal(repaired.question, RATIONAL, "the transcription is never rewritten");
   const selection = selectMethods(repaired);
   const regression = selection.methods.find((method) => method.techniqueId === "parameter-regression")!;
-  assert.equal(regression.rows[2].latex, "y_{1}=[5,7]");
+  assert.equal(regression.rows[1].latex, "[g(1),g(4)]\\sim[5,7]");
   assert.equal(regression.answer, "6.2");
   assert.equal(selection.winnerId, "parameter-regression");
   const computed = selection.methods.find((method) => method.techniqueId === "three-point-regression")!;

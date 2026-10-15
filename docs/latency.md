@@ -1,5 +1,23 @@
 # Latency: where a solve's time goes
 
+## Reliability update — October 15, 2026
+
+The rational-table validator now accepts complete plain, Markdown and numeric
+LaTeX table layouts without an unnecessary correction call. Its preferred fresh
+method fits both coefficients with one bracket regression (three rows total).
+The first streamed result no longer awaits the initial telemetry flush, removing
+a wait previously capped at two seconds. Model effort and Desmos-first rescue
+remain unchanged; live model generation time was not rebenchmarked.
+
+Calculator and preflight now share an eager, retryable loader. Browser checks
+measured a ready graph at about 1.6 seconds on desktop and 0.94 seconds on phone
+in the development harness; these are not production/network guarantees.
+Returning through client navigation made no additional script request. Simulated
+script failures recovered automatically or through Retry calculator, retaining
+the generated result and explanation with no repeated solve. Five browser
+scenarios used the real Desmos engine and zero paid model calls; details and
+screenshots are in [the reliability report](solver-reliability-2026-10-15/README.md).
+
 Everything here was measured, and every number says what it was measured on.
 Live model latency could not be re-measured in the session that wrote this
 (no `OPENAI_API_KEY` in that environment), so model-side numbers come from
