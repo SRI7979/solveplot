@@ -1,0 +1,72 @@
+[
+  {
+    "variant": "desktop",
+    "requests": 1,
+    "liveModelCalls": 0,
+    "result": {
+      "rows": [
+        {
+          "id": "desmo_1",
+          "latex": "x_{1}=[1,2,4]"
+        },
+        {
+          "id": "desmo_2",
+          "latex": "y_{1}=[8,15,35]"
+        },
+        {
+          "id": "desmo_3",
+          "latex": "y_{1}\\sim ax_{1}^2+bx_{1}+c"
+        },
+        {
+          "id": "desmo_4",
+          "latex": "y=ax^2+bx+c"
+        },
+        {
+          "id": "desmo_5",
+          "latex": "(x_{1},y_{1})"
+        },
+        {
+          "id": "desmo_6",
+          "latex": "a(10)^2+b(10)+c"
+        }
+      ],
+      "answer": 143
+    },
+    "errors": []
+  },
+  {
+    "variant": "phone",
+    "requests": 1,
+    "liveModelCalls": 0,
+    "result": {
+      "rows": [
+        {
+          "id": "desmo_1",
+          "latex": "x_{1}=[1,2,4]"
+        },
+        {
+          "id": "desmo_2",
+          "latex": "y_{1}=[8,15,35]"
+        },
+        {
+          "id": "desmo_3",
+          "latex": "y_{1}\\sim ax_{1}^2+bx_{1}+c"
+        },
+        {
+          "id": "desmo_4",
+          "latex": "y=ax^2+bx+c"
+        },
+        {
+          "id": "desmo_5",
+          "latex": "(x_{1},y_{1})"
+        },
+        {
+          "id": "desmo_6",
+          "latex": "a(10)^2+b(10)+c"
+        }
+      ],
+      "answer": 143
+    },
+    "errors": []
+  }
+]
