@@ -4,7 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState, us
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { ArrowRight, Bookmark, ChevronRight, History, ImagePlus, Menu, PanelLeftClose, PanelLeftOpen, Plus, ScanLine, Upload, UserRound, X } from 'lucide-react';
+import { ArrowRight, Bookmark, ChevronRight, History, ImagePlus, Menu, PanelLeftClose, PanelLeftOpen, Plus, ScanLine, Settings, Upload, UserRound, X } from 'lucide-react';
 import type { Method } from './preview-data';
 
 const STORAGE_EVENT = 'desmo-preview-preference';
@@ -58,6 +58,7 @@ const navigation = [
   { href: '/', name: 'Solver', icon: ScanLine },
   { href: '/history', name: 'History', icon: History },
   { href: '/saved', name: 'Saved tricks', icon: Bookmark },
+  { href: '/settings', name: 'Settings', icon: Settings },
 ];
 
 export default function Workspace({ children }: { children: ReactNode }) {
@@ -150,7 +151,7 @@ export default function Workspace({ children }: { children: ReactNode }) {
       <div className="wsBrandRow"><Link href="/" className="wsBrand" aria-label="Desmo solver" onClick={() => setMobileNavigation(false)}><span className="wsMark"><Mark /></span><span className="wsSidebarText">desmo</span></Link>{mobile ? <button type="button" className="wsIconButton" aria-label="Close navigation" onClick={() => setMobileNavigation(false)}><X size={19} /></button> : <button type="button" className="wsIconButton wsCollapse" aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} onClick={() => setCollapsedPreference(collapsed ? 'expanded' : 'collapsed')}><PanelLeftClose size={18} /></button>}</div>
       {!mobile && collapsed && <button type="button" className="wsExpand" aria-label="Expand sidebar" title="Expand sidebar" onClick={() => setCollapsedPreference('expanded')}><PanelLeftOpen size={19} /></button>}
       <button type="button" className="wsNewProblem" onClick={openUpload} aria-label="New problem" title="New problem"><Plus size={19} /><span className="wsSidebarText">New problem</span></button>
-      <nav className="wsNavigation" aria-label={mobile ? 'Mobile workspace' : 'Workspace'}>{navigation.map(item => <Link href={item.href} key={item.href} className="wsNavLink" aria-current={pathname === item.href ? 'page' : undefined} title={item.name} onClick={() => setMobileNavigation(false)}><item.icon size={20} strokeWidth={1.8} /><span className="wsSidebarText">{item.name}</span></Link>)}</nav>
+      <nav className="wsNavigation" aria-label={mobile ? 'Mobile workspace' : 'Workspace'}>{navigation.map(item => <Link href={item.href} key={item.href} className="wsNavLink" data-section={item.href.slice(1) || 'solver'} aria-current={pathname === item.href ? 'page' : undefined} title={item.name} onClick={() => setMobileNavigation(false)}><item.icon size={20} strokeWidth={1.8} /><span className="wsSidebarText">{item.name}</span></Link>)}</nav>
       <Link href="/profile" className="wsProfileLink" aria-label="Your profile" aria-current={pathname === '/profile' ? 'page' : undefined} title="Your profile" onClick={() => setMobileNavigation(false)}><ProfileAvatar /><span className="wsSidebarText"><strong>{profileName.trim() || 'Your profile'}</strong><small>Personal workspace</small></span></Link>
     </>;
   }

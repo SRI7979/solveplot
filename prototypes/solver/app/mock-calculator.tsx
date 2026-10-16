@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { loadDesmos } from "../../../src/lib/desmos-loader";
 import type { DesmosCalculatorInstance } from "../../../src/lib/desmos-engine";
+import { useAppearance } from "./appearance";
+import { useWorkspace } from "./workspace";
 
 type Method = "difference" | "intersections";
 
@@ -33,10 +35,12 @@ type Calculator = Omit<
   setExpression: (expression: Expression) => void;
   setExpressions: (expressions: Expression[]) => void;
   updateSettings: (settings: Record<string, unknown>) => void;
+  getState: () => unknown;
+  setState: (state: unknown) => void;
 };
 
-const TEAL = "#287c73";
-const BLUE = "#547ac0";
+type Palette = { accent: string; secondary: string };
+
 const CURVE = "mock_curve";
 const LINE = "mock_line";
 const NEGATIVE_POINT = "mock_negative_point";
@@ -47,24 +51,24 @@ const BOUNDS = {
   intersections: { left: -4, right: 10, bottom: -8, top: 30 },
 };
 
-function loadMethod(calculator: Calculator, method: Method) {
+function loadMethod(calculator: Calculator, method: Method, palette: Palette) {
   const difference = method === "difference";
   calculator.setBlank();
   calculator.setExpressions([
     {
       id: CURVE,
       latex: difference ? "y=x^{2}-4x+1-(2x+8)" : "y=x^{2}-4x+1",
-      color: TEAL,
+      color: palette.accent,
       lineWidth: 3,
       lineOpacity: 1,
     },
     ...(!difference
-      ? [{ id: LINE, latex: "y=2x+8", color: BLUE, lineWidth: 3, lineOpacity: 1 }]
+      ? [{ id: LINE, latex: "y=2x+8", color: palette.secondary, lineWidth: 3, lineOpacity: 1 }]
       : []),
     {
       id: NEGATIVE_POINT,
       latex: difference ? "(-1,0)" : "(-1,6)",
-      color: TEAL,
+      color: palette.accent,
       secret: true,
       pointSize: 7,
       pointOpacity: 0.65,
@@ -73,7 +77,7 @@ function loadMethod(calculator: Calculator, method: Method) {
     {
       id: POSITIVE_POINT,
       latex: difference ? "(7,0)" : "(7,22)",
-      color: TEAL,
+      color: palette.accent,
       secret: true,
       pointSize: 12,
       pointOpacity: 1,
@@ -82,6 +86,19 @@ function loadMethod(calculator: Calculator, method: Method) {
     },
   ]);
   calculator.setMathBounds(BOUNDS[method]);
+}
+
+function updatePalette(calculator: Calculator, palette: Palette) {
+  const ids = new Set(calculator.getExpressions().map((expression) => expression.id));
+  // Only recolor the example's surviving rows. Preserve edits, student-added
+  // expressions, removed rows, and the current viewport.
+  const colors = [
+    { id: CURVE, color: palette.accent },
+    { id: LINE, color: palette.secondary },
+    { id: NEGATIVE_POINT, color: palette.accent },
+    { id: POSITIVE_POINT, color: palette.accent },
+  ].filter((expression) => ids.has(expression.id));
+  if (colors.length) calculator.setExpressions(colors);
 }
 
 function highlightStep(calculator: Calculator, activeStep: number) {
@@ -106,17 +123,20 @@ export default function MockCalculator({
   resetSignal,
   expressionsOpen,
 }: Props) {
+  const { palette, calculatorDraftRef } = useAppearance();
+  const { sampleRevision } = useWorkspace();
   const mountRef = useRef<HTMLDivElement>(null);
   const calculatorRef = useRef<Calculator | null>(null);
   const loadedMethodRef = useRef<Method | null>(null);
-  const latestPropsRef = useRef({ method, activeStep, expressionsOpen });
+  const latestPropsRef = useRef({ method, activeStep, expressionsOpen, palette });
+  const lastResetSignalRef = useRef(resetSignal);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loadAttempt, setLoadAttempt] = useState(0);
 
   useEffect(() => {
-    latestPropsRef.current = { method, activeStep, expressionsOpen };
-  }, [method, activeStep, expressionsOpen]);
+    latestPropsRef.current = { method, activeStep, expressionsOpen, palette };
+  }, [method, activeStep, expressionsOpen, palette]);
 
   useEffect(() => {
     let active = true;
@@ -145,7 +165,13 @@ export default function MockCalculator({
           showYAxis: true,
         }) as Calculator;
         calculatorRef.current = instance;
-        loadMethod(instance, current.method);
+        const draft = calculatorDraftRef.current;
+        if (draft?.method === current.method && draft.sampleRevision === sampleRevision) {
+          instance.setState(draft.state);
+          updatePalette(instance, current.palette);
+        } else {
+          loadMethod(instance, current.method, current.palette);
+        }
         loadedMethodRef.current = current.method;
         highlightStep(instance, current.activeStep);
 
@@ -174,18 +200,32 @@ export default function MockCalculator({
       active = false;
       cancelAnimationFrame(resizeFrame);
       observer?.disconnect();
+      if (instance && loadedMethodRef.current) {
+        // Native state is kept opaque and scoped to this sample. Navigating to
+        // Settings and back must preserve graph edits and zoom bounds.
+        calculatorDraftRef.current = {
+          method: loadedMethodRef.current,
+          sampleRevision,
+          state: instance.getState(),
+        };
+      }
       instance?.destroy();
       calculatorRef.current = null;
       loadedMethodRef.current = null;
     };
-  }, [loadAttempt]);
+  }, [loadAttempt, calculatorDraftRef, sampleRevision]);
 
   useEffect(() => {
     const calculator = calculatorRef.current;
     if (!ready || !calculator || loadedMethodRef.current === method) return;
-    loadMethod(calculator, method);
+    loadMethod(calculator, method, latestPropsRef.current.palette);
     loadedMethodRef.current = method;
   }, [method, ready]);
+
+  useEffect(() => {
+    const calculator = calculatorRef.current;
+    if (ready && calculator) updatePalette(calculator, palette);
+  }, [palette, ready]);
 
   useEffect(() => {
     const calculator = calculatorRef.current;
@@ -201,7 +241,9 @@ export default function MockCalculator({
 
   useEffect(() => {
     const calculator = calculatorRef.current;
-    if (ready && calculator) calculator.setMathBounds(BOUNDS[method]);
+    if (!ready || !calculator || resetSignal === lastResetSignalRef.current) return;
+    lastResetSignalRef.current = resetSignal;
+    calculator.setMathBounds(BOUNDS[method]);
   }, [resetSignal, method, ready]);
 
   return (
@@ -244,7 +286,7 @@ export default function MockCalculator({
                 padding: "10px 20px",
                 background: "#ffffff",
                 boxShadow: "0 3px 0 #e3e6e1",
-                color: TEAL,
+                color: palette.accent,
                 font: "inherit",
                 fontWeight: 600,
                 cursor: "pointer",

@@ -7,8 +7,8 @@ export const METHODS = {
     { title: 'Read the first coordinate', kind: 'Read', instruction: 'The point is (7, 0), so the x-coordinate is 7.', detail: 'The graph shows the difference of the two functions, so this point has y = 0. On the original graphs, the same x-value gives the intersection (7, 22).' },
   ] as Step[] },
   intersections: { name: 'Graph both equations', summary: 'Enter the two equations and select their intersection on the right.', steps: [
-    { title: 'Graph both equations', kind: 'Type', instruction: 'Give each equation its own expression line.', latex: ['y=x^2-4x+1', 'y=2x+8'], copy: 'y=x^2-4x+1\ny=2x+8', detail: 'The teal curve is the quadratic. The blue line is the linear equation. Points where they meet satisfy both equations.' },
-    { title: 'Select the right intersection', kind: 'Click', instruction: 'Click where the teal curve meets the blue line on the right.', detail: 'The graphs intersect at (−1, 6) and (7, 22). Use (7, 22), because its x-coordinate is positive.' },
+    { title: 'Graph both equations', kind: 'Type', instruction: 'Give each equation its own expression line.', latex: ['y=x^2-4x+1', 'y=2x+8'], copy: 'y=x^2-4x+1\ny=2x+8', detail: 'The parabola is the quadratic. The straight line is the linear equation. Points where they meet satisfy both equations.' },
+    { title: 'Select the right intersection', kind: 'Click', instruction: 'Click where the parabola meets the line on the right.', detail: 'The graphs intersect at (−1, 6) and (7, 22). Use (7, 22), because its x-coordinate is positive.' },
     { title: 'Read the first coordinate', kind: 'Read', instruction: 'At (7, 22), the x-coordinate is 7. You don’t need the y-value.', detail: 'The question asks for x, which is the first coordinate. Both equations give y = 22 when x = 7.' },
   ] as Step[] },
 };

@@ -1,0 +1,452 @@
+[
+  {
+    "id": "tidal",
+    "ratios": [
+      {
+        "kind": "accent",
+        "ratio": 4.6985100964768165
+      },
+      {
+        "kind": "secondary",
+        "ratio": 5.068018930250557
+      },
+      {
+        "kind": "tertiary",
+        "ratio": 4.819314976006904
+      },
+      {
+        "kind": "body",
+        "ratio": 12.936491461160378
+      },
+      {
+        "kind": "muted",
+        "ratio": 6.227232340175476
+      }
+    ]
+  },
+  {
+    "id": "lagoon",
+    "ratios": [
+      {
+        "kind": "accent",
+        "ratio": 4.702373547602463
+      },
+      {
+        "kind": "secondary",
+        "ratio": 4.898310646202878
+      },
+      {
+        "kind": "tertiary",
+        "ratio": 4.816563916380324
+      },
+      {
+        "kind": "body",
+        "ratio": 12.546946347570836
+      },
+      {
+        "kind": "muted",
+        "ratio": 6.111335540880988
+      }
+    ]
+  },
+  {
+    "id": "mint",
+    "ratios": [
+      {
+        "kind": "accent",
+        "ratio": 4.659552534174899
+      },
+      {
+        "kind": "secondary",
+        "ratio": 4.856209265389155
+      },
+      {
+        "kind": "tertiary",
+        "ratio": 4.8886529507943495
+      },
+      {
+        "kind": "body",
+        "ratio": 12.486577742889954
+      },
+      {
+        "kind": "muted",
+        "ratio": 6.066824001093894
+      }
+    ]
+  },
+  {
+    "id": "botanical",
+    "ratios": [
+      {
+        "kind": "accent",
+        "ratio": 4.799301992180067
+      },
+      {
+        "kind": "secondary",
+        "ratio": 4.8359651784986095
+      },
+      {
+        "kind": "tertiary",
+        "ratio": 4.781996674125312
+      },
+      {
+        "kind": "body",
+        "ratio": 12.683437960667975
+      },
+      {
+        "kind": "muted",
+        "ratio": 6.16792867221401
+      }
+    ]
+  },
+  {
+    "id": "cobalt",
+    "ratios": [
+      {
+        "kind": "accent",
+        "ratio": 5.008106528287796
+      },
+      {
+        "kind": "secondary",
+        "ratio": 4.967341151489334
+      },
+      {
+        "kind": "tertiary",
+        "ratio": 4.741902054614264
+      },
+      {
+        "kind": "body",
+        "ratio": 12.793093731762694
+      },
+      {
+        "kind": "muted",
+        "ratio": 6.207397280330814
+      }
+    ]
+  },
+  {
+    "id": "periwinkle",
+    "ratios": [
+      {
+        "kind": "accent",
+        "ratio": 5.173115593262823
+      },
+      {
+        "kind": "secondary",
+        "ratio": 4.704093032757672
+      },
+      {
+        "kind": "tertiary",
+        "ratio": 4.780167382959285
+      },
+      {
+        "kind": "body",
+        "ratio": 12.440840913205895
+      },
+      {
+        "kind": "muted",
+        "ratio": 6.055952463424493
+      }
+    ]
+  },
+  {
+    "id": "lavender",
+    "ratios": [
+      {
+        "kind": "accent",
+        "ratio": 4.886146221308877
+      },
+      {
+        "kind": "secondary",
+        "ratio": 5.0704094829928685
+      },
+      {
+        "kind": "tertiary",
+        "ratio": 4.833311377607523
+      },
+      {
+        "kind": "body",
+        "ratio": 12.46149043888887
+      },
+      {
+        "kind": "muted",
+        "ratio": 6.020103295284215
+      }
+    ]
+  },
+  {
+    "id": "plum",
+    "ratios": [
+      {
+        "kind": "accent",
+        "ratio": 5.094081191144659
+      },
+      {
+        "kind": "secondary",
+        "ratio": 4.730666890669878
+      },
+      {
+        "kind": "tertiary",
+        "ratio": 4.877470119940562
+      },
+      {
+        "kind": "body",
+        "ratio": 12.435562811853618
+      },
+      {
+        "kind": "muted",
+        "ratio": 6.031298618176411
+      }
+    ]
+  },
+  {
+    "id": "rose",
+    "ratios": [
+      {
+        "kind": "accent",
+        "ratio": 4.6768603902058405
+      },
+      {
+        "kind": "secondary",
+        "ratio": 4.824225117601013
+      },
+      {
+        "kind": "tertiary",
+        "ratio": 4.744583947263796
+      },
+      {
+        "kind": "body",
+        "ratio": 12.52974244063844
+      },
+      {
+        "kind": "muted",
+        "ratio": 6.0787051322468795
+      }
+    ]
+  },
+  {
+    "id": "coral",
+    "ratios": [
+      {
+        "kind": "accent",
+        "ratio": 4.7470359439234375
+      },
+      {
+        "kind": "secondary",
+        "ratio": 4.828606821691389
+      },
+      {
+        "kind": "tertiary",
+        "ratio": 4.78299943700258
+      },
+      {
+        "kind": "body",
+        "ratio": 12.349172345522442
+      },
+      {
+        "kind": "muted",
+        "ratio": 6.026962291121418
+      }
+    ]
+  },
+  {
+    "id": "terracotta",
+    "ratios": [
+      {
+        "kind": "accent",
+        "ratio": 4.700124249384605
+      },
+      {
+        "kind": "secondary",
+        "ratio": 4.705208792298582
+      },
+      {
+        "kind": "tertiary",
+        "ratio": 4.7189943671221695
+      },
+      {
+        "kind": "body",
+        "ratio": 12.200643684420012
+      },
+      {
+        "kind": "muted",
+        "ratio": 5.926427127845612
+      }
+    ]
+  },
+  {
+    "id": "marigold",
+    "ratios": [
+      {
+        "kind": "accent",
+        "ratio": 4.684869526003775
+      },
+      {
+        "kind": "secondary",
+        "ratio": 4.789999613799711
+      },
+      {
+        "kind": "tertiary",
+        "ratio": 4.849825030875879
+      },
+      {
+        "kind": "body",
+        "ratio": 12.039432278387729
+      },
+      {
+        "kind": "muted",
+        "ratio": 5.905954306415047
+      }
+    ]
+  },
+  {
+    "id": "espresso",
+    "ratios": [
+      {
+        "kind": "accent",
+        "ratio": 4.9744248227786505
+      },
+      {
+        "kind": "secondary",
+        "ratio": 4.836538448151132
+      },
+      {
+        "kind": "tertiary",
+        "ratio": 4.7068346512588715
+      },
+      {
+        "kind": "body",
+        "ratio": 12.831058819443488
+      },
+      {
+        "kind": "muted",
+        "ratio": 6.211124844650735
+      }
+    ]
+  },
+  {
+    "id": "sand",
+    "ratios": [
+      {
+        "kind": "accent",
+        "ratio": 4.691870927198394
+      },
+      {
+        "kind": "secondary",
+        "ratio": 4.815436119643215
+      },
+      {
+        "kind": "tertiary",
+        "ratio": 4.702494323581879
+      },
+      {
+        "kind": "body",
+        "ratio": 12.324034244390658
+      },
+      {
+        "kind": "muted",
+        "ratio": 6.026406324774852
+      }
+    ]
+  },
+  {
+    "id": "slate",
+    "ratios": [
+      {
+        "kind": "accent",
+        "ratio": 4.762238882384737
+      },
+      {
+        "kind": "secondary",
+        "ratio": 4.799404085046598
+      },
+      {
+        "kind": "tertiary",
+        "ratio": 4.745913684457045
+      },
+      {
+        "kind": "body",
+        "ratio": 12.439260364151178
+      },
+      {
+        "kind": "muted",
+        "ratio": 6.072367378305012
+      }
+    ]
+  },
+  {
+    "id": "graphite",
+    "ratios": [
+      {
+        "kind": "accent",
+        "ratio": 5.3102241784288395
+      },
+      {
+        "kind": "secondary",
+        "ratio": 4.7652878215545735
+      },
+      {
+        "kind": "tertiary",
+        "ratio": 4.861405050664968
+      },
+      {
+        "kind": "body",
+        "ratio": 12.93911629019328
+      },
+      {
+        "kind": "muted",
+        "ratio": 6.2440051222907575
+      }
+    ]
+  },
+  {
+    "id": "orchid",
+    "ratios": [
+      {
+        "kind": "accent",
+        "ratio": 4.807695014696907
+      },
+      {
+        "kind": "secondary",
+        "ratio": 4.761777325076801
+      },
+      {
+        "kind": "tertiary",
+        "ratio": 4.7474049883439315
+      },
+      {
+        "kind": "body",
+        "ratio": 12.767981308784467
+      },
+      {
+        "kind": "muted",
+        "ratio": 6.186776480538095
+      }
+    ]
+  },
+  {
+    "id": "citrus",
+    "ratios": [
+      {
+        "kind": "accent",
+        "ratio": 4.693108929088417
+      },
+      {
+        "kind": "secondary",
+        "ratio": 4.824001920288266
+      },
+      {
+        "kind": "tertiary",
+        "ratio": 4.836059185649822
+      },
+      {
+        "kind": "body",
+        "ratio": 12.214586636973776
+      },
+      {
+        "kind": "muted",
+        "ratio": 5.951633144051998
+      }
+    ]
+  }
+]

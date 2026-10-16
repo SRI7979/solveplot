@@ -75,7 +75,7 @@ function SolverSolution() {
       <div className="paneDivider" {...separatorProps}><span aria-hidden="true" /></div>
       <section className="calculatorPane" id="calculator-panel" aria-label="Desmos calculator" ref={graphRef}>
         <header className="calculatorHeader"><h2>Calculator</h2><div><button type="button" className={`expressionToggle${expressionsOpen ? ' toggled' : ''}`} aria-pressed={expressionsOpen} onClick={() => setExpressionsOpen(open => !open)} title="Show or hide Desmos expressions"><List size={17} /><span>Expressions</span></button><button type="button" className="iconButton" aria-label="Reset graph view" title="Reset view" onClick={() => setResetSignal(n => n + 1)}><RotateCcw size={17} /></button><button type="button" className="iconButton" aria-label="Expand calculator" title="Full screen" onClick={() => void expandGraph()}><Expand size={17} /></button></div></header>
-        <div className="graphContext"><span className="contextStep">{activeStep + 1}</span><span>{selected.steps[activeStep].title}</span></div>
+        <div className="graphContext" data-step={activeStep}><span className="contextStep">{activeStep + 1}</span><span>{selected.steps[activeStep].title}</span></div>
         <div className="calculatorCanvas"><MockCalculator key={sampleRevision} method={method} activeStep={activeStep} resetSignal={resetSignal} expressionsOpen={expressionsOpen} /></div>
         <footer className="graphFooter"><span className="curveKey"><i />{method === 'difference' ? 'Difference of the two expressions' : 'Quadratic'}{method === 'intersections' && <><i className="lineKey" />Line</>}</span></footer>
       </section>
