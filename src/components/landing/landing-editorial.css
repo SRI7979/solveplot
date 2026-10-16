@@ -3,16 +3,8 @@ html:has(.desmo-landing) { scroll-behavior: smooth; }
 .desmo-landing :is(section[id], details[id]) { scroll-margin-top: 36px; }
 .desmo-landing .landing-nav nav a { font-size: 14px; font-weight: 400; }
 .desmo-landing .landing-hero h1 { margin-top: 36px; }
-.desmo-landing .showcase-intro { text-align: left; margin-bottom: 36px; max-width: none; }
-.desmo-landing .showcase-intro h2 { max-width: 760px; margin: 0 0 18px; font-size: clamp(30px, 4vw, 44px); font-weight: 500; letter-spacing: -.035em; line-height: 1.18; }
-.desmo-landing .showcase-intro p { max-width: 640px; font-size: 16px; line-height: 1.7; color: #5d6d7a; }
-.desmo-landing .product-showcase { padding-top: 38px; padding-bottom: 72px; }
-.desmo-landing .calculator-loading { display: grid; place-items: center; color: var(--app-muted); background: var(--app-card); font-size: 14px; }
-.desmo-landing .personalization-story { padding-top: 64px; padding-bottom: 80px; }
-.desmo-landing .personalization-copy h2 { margin-top: 0; font-size: clamp(30px, 3.6vw, 42px); line-height: 1.2; letter-spacing: -.035em; }
-.desmo-landing .personalization-copy > p { max-width: 420px; font-size: 16px; line-height: 1.7; color: #5d6d7a; }
-.desmo-landing .scene-caption { font-size: 12px; letter-spacing: 0; margin-top: 24px; }
-.desmo-landing .refined-faq { grid-template-columns: minmax(0, .85fr) minmax(0, 1.3fr); gap: 64px; padding: 64px 0 72px; }
+.desmo-landing .landing-content:has(> #preview) { padding-top: 24px; }
+.desmo-landing .refined-faq { border-top: 1px solid #e0e8eb; grid-template-columns: minmax(0, .85fr) minmax(0, 1.3fr); gap: 64px; padding: 64px 0 72px; }
 .desmo-landing .refined-faq h2 { font-size: clamp(28px, 3vw, 36px); line-height: 1.2; font-weight: 500; letter-spacing: -.035em; margin: 0 0 16px; }
 .desmo-landing .faq-intro > p { color: #5d6d7a; font-size: 15px; line-height: 1.6; }
 .desmo-landing .faq-page-link { display: inline-flex; align-items: center; gap: 8px; margin-top: 20px; font-size: 14px; }
@@ -47,7 +39,6 @@ html:has(.desmo-landing) { scroll-behavior: smooth; }
   .desmo-landing .landing-nav nav a { font-size: 13px; }
   .desmo-landing .landing-hero { margin-top: 42px; }
   .desmo-landing .refined-faq { grid-template-columns: 1fr; gap: 28px; padding: 48px 0; }
-  .desmo-landing .showcase-intro p, .desmo-landing .personalization-copy > p { font-size: 15px; }
   .desmo-landing .faq-nav { padding: 22px 20px; }
   .desmo-landing .faq-content { padding: 40px 20px 0; }
   .desmo-landing .faq-directory { grid-template-columns: 1fr; gap: 30px; padding-top: 32px; }

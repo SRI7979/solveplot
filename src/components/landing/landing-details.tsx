@@ -2,13 +2,13 @@
 import Link from "next/link";
 import { ArrowRight, Plus } from "lucide-react";
 import { BRAND } from "@/lib/brand";
-import { ProductPersonalization } from "./landing-demo";
+import { LandingFeatures } from "./landing-features";
 import { LANDING_QUESTIONS } from "./questions";
 import { QuestionList } from "./question-list";
 
 export function LandingDetails() {
   return <>
-    <ProductPersonalization />
+    <LandingFeatures />
     <section className="landing-faq refined-faq" id="questions" aria-labelledby="faq-title">
       <div className="faq-intro">
         <h2 id="faq-title">Frequently asked questions</h2>
