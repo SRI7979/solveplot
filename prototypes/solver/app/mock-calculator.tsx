@@ -35,8 +35,8 @@ type Calculator = Omit<
   updateSettings: (settings: Record<string, unknown>) => void;
 };
 
-const TEAL = "#22766d";
-const BLUE = "#4c78b7";
+const TEAL = "#287c73";
+const BLUE = "#547ac0";
 const CURVE = "mock_curve";
 const LINE = "mock_line";
 const NEGATIVE_POINT = "mock_negative_point";
@@ -205,7 +205,7 @@ export default function MockCalculator({
   }, [resetSignal, method, ready]);
 
   return (
-    <div style={{ position: "absolute", inset: 0 }}>
+    <div style={{ position: "absolute", inset: 0, background: "#ffffff" }}>
       <div
         ref={mountRef}
         className="calculatorMount"
@@ -223,8 +223,8 @@ export default function MockCalculator({
             justifyContent: "center",
             gap: 12,
             padding: 24,
-            background: "#fff",
-            color: "#64716d",
+            background: "#ffffff",
+            color: "#666c6a",
             textAlign: "center",
           }}
         >
@@ -238,11 +238,15 @@ export default function MockCalculator({
                 setLoadAttempt((attempt) => attempt + 1);
               }}
               style={{
-                border: "1px solid #d5dfda",
-                borderRadius: 8,
-                padding: "9px 14px",
-                background: "#f4f8f5",
+                border: "1px solid #d4d8d5",
+                borderRadius: 999,
+                minHeight: 44,
+                padding: "10px 20px",
+                background: "#ffffff",
+                boxShadow: "0 3px 0 #e3e6e1",
                 color: TEAL,
+                font: "inherit",
+                fontWeight: 600,
                 cursor: "pointer",
               }}
             >

@@ -1,6 +1,339 @@
 {
-  "started": "2026-10-16T01:22:32.986Z",
+  "started": "2026-10-16T01:45:26.687Z",
   "checks": [
+    {
+      "name": "native light settings and teal rows",
+      "pass": true,
+      "details": {
+        "nativeInverted": false,
+        "colors": [
+          {
+            "id": "mock_curve",
+            "color": "#287c73"
+          },
+          {
+            "id": "mock_negative_point",
+            "color": "#287c73"
+          },
+          {
+            "id": "mock_positive_point",
+            "color": "#287c73"
+          }
+        ],
+        "appearance": {
+          "colorScheme": "light",
+          "bodyBackground": "rgb(247, 248, 250)",
+          "learningBackground": "rgb(255, 255, 255)",
+          "text": "rgb(38, 50, 56)"
+        }
+      }
+    },
+    {
+      "name": "desktop text and teal button contrast",
+      "pass": true,
+      "details": [
+        {
+          "selector": ".headerNew",
+          "color": "rgb(255, 255, 255)",
+          "background": [
+            40,
+            124,
+            115
+          ],
+          "fontSize": 14,
+          "fontWeight": 750,
+          "ratio": 4.975,
+          "threshold": 4.5,
+          "pass": true
+        },
+        {
+          "selector": ".sectionLabel",
+          "color": "rgb(96, 106, 112)",
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "fontSize": 13,
+          "fontWeight": 700,
+          "ratio": 5.537,
+          "threshold": 4.5,
+          "pass": true
+        },
+        {
+          "selector": ".textButton",
+          "color": "rgb(40, 124, 115)",
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "fontSize": 13,
+          "fontWeight": 700,
+          "ratio": 4.975,
+          "threshold": 4.5,
+          "pass": true
+        },
+        {
+          "selector": ".problemSummary > p",
+          "color": "rgb(96, 106, 112)",
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "fontSize": 15,
+          "fontWeight": 400,
+          "ratio": 5.537,
+          "threshold": 4.5,
+          "pass": true
+        },
+        {
+          "selector": ".originalToggle",
+          "color": "rgb(96, 106, 112)",
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "fontSize": 12,
+          "fontWeight": 650,
+          "ratio": 5.537,
+          "threshold": 4.5,
+          "pass": true
+        },
+        {
+          "selector": ".answerChoice",
+          "color": "rgb(96, 106, 112)",
+          "background": [
+            238,
+            246,
+            243
+          ],
+          "fontSize": 12,
+          "fontWeight": 700,
+          "ratio": 5.039,
+          "threshold": 4.5,
+          "pass": true
+        },
+        {
+          "selector": ".recommended",
+          "color": "rgb(40, 124, 115)",
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "fontSize": 12,
+          "fontWeight": 750,
+          "ratio": 4.975,
+          "threshold": 4.5,
+          "pass": true
+        },
+        {
+          "selector": ".methodMenu summary",
+          "color": "rgb(96, 106, 112)",
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "fontSize": 12,
+          "fontWeight": 650,
+          "ratio": 5.537,
+          "threshold": 4.5,
+          "pass": true
+        },
+        {
+          "selector": ".strategySummary",
+          "color": "rgb(96, 106, 112)",
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "fontSize": 15,
+          "fontWeight": 400,
+          "ratio": 5.537,
+          "threshold": 4.5,
+          "pass": true
+        },
+        {
+          "selector": ".actionKind",
+          "color": "rgb(96, 106, 112)",
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "fontSize": 10,
+          "fontWeight": 800,
+          "ratio": 5.537,
+          "threshold": 4.5,
+          "pass": true
+        },
+        {
+          "selector": ".stepBody > p",
+          "color": "rgb(96, 106, 112)",
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "fontSize": 14,
+          "fontWeight": 400,
+          "ratio": 5.537,
+          "threshold": 4.5,
+          "pass": true
+        },
+        {
+          "selector": ".whyDetail summary",
+          "color": "rgb(96, 106, 112)",
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "fontSize": 12,
+          "fontWeight": 650,
+          "ratio": 5.537,
+          "threshold": 4.5,
+          "pass": true
+        },
+        {
+          "selector": ".copyButton",
+          "color": "rgb(104, 115, 123)",
+          "background": [
+            247,
+            249,
+            250
+          ],
+          "fontSize": 11,
+          "fontWeight": 750,
+          "ratio": 4.596,
+          "threshold": 4.5,
+          "pass": true
+        },
+        {
+          "selector": ".pointButton",
+          "color": "rgb(40, 124, 115)",
+          "background": [
+            247,
+            249,
+            250
+          ],
+          "fontSize": 13,
+          "fontWeight": 750,
+          "ratio": 4.711,
+          "threshold": 4.5,
+          "pass": true
+        },
+        {
+          "selector": ".solutionStep[data-active=true] .stepNumber",
+          "color": "rgb(255, 255, 255)",
+          "background": [
+            40,
+            124,
+            115
+          ],
+          "fontSize": 14,
+          "fontWeight": 800,
+          "ratio": 4.975,
+          "threshold": 4.5,
+          "pass": true
+        },
+        {
+          "selector": ".expressionToggle",
+          "color": "rgb(96, 106, 112)",
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "fontSize": 12,
+          "fontWeight": 700,
+          "ratio": 5.537,
+          "threshold": 4.5,
+          "pass": true
+        },
+        {
+          "selector": ".graphContext",
+          "color": "rgb(96, 106, 112)",
+          "background": [
+            247,
+            249,
+            250
+          ],
+          "fontSize": 12,
+          "fontWeight": 400,
+          "ratio": 5.243,
+          "threshold": 4.5,
+          "pass": true
+        },
+        {
+          "selector": ".contextHint",
+          "color": "rgb(104, 115, 123)",
+          "background": [
+            247,
+            249,
+            250
+          ],
+          "fontSize": 11,
+          "fontWeight": 400,
+          "ratio": 4.596,
+          "threshold": 4.5,
+          "pass": true
+        },
+        {
+          "selector": ".graphFooter",
+          "color": "rgb(104, 115, 123)",
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "fontSize": 10,
+          "fontWeight": 400,
+          "ratio": 4.853,
+          "threshold": 4.5,
+          "pass": true
+        },
+        {
+          "selector": ".graphFooterHint",
+          "color": "rgb(104, 115, 123)",
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "fontSize": 10,
+          "fontWeight": 400,
+          "ratio": 4.853,
+          "threshold": 4.5,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "name": "hovered teal header button contrast",
+      "pass": true,
+      "details": [
+        {
+          "selector": ".headerNew",
+          "color": "rgb(255, 255, 255)",
+          "background": [
+            34,
+            109,
+            101
+          ],
+          "fontSize": 14,
+          "fontWeight": 750,
+          "ratio": 6.099,
+          "threshold": 4.5,
+          "pass": true
+        }
+      ]
+    },
     {
       "name": "default completed solution and compact original",
       "pass": true,
@@ -19,7 +352,7 @@
             "id": "mock_curve",
             "type": "expression",
             "latex": "y=x^{2}-4x+1-(2x+8)",
-            "color": "#22766d",
+            "color": "#287c73",
             "lineStyle": "SOLID",
             "lineWidth": "3",
             "lineOpacity": "1",
@@ -71,7 +404,7 @@
             "id": "mock_negative_point",
             "type": "expression",
             "latex": "(-1,0)",
-            "color": "#22766d",
+            "color": "#287c73",
             "lineStyle": "SOLID",
             "lineWidth": "",
             "lineOpacity": "",
@@ -123,7 +456,7 @@
             "id": "mock_positive_point",
             "type": "expression",
             "latex": "(7,0)",
-            "color": "#22766d",
+            "color": "#287c73",
             "lineStyle": "SOLID",
             "lineWidth": "",
             "lineOpacity": "",
@@ -205,34 +538,34 @@
           "scrollHeight": 1000
         },
         "learning": {
-          "x": 109,
-          "y": 77,
-          "width": 522.390625,
-          "height": 898,
-          "scrollHeight": 1045,
-          "clientHeight": 898,
+          "x": 110,
+          "y": 78,
+          "width": 521.59375,
+          "height": 896,
+          "scrollHeight": 1064,
+          "clientHeight": 896,
           "scrollWidth": 522,
           "clientWidth": 522
         },
         "calculator": {
-          "x": 631.390625,
-          "y": 77,
-          "width": 783.609375,
-          "height": 898,
-          "scrollHeight": 898,
-          "clientHeight": 898,
-          "scrollWidth": 783,
-          "clientWidth": 783
+          "x": 631.59375,
+          "y": 78,
+          "width": 782.40625,
+          "height": 896,
+          "scrollHeight": 896,
+          "clientHeight": 896,
+          "scrollWidth": 781,
+          "clientWidth": 781
         },
         "workspace": {
           "x": 108,
           "y": 76,
           "width": 1308,
           "height": 900,
-          "scrollHeight": 898,
-          "clientHeight": 898,
-          "scrollWidth": 1306,
-          "clientWidth": 1306
+          "scrollHeight": 896,
+          "clientHeight": 896,
+          "scrollWidth": 1304,
+          "clientWidth": 1304
         }
       }
     },
@@ -241,18 +574,18 @@
       "pass": true,
       "details": {
         "before": {
-          "x": 631.390625,
-          "y": 77,
-          "width": 783.609375,
-          "height": 898
+          "x": 631.59375,
+          "y": 78,
+          "width": 782.40625,
+          "height": 896
         },
         "after": {
-          "x": 631.390625,
-          "y": 77,
-          "width": 783.609375,
-          "height": 898
+          "x": 631.59375,
+          "y": 78,
+          "width": 782.40625,
+          "height": 896
         },
-        "scrollTop": 147
+        "scrollTop": 168
       }
     },
     {
@@ -266,7 +599,7 @@
             "id": "mock_curve",
             "type": "expression",
             "latex": "y=x^{2}-4x+1-(2x+8)",
-            "color": "#22766d",
+            "color": "#287c73",
             "lineStyle": "SOLID",
             "lineWidth": "4.5",
             "lineOpacity": "1",
@@ -318,7 +651,7 @@
             "id": "mock_positive_point",
             "type": "expression",
             "latex": "(7,0)",
-            "color": "#22766d",
+            "color": "#287c73",
             "lineStyle": "SOLID",
             "lineWidth": "",
             "lineOpacity": "",
@@ -374,7 +707,7 @@
             "id": "mock_curve",
             "type": "expression",
             "latex": "y=x^{2}-4x+1-(2x+8)",
-            "color": "#22766d",
+            "color": "#287c73",
             "lineStyle": "SOLID",
             "lineWidth": "3",
             "lineOpacity": "1",
@@ -426,7 +759,7 @@
             "id": "mock_positive_point",
             "type": "expression",
             "latex": "(7,0)",
-            "color": "#22766d",
+            "color": "#287c73",
             "lineStyle": "SOLID",
             "lineWidth": "",
             "lineOpacity": "",
@@ -482,7 +815,7 @@
             "id": "mock_curve",
             "type": "expression",
             "latex": "y=x^{2}-4x+1-(2x+8)",
-            "color": "#22766d",
+            "color": "#287c73",
             "lineStyle": "SOLID",
             "lineWidth": "3",
             "lineOpacity": "1",
@@ -534,7 +867,7 @@
             "id": "mock_positive_point",
             "type": "expression",
             "latex": "(7,0)",
-            "color": "#22766d",
+            "color": "#287c73",
             "lineStyle": "SOLID",
             "lineWidth": "",
             "lineOpacity": "",
@@ -599,9 +932,9 @@
       "name": "original image expands and collapses",
       "pass": true,
       "details": {
-        "x": 150,
-        "y": 285,
-        "width": 440.390625,
+        "x": 151,
+        "y": 286,
+        "width": 439.59375,
         "height": 210
       }
     },
@@ -615,7 +948,7 @@
             "id": "mock_curve",
             "type": "expression",
             "latex": "y=x^{2}-4x+1",
-            "color": "#22766d",
+            "color": "#287c73",
             "lineStyle": "SOLID",
             "lineWidth": "3",
             "lineOpacity": "1",
@@ -667,7 +1000,7 @@
             "id": "mock_line",
             "type": "expression",
             "latex": "y=2x+8",
-            "color": "#4c78b7",
+            "color": "#547ac0",
             "lineStyle": "SOLID",
             "lineWidth": "3",
             "lineOpacity": "1",
@@ -719,7 +1052,7 @@
             "id": "mock_negative_point",
             "type": "expression",
             "latex": "(-1,6)",
-            "color": "#22766d",
+            "color": "#287c73",
             "lineStyle": "SOLID",
             "lineWidth": "",
             "lineOpacity": "",
@@ -771,7 +1104,7 @@
             "id": "mock_positive_point",
             "type": "expression",
             "latex": "(7,22)",
-            "color": "#22766d",
+            "color": "#287c73",
             "lineStyle": "SOLID",
             "lineWidth": "",
             "lineOpacity": "",
@@ -843,6 +1176,15 @@
       }
     },
     {
+      "name": "alternative method uses native teal and blue in light mode",
+      "pass": true,
+      "details": {
+        "curveColor": "#287c73",
+        "lineColor": "#547ac0",
+        "invertedColors": false
+      }
+    },
+    {
       "name": "copy two equations exact multiline payload",
       "pass": true,
       "details": "y=x^2-4x+1\ny=2x+8"
@@ -866,11 +1208,11 @@
           },
           "pixelCoordinates": {
             "left": 0,
-            "right": 782.609375,
-            "width": 782.609375,
+            "right": 781.40625,
+            "width": 781.40625,
             "top": 0,
-            "bottom": 747,
-            "height": 747
+            "bottom": 745,
+            "height": 745
           }
         },
         "afterBounds": {
@@ -888,11 +1230,11 @@
           },
           "pixelCoordinates": {
             "left": 0,
-            "right": 782.609375,
-            "width": 782.609375,
+            "right": 781.40625,
+            "width": 781.40625,
             "top": 0,
-            "bottom": 747,
-            "height": 747
+            "bottom": 745,
+            "height": 745
           }
         },
         "student": {
@@ -982,6 +1324,130 @@
       }
     },
     {
+      "name": "upload dialog text and primary button contrast",
+      "pass": true,
+      "details": [
+        {
+          "selector": "dialog .uploadContent > p",
+          "color": "rgb(96, 106, 112)",
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "fontSize": 15,
+          "fontWeight": 400,
+          "ratio": 5.537,
+          "threshold": 4.5,
+          "pass": true
+        },
+        {
+          "selector": "dialog .uploadZone strong",
+          "color": "rgb(96, 106, 112)",
+          "background": [
+            247,
+            249,
+            250
+          ],
+          "fontSize": 17,
+          "fontWeight": 750,
+          "ratio": 5.243,
+          "threshold": 4.5,
+          "pass": true
+        },
+        {
+          "selector": "dialog .uploadZone > span",
+          "color": "rgb(104, 115, 123)",
+          "background": [
+            247,
+            249,
+            250
+          ],
+          "fontSize": 11,
+          "fontWeight": 400,
+          "ratio": 4.596,
+          "threshold": 4.5,
+          "pass": true
+        },
+        {
+          "selector": "dialog .secondaryButton",
+          "color": "rgb(104, 115, 123)",
+          "background": [
+            247,
+            249,
+            250
+          ],
+          "fontSize": 14,
+          "fontWeight": 750,
+          "ratio": 4.596,
+          "threshold": 4.5,
+          "pass": true
+        },
+        {
+          "selector": "dialog .primaryButton",
+          "color": "rgb(255, 255, 255)",
+          "background": [
+            40,
+            124,
+            115
+          ],
+          "fontSize": 15,
+          "fontWeight": 800,
+          "ratio": 4.975,
+          "threshold": 4.5,
+          "pass": true
+        },
+        {
+          "selector": "dialog .sampleDescription",
+          "color": "rgb(104, 115, 123)",
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "fontSize": 11,
+          "fontWeight": 400,
+          "ratio": 4.853,
+          "threshold": 4.5,
+          "pass": true
+        },
+        {
+          "selector": "dialog .uploadPreview p",
+          "color": "rgb(96, 106, 112)",
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "fontSize": 12,
+          "fontWeight": 400,
+          "ratio": 5.537,
+          "threshold": 4.5,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "name": "hovered primary sample button contrast",
+      "pass": true,
+      "details": [
+        {
+          "selector": "dialog .primaryButton",
+          "color": "rgb(255, 255, 255)",
+          "background": [
+            34,
+            109,
+            101
+          ],
+          "fontSize": 15,
+          "fontWeight": 800,
+          "ratio": 6.099,
+          "threshold": 4.5,
+          "pass": true
+        }
+      ]
+    },
+    {
       "name": "replace upload modal file preview and sample action",
       "pass": true,
       "details": {
@@ -1009,13 +1475,117 @@
           "scrollHeight": 844
         },
         "pane": {
-          "scrollWidth": 364,
-          "clientWidth": 364,
-          "scrollHeight": 1098,
-          "clientHeight": 705
+          "scrollWidth": 362,
+          "clientWidth": 362,
+          "scrollHeight": 1117,
+          "clientHeight": 703
         },
         "graphVisibility": "hidden"
       }
+    },
+    {
+      "name": "mobile tab and action contrast",
+      "pass": true,
+      "details": [
+        {
+          "selector": ".mobileTabs button[aria-selected=true]",
+          "color": "rgb(40, 124, 115)",
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "fontSize": 14,
+          "fontWeight": 800,
+          "ratio": 4.975,
+          "threshold": 4.5,
+          "pass": true
+        },
+        {
+          "selector": ".mobileTabs button[aria-selected=false]",
+          "color": "rgb(104, 115, 123)",
+          "background": [
+            247,
+            248,
+            250
+          ],
+          "fontSize": 14,
+          "fontWeight": 800,
+          "ratio": 4.567,
+          "threshold": 4.5,
+          "pass": true
+        },
+        {
+          "selector": ".textButton",
+          "color": "rgb(40, 124, 115)",
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "fontSize": 13,
+          "fontWeight": 700,
+          "ratio": 4.975,
+          "threshold": 4.5,
+          "pass": true
+        },
+        {
+          "selector": ".methodMenu summary",
+          "color": "rgb(96, 106, 112)",
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "fontSize": 11,
+          "fontWeight": 650,
+          "ratio": 5.537,
+          "threshold": 4.5,
+          "pass": true
+        },
+        {
+          "selector": ".originalToggle",
+          "color": "rgb(96, 106, 112)",
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "fontSize": 11,
+          "fontWeight": 650,
+          "ratio": 5.537,
+          "threshold": 4.5,
+          "pass": true
+        },
+        {
+          "selector": ".copyButton",
+          "color": "rgb(104, 115, 123)",
+          "background": [
+            247,
+            249,
+            250
+          ],
+          "fontSize": 11,
+          "fontWeight": 750,
+          "ratio": 4.596,
+          "threshold": 4.5,
+          "pass": true
+        },
+        {
+          "selector": ".pointButton",
+          "color": "rgb(40, 124, 115)",
+          "background": [
+            247,
+            249,
+            250
+          ],
+          "fontSize": 13,
+          "fontWeight": 750,
+          "ratio": 4.711,
+          "threshold": 4.5,
+          "pass": true
+        }
+      ]
     },
     {
       "name": "mobile tab switching preserves native instance and expression",
@@ -1042,36 +1612,36 @@
           "left": 12,
           "right": 378,
           "width": 366,
-          "scrollWidth": 364,
-          "clientWidth": 364
+          "scrollWidth": 362,
+          "clientWidth": 362
         },
         ".calculatorPane": {
-          "left": 13,
-          "right": 377,
-          "width": 364,
-          "scrollWidth": 364,
-          "clientWidth": 364
+          "left": 14,
+          "right": 376,
+          "width": 362,
+          "scrollWidth": 362,
+          "clientWidth": 362
         },
         ".calculatorHeader": {
-          "left": 13,
-          "right": 377,
-          "width": 364,
-          "scrollWidth": 364,
-          "clientWidth": 364
+          "left": 14,
+          "right": 376,
+          "width": 362,
+          "scrollWidth": 362,
+          "clientWidth": 362
         },
         ".graphContext": {
-          "left": 13,
-          "right": 377,
-          "width": 364,
-          "scrollWidth": 364,
-          "clientWidth": 364
+          "left": 14,
+          "right": 376,
+          "width": 362,
+          "scrollWidth": 362,
+          "clientWidth": 362
         },
         ".graphFooter": {
-          "left": 13,
-          "right": 377,
-          "width": 364,
-          "scrollWidth": 364,
-          "clientWidth": 364
+          "left": 14,
+          "right": 376,
+          "width": 362,
+          "scrollWidth": 362,
+          "clientWidth": 362
         }
       }
     },
@@ -1087,8 +1657,8 @@
       "pass": true,
       "details": {
         "menu": {
-          "x": 58,
-          "y": 423.78125,
+          "x": 57,
+          "y": 424.78125,
           "width": 300,
           "height": 173.5
         },
@@ -1104,20 +1674,20 @@
           "scrollHeight": 892
         },
         "learning": {
-          "x": 109,
-          "y": 77,
-          "width": 443.1875,
-          "height": 790,
-          "scrollWidth": 443,
-          "clientWidth": 443
+          "x": 110,
+          "y": 78,
+          "width": 442.390625,
+          "height": 788,
+          "scrollWidth": 442,
+          "clientWidth": 442
         },
         "calculator": {
-          "x": 552.1875,
-          "y": 77,
-          "width": 664.8125,
-          "height": 790,
-          "scrollWidth": 664,
-          "clientWidth": 664
+          "x": 552.390625,
+          "y": 78,
+          "width": 663.609375,
+          "height": 788,
+          "scrollWidth": 663,
+          "clientWidth": 663
         }
       }
     }
@@ -1176,18 +1746,18 @@
   "consoleErrors": [],
   "pageErrors": [],
   "screenshots": [
-    "/tmp/solver-mock-qa/desktop-default-1440x1000.png",
-    "/tmp/solver-mock-qa/desktop-original-expanded.png",
-    "/tmp/solver-mock-qa/desktop-intersections.png",
-    "/tmp/solver-mock-qa/desktop-expressions-open.png",
-    "/tmp/solver-mock-qa/desktop-upload-preview.png",
-    "/tmp/solver-mock-qa/desktop-calculator-fullscreen.png",
-    "/tmp/solver-mock-qa/mobile-steps-390x844.png",
-    "/tmp/solver-mock-qa/mobile-calculator-390x844.png",
-    "/tmp/solver-mock-qa/mobile-methods-menu.png",
-    "/tmp/solver-mock-qa/mobile-alternative-steps-390x844.png",
-    "/tmp/solver-mock-qa/mobile-alternative-calculator-390x844.png",
-    "/tmp/solver-mock-qa/desktop-default-1242x892.png"
+    "/tmp/solver-light-qa/desktop-default-1440x1000.png",
+    "/tmp/solver-light-qa/desktop-original-expanded.png",
+    "/tmp/solver-light-qa/desktop-intersections.png",
+    "/tmp/solver-light-qa/desktop-expressions-open.png",
+    "/tmp/solver-light-qa/desktop-upload-preview.png",
+    "/tmp/solver-light-qa/desktop-calculator-fullscreen.png",
+    "/tmp/solver-light-qa/mobile-steps-390x844.png",
+    "/tmp/solver-light-qa/mobile-calculator-390x844.png",
+    "/tmp/solver-light-qa/mobile-methods-menu.png",
+    "/tmp/solver-light-qa/mobile-alternative-steps-390x844.png",
+    "/tmp/solver-light-qa/mobile-alternative-calculator-390x844.png",
+    "/tmp/solver-light-qa/desktop-default-1242x892.png"
   ],
   "initial": {
     "count": 1,
@@ -1197,7 +1767,7 @@
         "id": "mock_curve",
         "type": "expression",
         "latex": "y=x^{2}-4x+1-(2x+8)",
-        "color": "#22766d",
+        "color": "#287c73",
         "lineStyle": "SOLID",
         "lineWidth": "3",
         "lineOpacity": "1",
@@ -1249,7 +1819,7 @@
         "id": "mock_negative_point",
         "type": "expression",
         "latex": "(-1,0)",
-        "color": "#22766d",
+        "color": "#287c73",
         "lineStyle": "SOLID",
         "lineWidth": "",
         "lineOpacity": "",
@@ -1301,7 +1871,7 @@
         "id": "mock_positive_point",
         "type": "expression",
         "latex": "(7,0)",
-        "color": "#22766d",
+        "color": "#287c73",
         "lineStyle": "SOLID",
         "lineWidth": "",
         "lineOpacity": "",
@@ -1381,16 +1951,16 @@
       },
       "pixelCoordinates": {
         "left": 0,
-        "right": 782.609375,
-        "width": 782.609375,
+        "right": 781.40625,
+        "width": 781.40625,
         "top": 0,
-        "bottom": 747,
-        "height": 747
+        "bottom": 745,
+        "height": 745
       }
     },
     "settings": {
       "__observers": {},
-      "guid": "guid_134933_1792113755266_5",
+      "guid": "guid_37587_1792115129010_5",
       "showGrid": true,
       "showXAxis": true,
       "showYAxis": true,
@@ -1409,7 +1979,7 @@
       "polarMode": false,
       "polarNumbers": true,
       "degreeMode": false,
-      "randomSeed": "aacd1d77cb248b2c1ce0cf5827004cbf",
+      "randomSeed": "dc107c53e994cdc21c999aa8e0780c9c",
       "restrictGridToFirstQuadrant": false,
       "userLockedViewport": false,
       "complex": false,
@@ -1486,6 +2056,327 @@
       "customRegressions": true
     }
   },
+  "lightSettings": {
+    "nativeInverted": false,
+    "colors": [
+      {
+        "id": "mock_curve",
+        "color": "#287c73"
+      },
+      {
+        "id": "mock_negative_point",
+        "color": "#287c73"
+      },
+      {
+        "id": "mock_positive_point",
+        "color": "#287c73"
+      }
+    ],
+    "appearance": {
+      "colorScheme": "light",
+      "bodyBackground": "rgb(247, 248, 250)",
+      "learningBackground": "rgb(255, 255, 255)",
+      "text": "rgb(38, 50, 56)"
+    }
+  },
+  "desktopContrast": [
+    {
+      "selector": ".headerNew",
+      "color": "rgb(255, 255, 255)",
+      "background": [
+        40,
+        124,
+        115
+      ],
+      "fontSize": 14,
+      "fontWeight": 750,
+      "ratio": 4.975,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": ".sectionLabel",
+      "color": "rgb(96, 106, 112)",
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "fontSize": 13,
+      "fontWeight": 700,
+      "ratio": 5.537,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": ".textButton",
+      "color": "rgb(40, 124, 115)",
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "fontSize": 13,
+      "fontWeight": 700,
+      "ratio": 4.975,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": ".problemSummary > p",
+      "color": "rgb(96, 106, 112)",
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "fontSize": 15,
+      "fontWeight": 400,
+      "ratio": 5.537,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": ".originalToggle",
+      "color": "rgb(96, 106, 112)",
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "fontSize": 12,
+      "fontWeight": 650,
+      "ratio": 5.537,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": ".answerChoice",
+      "color": "rgb(96, 106, 112)",
+      "background": [
+        238,
+        246,
+        243
+      ],
+      "fontSize": 12,
+      "fontWeight": 700,
+      "ratio": 5.039,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": ".recommended",
+      "color": "rgb(40, 124, 115)",
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "fontSize": 12,
+      "fontWeight": 750,
+      "ratio": 4.975,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": ".methodMenu summary",
+      "color": "rgb(96, 106, 112)",
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "fontSize": 12,
+      "fontWeight": 650,
+      "ratio": 5.537,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": ".strategySummary",
+      "color": "rgb(96, 106, 112)",
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "fontSize": 15,
+      "fontWeight": 400,
+      "ratio": 5.537,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": ".actionKind",
+      "color": "rgb(96, 106, 112)",
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "fontSize": 10,
+      "fontWeight": 800,
+      "ratio": 5.537,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": ".stepBody > p",
+      "color": "rgb(96, 106, 112)",
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "fontSize": 14,
+      "fontWeight": 400,
+      "ratio": 5.537,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": ".whyDetail summary",
+      "color": "rgb(96, 106, 112)",
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "fontSize": 12,
+      "fontWeight": 650,
+      "ratio": 5.537,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": ".copyButton",
+      "color": "rgb(104, 115, 123)",
+      "background": [
+        247,
+        249,
+        250
+      ],
+      "fontSize": 11,
+      "fontWeight": 750,
+      "ratio": 4.596,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": ".pointButton",
+      "color": "rgb(40, 124, 115)",
+      "background": [
+        247,
+        249,
+        250
+      ],
+      "fontSize": 13,
+      "fontWeight": 750,
+      "ratio": 4.711,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": ".solutionStep[data-active=true] .stepNumber",
+      "color": "rgb(255, 255, 255)",
+      "background": [
+        40,
+        124,
+        115
+      ],
+      "fontSize": 14,
+      "fontWeight": 800,
+      "ratio": 4.975,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": ".expressionToggle",
+      "color": "rgb(96, 106, 112)",
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "fontSize": 12,
+      "fontWeight": 700,
+      "ratio": 5.537,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": ".graphContext",
+      "color": "rgb(96, 106, 112)",
+      "background": [
+        247,
+        249,
+        250
+      ],
+      "fontSize": 12,
+      "fontWeight": 400,
+      "ratio": 5.243,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": ".contextHint",
+      "color": "rgb(104, 115, 123)",
+      "background": [
+        247,
+        249,
+        250
+      ],
+      "fontSize": 11,
+      "fontWeight": 400,
+      "ratio": 4.596,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": ".graphFooter",
+      "color": "rgb(104, 115, 123)",
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "fontSize": 10,
+      "fontWeight": 400,
+      "ratio": 4.853,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": ".graphFooterHint",
+      "color": "rgb(104, 115, 123)",
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "fontSize": 10,
+      "fontWeight": 400,
+      "ratio": 4.853,
+      "threshold": 4.5,
+      "pass": true
+    }
+  ],
+  "headerHoverContrast": [
+    {
+      "selector": ".headerNew",
+      "color": "rgb(255, 255, 255)",
+      "background": [
+        34,
+        109,
+        101
+      ],
+      "fontSize": 14,
+      "fontWeight": 750,
+      "ratio": 6.099,
+      "threshold": 4.5,
+      "pass": true
+    }
+  ],
   "desktopMetrics": {
     "viewport": {
       "width": 1440,
@@ -1497,36 +2388,152 @@
       "scrollHeight": 1000
     },
     "learning": {
-      "x": 109,
-      "y": 77,
-      "width": 522.390625,
-      "height": 898,
-      "scrollHeight": 1045,
-      "clientHeight": 898,
+      "x": 110,
+      "y": 78,
+      "width": 521.59375,
+      "height": 896,
+      "scrollHeight": 1064,
+      "clientHeight": 896,
       "scrollWidth": 522,
       "clientWidth": 522
     },
     "calculator": {
-      "x": 631.390625,
-      "y": 77,
-      "width": 783.609375,
-      "height": 898,
-      "scrollHeight": 898,
-      "clientHeight": 898,
-      "scrollWidth": 783,
-      "clientWidth": 783
+      "x": 631.59375,
+      "y": 78,
+      "width": 782.40625,
+      "height": 896,
+      "scrollHeight": 896,
+      "clientHeight": 896,
+      "scrollWidth": 781,
+      "clientWidth": 781
     },
     "workspace": {
       "x": 108,
       "y": 76,
       "width": 1308,
       "height": 900,
-      "scrollHeight": 898,
-      "clientHeight": 898,
-      "scrollWidth": 1306,
-      "clientWidth": 1306
+      "scrollHeight": 896,
+      "clientHeight": 896,
+      "scrollWidth": 1304,
+      "clientWidth": 1304
     }
   },
+  "uploadContrast": [
+    {
+      "selector": "dialog .uploadContent > p",
+      "color": "rgb(96, 106, 112)",
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "fontSize": 15,
+      "fontWeight": 400,
+      "ratio": 5.537,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dialog .uploadZone strong",
+      "color": "rgb(96, 106, 112)",
+      "background": [
+        247,
+        249,
+        250
+      ],
+      "fontSize": 17,
+      "fontWeight": 750,
+      "ratio": 5.243,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dialog .uploadZone > span",
+      "color": "rgb(104, 115, 123)",
+      "background": [
+        247,
+        249,
+        250
+      ],
+      "fontSize": 11,
+      "fontWeight": 400,
+      "ratio": 4.596,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dialog .secondaryButton",
+      "color": "rgb(104, 115, 123)",
+      "background": [
+        247,
+        249,
+        250
+      ],
+      "fontSize": 14,
+      "fontWeight": 750,
+      "ratio": 4.596,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dialog .primaryButton",
+      "color": "rgb(255, 255, 255)",
+      "background": [
+        40,
+        124,
+        115
+      ],
+      "fontSize": 15,
+      "fontWeight": 800,
+      "ratio": 4.975,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dialog .sampleDescription",
+      "color": "rgb(104, 115, 123)",
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "fontSize": 11,
+      "fontWeight": 400,
+      "ratio": 4.853,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dialog .uploadPreview p",
+      "color": "rgb(96, 106, 112)",
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "fontSize": 12,
+      "fontWeight": 400,
+      "ratio": 5.537,
+      "threshold": 4.5,
+      "pass": true
+    }
+  ],
+  "primaryHoverContrast": [
+    {
+      "selector": "dialog .primaryButton",
+      "color": "rgb(255, 255, 255)",
+      "background": [
+        34,
+        109,
+        101
+      ],
+      "fontSize": 15,
+      "fontWeight": 800,
+      "ratio": 6.099,
+      "threshold": 4.5,
+      "pass": true
+    }
+  ],
   "mobileMetrics": {
     "viewport": {
       "width": 390,
@@ -1538,33 +2545,133 @@
       "scrollHeight": 844
     },
     "pane": {
-      "scrollWidth": 364,
-      "clientWidth": 364,
-      "scrollHeight": 1098,
-      "clientHeight": 705
+      "scrollWidth": 362,
+      "clientWidth": 362,
+      "scrollHeight": 1117,
+      "clientHeight": 703
     },
     "graphVisibility": "hidden"
   },
+  "mobileContrast": [
+    {
+      "selector": ".mobileTabs button[aria-selected=true]",
+      "color": "rgb(40, 124, 115)",
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "fontSize": 14,
+      "fontWeight": 800,
+      "ratio": 4.975,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": ".mobileTabs button[aria-selected=false]",
+      "color": "rgb(104, 115, 123)",
+      "background": [
+        247,
+        248,
+        250
+      ],
+      "fontSize": 14,
+      "fontWeight": 800,
+      "ratio": 4.567,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": ".textButton",
+      "color": "rgb(40, 124, 115)",
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "fontSize": 13,
+      "fontWeight": 700,
+      "ratio": 4.975,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": ".methodMenu summary",
+      "color": "rgb(96, 106, 112)",
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "fontSize": 11,
+      "fontWeight": 650,
+      "ratio": 5.537,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": ".originalToggle",
+      "color": "rgb(96, 106, 112)",
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "fontSize": 11,
+      "fontWeight": 650,
+      "ratio": 5.537,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": ".copyButton",
+      "color": "rgb(104, 115, 123)",
+      "background": [
+        247,
+        249,
+        250
+      ],
+      "fontSize": 11,
+      "fontWeight": 750,
+      "ratio": 4.596,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": ".pointButton",
+      "color": "rgb(40, 124, 115)",
+      "background": [
+        247,
+        249,
+        250
+      ],
+      "fontSize": 13,
+      "fontWeight": 750,
+      "ratio": 4.711,
+      "threshold": 4.5,
+      "pass": true
+    }
+  ],
   "desktop1242Metrics": {
     "document": {
       "scrollWidth": 1242,
       "scrollHeight": 892
     },
     "learning": {
-      "x": 109,
-      "y": 77,
-      "width": 443.1875,
-      "height": 790,
-      "scrollWidth": 443,
-      "clientWidth": 443
+      "x": 110,
+      "y": 78,
+      "width": 442.390625,
+      "height": 788,
+      "scrollWidth": 442,
+      "clientWidth": 442
     },
     "calculator": {
-      "x": 552.1875,
-      "y": 77,
-      "width": 664.8125,
-      "height": 790,
-      "scrollWidth": 664,
-      "clientWidth": 664
+      "x": 552.390625,
+      "y": 78,
+      "width": 663.609375,
+      "height": 788,
+      "scrollWidth": 663,
+      "clientWidth": 663
     }
   },
   "final": {
@@ -1575,7 +2682,7 @@
         "id": "mock_curve",
         "type": "expression",
         "latex": "y=x^{2}-4x+1-(2x+8)",
-        "color": "#22766d",
+        "color": "#287c73",
         "lineStyle": "SOLID",
         "lineWidth": "3",
         "lineOpacity": "1",
@@ -1627,7 +2734,7 @@
         "id": "mock_negative_point",
         "type": "expression",
         "latex": "(-1,0)",
-        "color": "#22766d",
+        "color": "#287c73",
         "lineStyle": "SOLID",
         "lineWidth": "",
         "lineOpacity": "",
@@ -1679,7 +2786,7 @@
         "id": "mock_positive_point",
         "type": "expression",
         "latex": "(7,0)",
-        "color": "#22766d",
+        "color": "#287c73",
         "lineStyle": "SOLID",
         "lineWidth": "",
         "lineOpacity": "",
@@ -1759,16 +2866,16 @@
       },
       "pixelCoordinates": {
         "left": 0,
-        "right": 663.8125,
-        "width": 663.8125,
+        "right": 662.609375,
+        "width": 662.609375,
         "top": 0,
-        "bottom": 639,
-        "height": 639
+        "bottom": 637,
+        "height": 637
       }
     },
     "settings": {
       "__observers": {},
-      "guid": "guid_134933_1792113755266_20",
+      "guid": "guid_37587_1792115129010_20",
       "showGrid": true,
       "showXAxis": true,
       "showYAxis": true,
@@ -1787,7 +2894,7 @@
       "polarMode": false,
       "polarNumbers": true,
       "degreeMode": false,
-      "randomSeed": "e39776bb8bb7b820da6608f07a078dc3",
+      "randomSeed": "c5eaee8f4e164ad86e002c2d2b9c2687",
       "restrictGridToFirstQuadrant": false,
       "userLockedViewport": false,
       "complex": false,
@@ -1864,7 +2971,8 @@
       "customRegressions": true
     }
   },
-  "finished": "2026-10-16T01:22:45.319Z",
+  "finished": "2026-10-16T01:45:39.688Z",
+  "finalVerifiedAt": "2026-10-16T01:46:30.136Z",
   "cleanCaptureStates": {
     "default": {
       "count": 1,
@@ -1873,7 +2981,7 @@
           "id": "mock_curve",
           "type": "expression",
           "latex": "y=x^{2}-4x+1-(2x+8)",
-          "color": "#22766d",
+          "color": "#287c73",
           "lineStyle": "SOLID",
           "lineWidth": "3",
           "lineOpacity": "1",
@@ -1925,7 +3033,7 @@
           "id": "mock_negative_point",
           "type": "expression",
           "latex": "(-1,0)",
-          "color": "#22766d",
+          "color": "#287c73",
           "lineStyle": "SOLID",
           "lineWidth": "",
           "lineOpacity": "",
@@ -1977,7 +3085,7 @@
           "id": "mock_positive_point",
           "type": "expression",
           "latex": "(7,0)",
-          "color": "#22766d",
+          "color": "#287c73",
           "lineStyle": "SOLID",
           "lineWidth": "",
           "lineOpacity": "",
@@ -2050,7 +3158,7 @@
           "id": "mock_curve",
           "type": "expression",
           "latex": "y=x^{2}-4x+1",
-          "color": "#22766d",
+          "color": "#287c73",
           "lineStyle": "SOLID",
           "lineWidth": "3",
           "lineOpacity": "1",
@@ -2102,7 +3210,7 @@
           "id": "mock_line",
           "type": "expression",
           "latex": "y=2x+8",
-          "color": "#4c78b7",
+          "color": "#547ac0",
           "lineStyle": "SOLID",
           "lineWidth": "3",
           "lineOpacity": "1",
@@ -2154,7 +3262,7 @@
           "id": "mock_negative_point",
           "type": "expression",
           "latex": "(-1,6)",
-          "color": "#22766d",
+          "color": "#287c73",
           "lineStyle": "SOLID",
           "lineWidth": "",
           "lineOpacity": "",
@@ -2206,7 +3314,7 @@
           "id": "mock_positive_point",
           "type": "expression",
           "latex": "(7,22)",
-          "color": "#22766d",
+          "color": "#287c73",
           "lineStyle": "SOLID",
           "lineWidth": "",
           "lineOpacity": "",
