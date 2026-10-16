@@ -1,0 +1,2283 @@
+{
+  "started": "2026-10-16T01:22:32.986Z",
+  "checks": [
+    {
+      "name": "default completed solution and compact original",
+      "pass": true,
+      "details": {
+        "answer": "Answer\n7\nChoice C",
+        "originalExpanded": false,
+        "nativeCount": 1
+      }
+    },
+    {
+      "name": "default difference expressions and math analysis",
+      "pass": true,
+      "details": {
+        "expressions": [
+          {
+            "id": "mock_curve",
+            "type": "expression",
+            "latex": "y=x^{2}-4x+1-(2x+8)",
+            "color": "#22766d",
+            "lineStyle": "SOLID",
+            "lineWidth": "3",
+            "lineOpacity": "1",
+            "pointStyle": "POINT",
+            "pointSize": "",
+            "movablePointSize": "",
+            "pointOpacity": "",
+            "fillOpacity": "",
+            "hidden": false,
+            "secret": false,
+            "dragMode": "AUTO",
+            "label": "",
+            "showLabel": false,
+            "labelSize": "",
+            "labelOrientation": "default",
+            "interactiveLabel": false,
+            "readonly": false,
+            "parametricDomain": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Du": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dv": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dr": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dphi": {
+              "min": "",
+              "max": ""
+            },
+            "polarDomain": {
+              "min": "",
+              "max": ""
+            },
+            "domain": {
+              "min": "0",
+              "max": "1"
+            },
+            "playing": false
+          },
+          {
+            "id": "mock_negative_point",
+            "type": "expression",
+            "latex": "(-1,0)",
+            "color": "#22766d",
+            "lineStyle": "SOLID",
+            "lineWidth": "",
+            "lineOpacity": "",
+            "pointStyle": "POINT",
+            "pointSize": "7",
+            "movablePointSize": "",
+            "pointOpacity": "0.65",
+            "fillOpacity": "",
+            "hidden": false,
+            "secret": true,
+            "dragMode": "AUTO",
+            "label": "",
+            "showLabel": false,
+            "labelSize": "",
+            "labelOrientation": "default",
+            "interactiveLabel": false,
+            "readonly": false,
+            "parametricDomain": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Du": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dv": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dr": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dphi": {
+              "min": "",
+              "max": ""
+            },
+            "polarDomain": {
+              "min": "",
+              "max": ""
+            },
+            "domain": {
+              "min": "0",
+              "max": "1"
+            },
+            "playing": false
+          },
+          {
+            "id": "mock_positive_point",
+            "type": "expression",
+            "latex": "(7,0)",
+            "color": "#22766d",
+            "lineStyle": "SOLID",
+            "lineWidth": "",
+            "lineOpacity": "",
+            "pointStyle": "POINT",
+            "pointSize": "15",
+            "movablePointSize": "15",
+            "pointOpacity": "1",
+            "fillOpacity": "",
+            "hidden": false,
+            "secret": true,
+            "dragMode": "AUTO",
+            "label": "(7, 0)",
+            "showLabel": true,
+            "labelSize": "",
+            "labelOrientation": "default",
+            "interactiveLabel": false,
+            "readonly": false,
+            "parametricDomain": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Du": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dv": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dr": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dphi": {
+              "min": "",
+              "max": ""
+            },
+            "polarDomain": {
+              "min": "",
+              "max": ""
+            },
+            "domain": {
+              "min": "0",
+              "max": "1"
+            },
+            "playing": false
+          }
+        ],
+        "analysis": {
+          "mock_curve": {
+            "isGraphable": true,
+            "isError": false
+          },
+          "mock_negative_point": {
+            "isGraphable": true,
+            "isError": false,
+            "evaluationDisplayed": false
+          },
+          "mock_positive_point": {
+            "isGraphable": true,
+            "isError": false,
+            "evaluationDisplayed": false
+          }
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "desktop 40/60 layout without page overflow",
+      "pass": true,
+      "details": {
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "body": {
+          "scrollWidth": 1440,
+          "clientWidth": 1440,
+          "scrollHeight": 1000
+        },
+        "learning": {
+          "x": 109,
+          "y": 77,
+          "width": 522.390625,
+          "height": 898,
+          "scrollHeight": 1045,
+          "clientHeight": 898,
+          "scrollWidth": 522,
+          "clientWidth": 522
+        },
+        "calculator": {
+          "x": 631.390625,
+          "y": 77,
+          "width": 783.609375,
+          "height": 898,
+          "scrollHeight": 898,
+          "clientHeight": 898,
+          "scrollWidth": 783,
+          "clientWidth": 783
+        },
+        "workspace": {
+          "x": 108,
+          "y": 76,
+          "width": 1308,
+          "height": 900,
+          "scrollHeight": 898,
+          "clientHeight": 898,
+          "scrollWidth": 1306,
+          "clientWidth": 1306
+        }
+      }
+    },
+    {
+      "name": "left pane scroll keeps graph fixed",
+      "pass": true,
+      "details": {
+        "before": {
+          "x": 631.390625,
+          "y": 77,
+          "width": 783.609375,
+          "height": 898
+        },
+        "after": {
+          "x": 631.390625,
+          "y": 77,
+          "width": 783.609375,
+          "height": 898
+        },
+        "scrollTop": 147
+      }
+    },
+    {
+      "name": "step buttons update native styles without recreation",
+      "pass": true,
+      "details": [
+        {
+          "step": 1,
+          "count": 1,
+          "curve": {
+            "id": "mock_curve",
+            "type": "expression",
+            "latex": "y=x^{2}-4x+1-(2x+8)",
+            "color": "#22766d",
+            "lineStyle": "SOLID",
+            "lineWidth": "4.5",
+            "lineOpacity": "1",
+            "pointStyle": "POINT",
+            "pointSize": "",
+            "movablePointSize": "",
+            "pointOpacity": "",
+            "fillOpacity": "",
+            "hidden": false,
+            "secret": false,
+            "dragMode": "AUTO",
+            "label": "",
+            "showLabel": false,
+            "labelSize": "",
+            "labelOrientation": "default",
+            "interactiveLabel": false,
+            "readonly": false,
+            "parametricDomain": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Du": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dv": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dr": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dphi": {
+              "min": "",
+              "max": ""
+            },
+            "polarDomain": {
+              "min": "",
+              "max": ""
+            },
+            "domain": {
+              "min": "0",
+              "max": "1"
+            },
+            "playing": false
+          },
+          "point": {
+            "id": "mock_positive_point",
+            "type": "expression",
+            "latex": "(7,0)",
+            "color": "#22766d",
+            "lineStyle": "SOLID",
+            "lineWidth": "",
+            "lineOpacity": "",
+            "pointStyle": "POINT",
+            "pointSize": "8",
+            "movablePointSize": "8",
+            "pointOpacity": "0.7",
+            "fillOpacity": "",
+            "hidden": false,
+            "secret": true,
+            "dragMode": "AUTO",
+            "label": "(7, 0)",
+            "showLabel": false,
+            "labelSize": "",
+            "labelOrientation": "default",
+            "interactiveLabel": false,
+            "readonly": false,
+            "parametricDomain": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Du": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dv": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dr": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dphi": {
+              "min": "",
+              "max": ""
+            },
+            "polarDomain": {
+              "min": "",
+              "max": ""
+            },
+            "domain": {
+              "min": "0",
+              "max": "1"
+            },
+            "playing": false
+          }
+        },
+        {
+          "step": 2,
+          "count": 1,
+          "curve": {
+            "id": "mock_curve",
+            "type": "expression",
+            "latex": "y=x^{2}-4x+1-(2x+8)",
+            "color": "#22766d",
+            "lineStyle": "SOLID",
+            "lineWidth": "3",
+            "lineOpacity": "1",
+            "pointStyle": "POINT",
+            "pointSize": "",
+            "movablePointSize": "",
+            "pointOpacity": "",
+            "fillOpacity": "",
+            "hidden": false,
+            "secret": false,
+            "dragMode": "AUTO",
+            "label": "",
+            "showLabel": false,
+            "labelSize": "",
+            "labelOrientation": "default",
+            "interactiveLabel": false,
+            "readonly": false,
+            "parametricDomain": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Du": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dv": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dr": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dphi": {
+              "min": "",
+              "max": ""
+            },
+            "polarDomain": {
+              "min": "",
+              "max": ""
+            },
+            "domain": {
+              "min": "0",
+              "max": "1"
+            },
+            "playing": false
+          },
+          "point": {
+            "id": "mock_positive_point",
+            "type": "expression",
+            "latex": "(7,0)",
+            "color": "#22766d",
+            "lineStyle": "SOLID",
+            "lineWidth": "",
+            "lineOpacity": "",
+            "pointStyle": "POINT",
+            "pointSize": "12",
+            "movablePointSize": "12",
+            "pointOpacity": "1",
+            "fillOpacity": "",
+            "hidden": false,
+            "secret": true,
+            "dragMode": "AUTO",
+            "label": "(7, 0)",
+            "showLabel": true,
+            "labelSize": "",
+            "labelOrientation": "default",
+            "interactiveLabel": false,
+            "readonly": false,
+            "parametricDomain": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Du": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dv": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dr": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dphi": {
+              "min": "",
+              "max": ""
+            },
+            "polarDomain": {
+              "min": "",
+              "max": ""
+            },
+            "domain": {
+              "min": "0",
+              "max": "1"
+            },
+            "playing": false
+          }
+        },
+        {
+          "step": 3,
+          "count": 1,
+          "curve": {
+            "id": "mock_curve",
+            "type": "expression",
+            "latex": "y=x^{2}-4x+1-(2x+8)",
+            "color": "#22766d",
+            "lineStyle": "SOLID",
+            "lineWidth": "3",
+            "lineOpacity": "1",
+            "pointStyle": "POINT",
+            "pointSize": "",
+            "movablePointSize": "",
+            "pointOpacity": "",
+            "fillOpacity": "",
+            "hidden": false,
+            "secret": false,
+            "dragMode": "AUTO",
+            "label": "",
+            "showLabel": false,
+            "labelSize": "",
+            "labelOrientation": "default",
+            "interactiveLabel": false,
+            "readonly": false,
+            "parametricDomain": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Du": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dv": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dr": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dphi": {
+              "min": "",
+              "max": ""
+            },
+            "polarDomain": {
+              "min": "",
+              "max": ""
+            },
+            "domain": {
+              "min": "0",
+              "max": "1"
+            },
+            "playing": false
+          },
+          "point": {
+            "id": "mock_positive_point",
+            "type": "expression",
+            "latex": "(7,0)",
+            "color": "#22766d",
+            "lineStyle": "SOLID",
+            "lineWidth": "",
+            "lineOpacity": "",
+            "pointStyle": "POINT",
+            "pointSize": "15",
+            "movablePointSize": "15",
+            "pointOpacity": "1",
+            "fillOpacity": "",
+            "hidden": false,
+            "secret": true,
+            "dragMode": "AUTO",
+            "label": "(7, 0)",
+            "showLabel": true,
+            "labelSize": "",
+            "labelOrientation": "default",
+            "interactiveLabel": false,
+            "readonly": false,
+            "parametricDomain": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Du": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dv": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dr": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dphi": {
+              "min": "",
+              "max": ""
+            },
+            "polarDomain": {
+              "min": "",
+              "max": ""
+            },
+            "domain": {
+              "min": "0",
+              "max": "1"
+            },
+            "playing": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "copy difference expression exact payload",
+      "pass": true,
+      "details": "y=x^2-4x+1-(2x+8)"
+    },
+    {
+      "name": "why detail expands and explains zero difference",
+      "pass": true,
+      "details": "At an intersection, both original equations have the same y-value. Their difference is zero, so the x-intercepts give the intersection x-coordinates."
+    },
+    {
+      "name": "original image expands and collapses",
+      "pass": true,
+      "details": {
+        "x": 150,
+        "y": 285,
+        "width": 440.390625,
+        "height": 210
+      }
+    },
+    {
+      "name": "intersections method expressions points analysis and instance",
+      "pass": true,
+      "details": {
+        "count": 1,
+        "expressions": [
+          {
+            "id": "mock_curve",
+            "type": "expression",
+            "latex": "y=x^{2}-4x+1",
+            "color": "#22766d",
+            "lineStyle": "SOLID",
+            "lineWidth": "3",
+            "lineOpacity": "1",
+            "pointStyle": "POINT",
+            "pointSize": "",
+            "movablePointSize": "",
+            "pointOpacity": "",
+            "fillOpacity": "",
+            "hidden": false,
+            "secret": false,
+            "dragMode": "AUTO",
+            "label": "",
+            "showLabel": false,
+            "labelSize": "",
+            "labelOrientation": "default",
+            "interactiveLabel": false,
+            "readonly": false,
+            "parametricDomain": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Du": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dv": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dr": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dphi": {
+              "min": "",
+              "max": ""
+            },
+            "polarDomain": {
+              "min": "",
+              "max": ""
+            },
+            "domain": {
+              "min": "0",
+              "max": "1"
+            },
+            "playing": false
+          },
+          {
+            "id": "mock_line",
+            "type": "expression",
+            "latex": "y=2x+8",
+            "color": "#4c78b7",
+            "lineStyle": "SOLID",
+            "lineWidth": "3",
+            "lineOpacity": "1",
+            "pointStyle": "POINT",
+            "pointSize": "",
+            "movablePointSize": "",
+            "pointOpacity": "",
+            "fillOpacity": "",
+            "hidden": false,
+            "secret": false,
+            "dragMode": "AUTO",
+            "label": "",
+            "showLabel": false,
+            "labelSize": "",
+            "labelOrientation": "default",
+            "interactiveLabel": false,
+            "readonly": false,
+            "parametricDomain": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Du": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dv": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dr": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dphi": {
+              "min": "",
+              "max": ""
+            },
+            "polarDomain": {
+              "min": "",
+              "max": ""
+            },
+            "domain": {
+              "min": "0",
+              "max": "1"
+            },
+            "playing": false
+          },
+          {
+            "id": "mock_negative_point",
+            "type": "expression",
+            "latex": "(-1,6)",
+            "color": "#22766d",
+            "lineStyle": "SOLID",
+            "lineWidth": "",
+            "lineOpacity": "",
+            "pointStyle": "POINT",
+            "pointSize": "7",
+            "movablePointSize": "",
+            "pointOpacity": "0.65",
+            "fillOpacity": "",
+            "hidden": false,
+            "secret": true,
+            "dragMode": "AUTO",
+            "label": "",
+            "showLabel": false,
+            "labelSize": "",
+            "labelOrientation": "default",
+            "interactiveLabel": false,
+            "readonly": false,
+            "parametricDomain": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Du": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dv": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dr": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dphi": {
+              "min": "",
+              "max": ""
+            },
+            "polarDomain": {
+              "min": "",
+              "max": ""
+            },
+            "domain": {
+              "min": "0",
+              "max": "1"
+            },
+            "playing": false
+          },
+          {
+            "id": "mock_positive_point",
+            "type": "expression",
+            "latex": "(7,22)",
+            "color": "#22766d",
+            "lineStyle": "SOLID",
+            "lineWidth": "",
+            "lineOpacity": "",
+            "pointStyle": "POINT",
+            "pointSize": "15",
+            "movablePointSize": "15",
+            "pointOpacity": "1",
+            "fillOpacity": "",
+            "hidden": false,
+            "secret": true,
+            "dragMode": "AUTO",
+            "label": "(7, 22)",
+            "showLabel": true,
+            "labelSize": "",
+            "labelOrientation": "default",
+            "interactiveLabel": false,
+            "readonly": false,
+            "parametricDomain": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Du": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dv": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dr": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dphi": {
+              "min": "",
+              "max": ""
+            },
+            "polarDomain": {
+              "min": "",
+              "max": ""
+            },
+            "domain": {
+              "min": "0",
+              "max": "1"
+            },
+            "playing": false
+          }
+        ],
+        "analysis": {
+          "mock_curve": {
+            "isGraphable": true,
+            "isError": false
+          },
+          "mock_negative_point": {
+            "isGraphable": true,
+            "isError": false,
+            "evaluationDisplayed": false
+          },
+          "mock_positive_point": {
+            "isGraphable": true,
+            "isError": false,
+            "evaluationDisplayed": false
+          },
+          "mock_line": {
+            "isGraphable": true,
+            "isError": false
+          }
+        }
+      }
+    },
+    {
+      "name": "copy two equations exact multiline payload",
+      "pass": true,
+      "details": "y=x^2-4x+1\ny=2x+8"
+    },
+    {
+      "name": "reset view preserves student expression and edits",
+      "pass": true,
+      "details": {
+        "beforeBounds": {
+          "mathCoordinates": {
+            "left": 100,
+            "right": 110,
+            "bottom": 100,
+            "top": 110,
+            "xmin": 100,
+            "xmax": 110,
+            "ymin": 100,
+            "ymax": 110,
+            "width": 10,
+            "height": 10
+          },
+          "pixelCoordinates": {
+            "left": 0,
+            "right": 782.609375,
+            "width": 782.609375,
+            "top": 0,
+            "bottom": 747,
+            "height": 747
+          }
+        },
+        "afterBounds": {
+          "mathCoordinates": {
+            "left": -4,
+            "right": 10,
+            "bottom": -8,
+            "top": 30,
+            "xmin": -4,
+            "xmax": 10,
+            "ymin": -8,
+            "ymax": 30,
+            "width": 14,
+            "height": 38
+          },
+          "pixelCoordinates": {
+            "left": 0,
+            "right": 782.609375,
+            "width": 782.609375,
+            "top": 0,
+            "bottom": 747,
+            "height": 747
+          }
+        },
+        "student": {
+          "id": "student_added",
+          "type": "expression",
+          "latex": "y=x+1",
+          "color": "#aa44aa",
+          "lineStyle": "SOLID",
+          "lineWidth": "",
+          "lineOpacity": "",
+          "pointStyle": "POINT",
+          "pointSize": "",
+          "movablePointSize": "",
+          "pointOpacity": "",
+          "fillOpacity": "",
+          "hidden": false,
+          "secret": false,
+          "dragMode": "AUTO",
+          "label": "",
+          "showLabel": false,
+          "labelSize": "",
+          "labelOrientation": "default",
+          "interactiveLabel": false,
+          "readonly": false,
+          "parametricDomain": {
+            "min": "",
+            "max": ""
+          },
+          "parametricDomain3Du": {
+            "min": "",
+            "max": ""
+          },
+          "parametricDomain3Dv": {
+            "min": "",
+            "max": ""
+          },
+          "parametricDomain3Dr": {
+            "min": "",
+            "max": ""
+          },
+          "parametricDomain3Dphi": {
+            "min": "",
+            "max": ""
+          },
+          "polarDomain": {
+            "min": "",
+            "max": ""
+          },
+          "domain": {
+            "min": "0",
+            "max": "1"
+          },
+          "playing": false
+        }
+      }
+    },
+    {
+      "name": "expressions toggle controls native pane without recreation",
+      "pass": true,
+      "details": {
+        "expanded": false,
+        "collapsed": true
+      }
+    },
+    {
+      "name": "save toggle and saved rail dialog",
+      "pass": true,
+      "details": {
+        "savedEntry": "Graph both equations\nRead the intersection of the two original graphs",
+        "restoredMethod": "Graph both equations"
+      }
+    },
+    {
+      "name": "both methods bookmark independently and removal is selective",
+      "pass": true,
+      "details": {
+        "remaining": "Read the x-intercepts\nFind intersections by graphing the difference"
+      }
+    },
+    {
+      "name": "history rail dialog opens sample",
+      "pass": true,
+      "details": {
+        "method": "Read the x-intercepts",
+        "instanceBefore": 1,
+        "instanceAfter": 2
+      }
+    },
+    {
+      "name": "replace upload modal file preview and sample action",
+      "pass": true,
+      "details": {
+        "previewLoaded": true
+      }
+    },
+    {
+      "name": "native fullscreen enters and exits",
+      "pass": true,
+      "details": {
+        "full": "calculatorPane"
+      }
+    },
+    {
+      "name": "mobile steps initial tab and no document overflow",
+      "pass": true,
+      "details": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "document": {
+          "scrollWidth": 390,
+          "clientWidth": 390,
+          "scrollHeight": 844
+        },
+        "pane": {
+          "scrollWidth": 364,
+          "clientWidth": 364,
+          "scrollHeight": 1098,
+          "clientHeight": 705
+        },
+        "graphVisibility": "hidden"
+      }
+    },
+    {
+      "name": "mobile tab switching preserves native instance and expression",
+      "pass": true,
+      "details": {
+        "countBefore": 3,
+        "countAfter": 3,
+        "expressionPresent": true
+      }
+    },
+    {
+      "name": "mobile show on graph selects step two and reveals calculator",
+      "pass": true,
+      "details": {
+        "context": "2\nChoose the positive intercept",
+        "count": 3
+      }
+    },
+    {
+      "name": "mobile graph controls fit without horizontal overflow",
+      "pass": true,
+      "details": {
+        ".workspaceBody": {
+          "left": 12,
+          "right": 378,
+          "width": 366,
+          "scrollWidth": 364,
+          "clientWidth": 364
+        },
+        ".calculatorPane": {
+          "left": 13,
+          "right": 377,
+          "width": 364,
+          "scrollWidth": 364,
+          "clientWidth": 364
+        },
+        ".calculatorHeader": {
+          "left": 13,
+          "right": 377,
+          "width": 364,
+          "scrollWidth": 364,
+          "clientWidth": 364
+        },
+        ".graphContext": {
+          "left": 13,
+          "right": 377,
+          "width": 364,
+          "scrollWidth": 364,
+          "clientWidth": 364
+        },
+        ".graphFooter": {
+          "left": 13,
+          "right": 377,
+          "width": 364,
+          "scrollWidth": 364,
+          "clientWidth": 364
+        }
+      }
+    },
+    {
+      "name": "mobile keyboard tab navigation preserves calculator",
+      "pass": true,
+      "details": {
+        "instanceCount": 3
+      }
+    },
+    {
+      "name": "mobile methods menu fits and switches correctly",
+      "pass": true,
+      "details": {
+        "menu": {
+          "x": 58,
+          "y": 423.78125,
+          "width": 300,
+          "height": 173.5
+        },
+        "count": 3
+      }
+    },
+    {
+      "name": "1242 desktop layout keeps graph and no document overflow",
+      "pass": true,
+      "details": {
+        "document": {
+          "scrollWidth": 1242,
+          "scrollHeight": 892
+        },
+        "learning": {
+          "x": 109,
+          "y": 77,
+          "width": 443.1875,
+          "height": 790,
+          "scrollWidth": 443,
+          "clientWidth": 443
+        },
+        "calculator": {
+          "x": 552.1875,
+          "y": 77,
+          "width": 664.8125,
+          "height": 790,
+          "scrollWidth": 664,
+          "clientWidth": 664
+        }
+      }
+    }
+  ],
+  "blocked": [],
+  "requests": [
+    {
+      "method": "GET",
+      "url": "http://localhost:3001/"
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3001/_next/static/media/ee40bb094c99a29a-s.p.woff2"
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3001/_next/static/css/app/layout.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3001/_next/static/chunks/webpack.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3001/_next/static/chunks/main-app.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3001/_next/static/chunks/app-pages-internals.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3001/_next/static/chunks/app/page.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3001/_next/static/media/ee40bb094c99a29a-s.p.woff2"
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3001/_next/static/media/KaTeX_Math-Italic.f28c23ac.woff2"
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3001/_next/static/media/KaTeX_Main-Regular.0462f03b.woff2"
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3001/icon.svg"
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3001/_next/image"
+    }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "screenshots": [
+    "/tmp/solver-mock-qa/desktop-default-1440x1000.png",
+    "/tmp/solver-mock-qa/desktop-original-expanded.png",
+    "/tmp/solver-mock-qa/desktop-intersections.png",
+    "/tmp/solver-mock-qa/desktop-expressions-open.png",
+    "/tmp/solver-mock-qa/desktop-upload-preview.png",
+    "/tmp/solver-mock-qa/desktop-calculator-fullscreen.png",
+    "/tmp/solver-mock-qa/mobile-steps-390x844.png",
+    "/tmp/solver-mock-qa/mobile-calculator-390x844.png",
+    "/tmp/solver-mock-qa/mobile-methods-menu.png",
+    "/tmp/solver-mock-qa/mobile-alternative-steps-390x844.png",
+    "/tmp/solver-mock-qa/mobile-alternative-calculator-390x844.png",
+    "/tmp/solver-mock-qa/desktop-default-1242x892.png"
+  ],
+  "initial": {
+    "count": 1,
+    "destroyed": 0,
+    "expressions": [
+      {
+        "id": "mock_curve",
+        "type": "expression",
+        "latex": "y=x^{2}-4x+1-(2x+8)",
+        "color": "#22766d",
+        "lineStyle": "SOLID",
+        "lineWidth": "3",
+        "lineOpacity": "1",
+        "pointStyle": "POINT",
+        "pointSize": "",
+        "movablePointSize": "",
+        "pointOpacity": "",
+        "fillOpacity": "",
+        "hidden": false,
+        "secret": false,
+        "dragMode": "AUTO",
+        "label": "",
+        "showLabel": false,
+        "labelSize": "",
+        "labelOrientation": "default",
+        "interactiveLabel": false,
+        "readonly": false,
+        "parametricDomain": {
+          "min": "",
+          "max": ""
+        },
+        "parametricDomain3Du": {
+          "min": "",
+          "max": ""
+        },
+        "parametricDomain3Dv": {
+          "min": "",
+          "max": ""
+        },
+        "parametricDomain3Dr": {
+          "min": "",
+          "max": ""
+        },
+        "parametricDomain3Dphi": {
+          "min": "",
+          "max": ""
+        },
+        "polarDomain": {
+          "min": "",
+          "max": ""
+        },
+        "domain": {
+          "min": "0",
+          "max": "1"
+        },
+        "playing": false
+      },
+      {
+        "id": "mock_negative_point",
+        "type": "expression",
+        "latex": "(-1,0)",
+        "color": "#22766d",
+        "lineStyle": "SOLID",
+        "lineWidth": "",
+        "lineOpacity": "",
+        "pointStyle": "POINT",
+        "pointSize": "7",
+        "movablePointSize": "",
+        "pointOpacity": "0.65",
+        "fillOpacity": "",
+        "hidden": false,
+        "secret": true,
+        "dragMode": "AUTO",
+        "label": "",
+        "showLabel": false,
+        "labelSize": "",
+        "labelOrientation": "default",
+        "interactiveLabel": false,
+        "readonly": false,
+        "parametricDomain": {
+          "min": "",
+          "max": ""
+        },
+        "parametricDomain3Du": {
+          "min": "",
+          "max": ""
+        },
+        "parametricDomain3Dv": {
+          "min": "",
+          "max": ""
+        },
+        "parametricDomain3Dr": {
+          "min": "",
+          "max": ""
+        },
+        "parametricDomain3Dphi": {
+          "min": "",
+          "max": ""
+        },
+        "polarDomain": {
+          "min": "",
+          "max": ""
+        },
+        "domain": {
+          "min": "0",
+          "max": "1"
+        },
+        "playing": false
+      },
+      {
+        "id": "mock_positive_point",
+        "type": "expression",
+        "latex": "(7,0)",
+        "color": "#22766d",
+        "lineStyle": "SOLID",
+        "lineWidth": "",
+        "lineOpacity": "",
+        "pointStyle": "POINT",
+        "pointSize": "15",
+        "movablePointSize": "15",
+        "pointOpacity": "1",
+        "fillOpacity": "",
+        "hidden": false,
+        "secret": true,
+        "dragMode": "AUTO",
+        "label": "(7, 0)",
+        "showLabel": true,
+        "labelSize": "",
+        "labelOrientation": "default",
+        "interactiveLabel": false,
+        "readonly": false,
+        "parametricDomain": {
+          "min": "",
+          "max": ""
+        },
+        "parametricDomain3Du": {
+          "min": "",
+          "max": ""
+        },
+        "parametricDomain3Dv": {
+          "min": "",
+          "max": ""
+        },
+        "parametricDomain3Dr": {
+          "min": "",
+          "max": ""
+        },
+        "parametricDomain3Dphi": {
+          "min": "",
+          "max": ""
+        },
+        "polarDomain": {
+          "min": "",
+          "max": ""
+        },
+        "domain": {
+          "min": "0",
+          "max": "1"
+        },
+        "playing": false
+      }
+    ],
+    "analysis": {
+      "mock_curve": {
+        "isGraphable": true,
+        "isError": false
+      },
+      "mock_negative_point": {
+        "isGraphable": true,
+        "isError": false,
+        "evaluationDisplayed": false
+      },
+      "mock_positive_point": {
+        "isGraphable": true,
+        "isError": false,
+        "evaluationDisplayed": false
+      }
+    },
+    "bounds": {
+      "mathCoordinates": {
+        "left": -3,
+        "right": 10,
+        "bottom": -20,
+        "top": 12,
+        "xmin": -3,
+        "xmax": 10,
+        "ymin": -20,
+        "ymax": 12,
+        "width": 13,
+        "height": 32
+      },
+      "pixelCoordinates": {
+        "left": 0,
+        "right": 782.609375,
+        "width": 782.609375,
+        "top": 0,
+        "bottom": 747,
+        "height": 747
+      }
+    },
+    "settings": {
+      "__observers": {},
+      "guid": "guid_134933_1792113755266_5",
+      "showGrid": true,
+      "showXAxis": true,
+      "showYAxis": true,
+      "xAxisStep": 0,
+      "yAxisStep": 0,
+      "xAxisScale": "linear",
+      "yAxisScale": "linear",
+      "xAxisMinorSubdivisions": 0,
+      "yAxisMinorSubdivisions": 0,
+      "xAxisArrowMode": "NONE",
+      "yAxisArrowMode": "NONE",
+      "xAxisLabel": "",
+      "yAxisLabel": "",
+      "xAxisNumbers": true,
+      "yAxisNumbers": true,
+      "polarMode": false,
+      "polarNumbers": true,
+      "degreeMode": false,
+      "randomSeed": "aacd1d77cb248b2c1ce0cf5827004cbf",
+      "restrictGridToFirstQuadrant": false,
+      "userLockedViewport": false,
+      "complex": false,
+      "keypad": true,
+      "graphpaper": true,
+      "expressions": true,
+      "settingsMenu": true,
+      "zoomButtons": true,
+      "showResetButtonOnGraphpaper": false,
+      "expressionsTopbar": true,
+      "capExpressionSize": false,
+      "pointsOfInterest": true,
+      "trace": true,
+      "border": false,
+      "lockViewport": false,
+      "expressionsCollapsed": true,
+      "allowKeypadToBeDismissedWhenNarrow": false,
+      "keypadActivated": false,
+      "authorFeatures": false,
+      "authorMode": true,
+      "advancedStyling": false,
+      "images": true,
+      "showEvaluationCopyButtons": false,
+      "folders": true,
+      "notes": true,
+      "sliders": true,
+      "links": true,
+      "qwertyKeyboard": true,
+      "restrictedFunctions": false,
+      "enableRepeatFunction": false,
+      "forceEnableGeometryFunctions": false,
+      "pasteGraphLink": false,
+      "pasteTableData": true,
+      "clearIntoDegreeMode": false,
+      "autosize": false,
+      "plotSingleVariableImplicitEquations": true,
+      "plotImplicits": true,
+      "plotInequalities": true,
+      "colors": {
+        "RED": "#c74440",
+        "BLUE": "#2d70b3",
+        "GREEN": "#348543",
+        "ORANGE": "#fa7e19",
+        "PURPLE": "#6042a6",
+        "BLACK": "#000000"
+      },
+      "invertedColors": false,
+      "functionDefinition": true,
+      "projectorMode": false,
+      "decimalToFraction": true,
+      "fontSize": 16,
+      "language": "en",
+      "backgroundColor": "#fff",
+      "textColor": "#000",
+      "accentColor": "#2f72dc",
+      "distributions": true,
+      "brailleMode": "none",
+      "sixKeyInput": false,
+      "brailleControls": true,
+      "reportPosition": "default",
+      "zoomFit": true,
+      "forceLogModeRegressions": false,
+      "defaultLogModeRegressions": false,
+      "actions": "auto",
+      "audio": true,
+      "logScales": true,
+      "translucentSurfaces": false,
+      "perspectiveDistortion": 1,
+      "showKeyboardShortcutsInTooltips": false,
+      "tone": true,
+      "muted": true,
+      "showPerformanceMeter": false,
+      "allowComplex": true,
+      "customRegressions": true
+    }
+  },
+  "desktopMetrics": {
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "body": {
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "scrollHeight": 1000
+    },
+    "learning": {
+      "x": 109,
+      "y": 77,
+      "width": 522.390625,
+      "height": 898,
+      "scrollHeight": 1045,
+      "clientHeight": 898,
+      "scrollWidth": 522,
+      "clientWidth": 522
+    },
+    "calculator": {
+      "x": 631.390625,
+      "y": 77,
+      "width": 783.609375,
+      "height": 898,
+      "scrollHeight": 898,
+      "clientHeight": 898,
+      "scrollWidth": 783,
+      "clientWidth": 783
+    },
+    "workspace": {
+      "x": 108,
+      "y": 76,
+      "width": 1308,
+      "height": 900,
+      "scrollHeight": 898,
+      "clientHeight": 898,
+      "scrollWidth": 1306,
+      "clientWidth": 1306
+    }
+  },
+  "mobileMetrics": {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "document": {
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "scrollHeight": 844
+    },
+    "pane": {
+      "scrollWidth": 364,
+      "clientWidth": 364,
+      "scrollHeight": 1098,
+      "clientHeight": 705
+    },
+    "graphVisibility": "hidden"
+  },
+  "desktop1242Metrics": {
+    "document": {
+      "scrollWidth": 1242,
+      "scrollHeight": 892
+    },
+    "learning": {
+      "x": 109,
+      "y": 77,
+      "width": 443.1875,
+      "height": 790,
+      "scrollWidth": 443,
+      "clientWidth": 443
+    },
+    "calculator": {
+      "x": 552.1875,
+      "y": 77,
+      "width": 664.8125,
+      "height": 790,
+      "scrollWidth": 664,
+      "clientWidth": 664
+    }
+  },
+  "final": {
+    "count": 4,
+    "destroyed": 3,
+    "expressions": [
+      {
+        "id": "mock_curve",
+        "type": "expression",
+        "latex": "y=x^{2}-4x+1-(2x+8)",
+        "color": "#22766d",
+        "lineStyle": "SOLID",
+        "lineWidth": "3",
+        "lineOpacity": "1",
+        "pointStyle": "POINT",
+        "pointSize": "",
+        "movablePointSize": "",
+        "pointOpacity": "",
+        "fillOpacity": "",
+        "hidden": false,
+        "secret": false,
+        "dragMode": "AUTO",
+        "label": "",
+        "showLabel": false,
+        "labelSize": "",
+        "labelOrientation": "default",
+        "interactiveLabel": false,
+        "readonly": false,
+        "parametricDomain": {
+          "min": "",
+          "max": ""
+        },
+        "parametricDomain3Du": {
+          "min": "",
+          "max": ""
+        },
+        "parametricDomain3Dv": {
+          "min": "",
+          "max": ""
+        },
+        "parametricDomain3Dr": {
+          "min": "",
+          "max": ""
+        },
+        "parametricDomain3Dphi": {
+          "min": "",
+          "max": ""
+        },
+        "polarDomain": {
+          "min": "",
+          "max": ""
+        },
+        "domain": {
+          "min": "0",
+          "max": "1"
+        },
+        "playing": false
+      },
+      {
+        "id": "mock_negative_point",
+        "type": "expression",
+        "latex": "(-1,0)",
+        "color": "#22766d",
+        "lineStyle": "SOLID",
+        "lineWidth": "",
+        "lineOpacity": "",
+        "pointStyle": "POINT",
+        "pointSize": "7",
+        "movablePointSize": "",
+        "pointOpacity": "0.65",
+        "fillOpacity": "",
+        "hidden": false,
+        "secret": true,
+        "dragMode": "AUTO",
+        "label": "",
+        "showLabel": false,
+        "labelSize": "",
+        "labelOrientation": "default",
+        "interactiveLabel": false,
+        "readonly": false,
+        "parametricDomain": {
+          "min": "",
+          "max": ""
+        },
+        "parametricDomain3Du": {
+          "min": "",
+          "max": ""
+        },
+        "parametricDomain3Dv": {
+          "min": "",
+          "max": ""
+        },
+        "parametricDomain3Dr": {
+          "min": "",
+          "max": ""
+        },
+        "parametricDomain3Dphi": {
+          "min": "",
+          "max": ""
+        },
+        "polarDomain": {
+          "min": "",
+          "max": ""
+        },
+        "domain": {
+          "min": "0",
+          "max": "1"
+        },
+        "playing": false
+      },
+      {
+        "id": "mock_positive_point",
+        "type": "expression",
+        "latex": "(7,0)",
+        "color": "#22766d",
+        "lineStyle": "SOLID",
+        "lineWidth": "",
+        "lineOpacity": "",
+        "pointStyle": "POINT",
+        "pointSize": "15",
+        "movablePointSize": "15",
+        "pointOpacity": "1",
+        "fillOpacity": "",
+        "hidden": false,
+        "secret": true,
+        "dragMode": "AUTO",
+        "label": "(7, 0)",
+        "showLabel": true,
+        "labelSize": "",
+        "labelOrientation": "default",
+        "interactiveLabel": false,
+        "readonly": false,
+        "parametricDomain": {
+          "min": "",
+          "max": ""
+        },
+        "parametricDomain3Du": {
+          "min": "",
+          "max": ""
+        },
+        "parametricDomain3Dv": {
+          "min": "",
+          "max": ""
+        },
+        "parametricDomain3Dr": {
+          "min": "",
+          "max": ""
+        },
+        "parametricDomain3Dphi": {
+          "min": "",
+          "max": ""
+        },
+        "polarDomain": {
+          "min": "",
+          "max": ""
+        },
+        "domain": {
+          "min": "0",
+          "max": "1"
+        },
+        "playing": false
+      }
+    ],
+    "analysis": {
+      "mock_curve": {
+        "isGraphable": true,
+        "isError": false
+      },
+      "mock_negative_point": {
+        "isGraphable": true,
+        "isError": false,
+        "evaluationDisplayed": false
+      },
+      "mock_positive_point": {
+        "isGraphable": true,
+        "isError": false,
+        "evaluationDisplayed": false
+      }
+    },
+    "bounds": {
+      "mathCoordinates": {
+        "left": -3,
+        "right": 10,
+        "bottom": -20,
+        "top": 12,
+        "xmin": -3,
+        "xmax": 10,
+        "ymin": -20,
+        "ymax": 12,
+        "width": 13,
+        "height": 32
+      },
+      "pixelCoordinates": {
+        "left": 0,
+        "right": 663.8125,
+        "width": 663.8125,
+        "top": 0,
+        "bottom": 639,
+        "height": 639
+      }
+    },
+    "settings": {
+      "__observers": {},
+      "guid": "guid_134933_1792113755266_20",
+      "showGrid": true,
+      "showXAxis": true,
+      "showYAxis": true,
+      "xAxisStep": 0,
+      "yAxisStep": 0,
+      "xAxisScale": "linear",
+      "yAxisScale": "linear",
+      "xAxisMinorSubdivisions": 0,
+      "yAxisMinorSubdivisions": 0,
+      "xAxisArrowMode": "NONE",
+      "yAxisArrowMode": "NONE",
+      "xAxisLabel": "",
+      "yAxisLabel": "",
+      "xAxisNumbers": true,
+      "yAxisNumbers": true,
+      "polarMode": false,
+      "polarNumbers": true,
+      "degreeMode": false,
+      "randomSeed": "e39776bb8bb7b820da6608f07a078dc3",
+      "restrictGridToFirstQuadrant": false,
+      "userLockedViewport": false,
+      "complex": false,
+      "keypad": true,
+      "graphpaper": true,
+      "expressions": true,
+      "settingsMenu": true,
+      "zoomButtons": true,
+      "showResetButtonOnGraphpaper": false,
+      "expressionsTopbar": true,
+      "capExpressionSize": false,
+      "pointsOfInterest": true,
+      "trace": true,
+      "border": false,
+      "lockViewport": false,
+      "expressionsCollapsed": true,
+      "allowKeypadToBeDismissedWhenNarrow": false,
+      "keypadActivated": false,
+      "authorFeatures": false,
+      "authorMode": true,
+      "advancedStyling": false,
+      "images": true,
+      "showEvaluationCopyButtons": false,
+      "folders": true,
+      "notes": true,
+      "sliders": true,
+      "links": true,
+      "qwertyKeyboard": true,
+      "restrictedFunctions": false,
+      "enableRepeatFunction": false,
+      "forceEnableGeometryFunctions": false,
+      "pasteGraphLink": false,
+      "pasteTableData": true,
+      "clearIntoDegreeMode": false,
+      "autosize": false,
+      "plotSingleVariableImplicitEquations": true,
+      "plotImplicits": true,
+      "plotInequalities": true,
+      "colors": {
+        "RED": "#c74440",
+        "BLUE": "#2d70b3",
+        "GREEN": "#348543",
+        "ORANGE": "#fa7e19",
+        "PURPLE": "#6042a6",
+        "BLACK": "#000000"
+      },
+      "invertedColors": false,
+      "functionDefinition": true,
+      "projectorMode": false,
+      "decimalToFraction": true,
+      "fontSize": 16,
+      "language": "en",
+      "backgroundColor": "#fff",
+      "textColor": "#000",
+      "accentColor": "#2f72dc",
+      "distributions": true,
+      "brailleMode": "none",
+      "sixKeyInput": false,
+      "brailleControls": true,
+      "reportPosition": "default",
+      "zoomFit": true,
+      "forceLogModeRegressions": false,
+      "defaultLogModeRegressions": false,
+      "actions": "auto",
+      "audio": true,
+      "logScales": true,
+      "translucentSurfaces": false,
+      "perspectiveDistortion": 1,
+      "showKeyboardShortcutsInTooltips": false,
+      "tone": true,
+      "muted": true,
+      "showPerformanceMeter": false,
+      "allowComplex": true,
+      "customRegressions": true
+    }
+  },
+  "finished": "2026-10-16T01:22:45.319Z",
+  "cleanCaptureStates": {
+    "default": {
+      "count": 1,
+      "expressions": [
+        {
+          "id": "mock_curve",
+          "type": "expression",
+          "latex": "y=x^{2}-4x+1-(2x+8)",
+          "color": "#22766d",
+          "lineStyle": "SOLID",
+          "lineWidth": "3",
+          "lineOpacity": "1",
+          "pointStyle": "POINT",
+          "pointSize": "",
+          "movablePointSize": "",
+          "pointOpacity": "",
+          "fillOpacity": "",
+          "hidden": false,
+          "secret": false,
+          "dragMode": "AUTO",
+          "label": "",
+          "showLabel": false,
+          "labelSize": "",
+          "labelOrientation": "default",
+          "interactiveLabel": false,
+          "readonly": false,
+          "parametricDomain": {
+            "min": "",
+            "max": ""
+          },
+          "parametricDomain3Du": {
+            "min": "",
+            "max": ""
+          },
+          "parametricDomain3Dv": {
+            "min": "",
+            "max": ""
+          },
+          "parametricDomain3Dr": {
+            "min": "",
+            "max": ""
+          },
+          "parametricDomain3Dphi": {
+            "min": "",
+            "max": ""
+          },
+          "polarDomain": {
+            "min": "",
+            "max": ""
+          },
+          "domain": {
+            "min": "0",
+            "max": "1"
+          },
+          "playing": false
+        },
+        {
+          "id": "mock_negative_point",
+          "type": "expression",
+          "latex": "(-1,0)",
+          "color": "#22766d",
+          "lineStyle": "SOLID",
+          "lineWidth": "",
+          "lineOpacity": "",
+          "pointStyle": "POINT",
+          "pointSize": "7",
+          "movablePointSize": "",
+          "pointOpacity": "0.65",
+          "fillOpacity": "",
+          "hidden": false,
+          "secret": true,
+          "dragMode": "AUTO",
+          "label": "",
+          "showLabel": false,
+          "labelSize": "",
+          "labelOrientation": "default",
+          "interactiveLabel": false,
+          "readonly": false,
+          "parametricDomain": {
+            "min": "",
+            "max": ""
+          },
+          "parametricDomain3Du": {
+            "min": "",
+            "max": ""
+          },
+          "parametricDomain3Dv": {
+            "min": "",
+            "max": ""
+          },
+          "parametricDomain3Dr": {
+            "min": "",
+            "max": ""
+          },
+          "parametricDomain3Dphi": {
+            "min": "",
+            "max": ""
+          },
+          "polarDomain": {
+            "min": "",
+            "max": ""
+          },
+          "domain": {
+            "min": "0",
+            "max": "1"
+          },
+          "playing": false
+        },
+        {
+          "id": "mock_positive_point",
+          "type": "expression",
+          "latex": "(7,0)",
+          "color": "#22766d",
+          "lineStyle": "SOLID",
+          "lineWidth": "",
+          "lineOpacity": "",
+          "pointStyle": "POINT",
+          "pointSize": "15",
+          "movablePointSize": "15",
+          "pointOpacity": "1",
+          "fillOpacity": "",
+          "hidden": false,
+          "secret": true,
+          "dragMode": "AUTO",
+          "label": "(7, 0)",
+          "showLabel": true,
+          "labelSize": "",
+          "labelOrientation": "default",
+          "interactiveLabel": false,
+          "readonly": false,
+          "parametricDomain": {
+            "min": "",
+            "max": ""
+          },
+          "parametricDomain3Du": {
+            "min": "",
+            "max": ""
+          },
+          "parametricDomain3Dv": {
+            "min": "",
+            "max": ""
+          },
+          "parametricDomain3Dr": {
+            "min": "",
+            "max": ""
+          },
+          "parametricDomain3Dphi": {
+            "min": "",
+            "max": ""
+          },
+          "polarDomain": {
+            "min": "",
+            "max": ""
+          },
+          "domain": {
+            "min": "0",
+            "max": "1"
+          },
+          "playing": false
+        }
+      ],
+      "analysis": {
+        "mock_curve": {
+          "isGraphable": true,
+          "isError": false
+        },
+        "mock_negative_point": {
+          "isGraphable": true,
+          "isError": false,
+          "evaluationDisplayed": false
+        },
+        "mock_positive_point": {
+          "isGraphable": true,
+          "isError": false,
+          "evaluationDisplayed": false
+        }
+      }
+    },
+    "alternative": {
+      "count": 1,
+      "expressions": [
+        {
+          "id": "mock_curve",
+          "type": "expression",
+          "latex": "y=x^{2}-4x+1",
+          "color": "#22766d",
+          "lineStyle": "SOLID",
+          "lineWidth": "3",
+          "lineOpacity": "1",
+          "pointStyle": "POINT",
+          "pointSize": "",
+          "movablePointSize": "",
+          "pointOpacity": "",
+          "fillOpacity": "",
+          "hidden": false,
+          "secret": false,
+          "dragMode": "AUTO",
+          "label": "",
+          "showLabel": false,
+          "labelSize": "",
+          "labelOrientation": "default",
+          "interactiveLabel": false,
+          "readonly": false,
+          "parametricDomain": {
+            "min": "",
+            "max": ""
+          },
+          "parametricDomain3Du": {
+            "min": "",
+            "max": ""
+          },
+          "parametricDomain3Dv": {
+            "min": "",
+            "max": ""
+          },
+          "parametricDomain3Dr": {
+            "min": "",
+            "max": ""
+          },
+          "parametricDomain3Dphi": {
+            "min": "",
+            "max": ""
+          },
+          "polarDomain": {
+            "min": "",
+            "max": ""
+          },
+          "domain": {
+            "min": "0",
+            "max": "1"
+          },
+          "playing": false
+        },
+        {
+          "id": "mock_line",
+          "type": "expression",
+          "latex": "y=2x+8",
+          "color": "#4c78b7",
+          "lineStyle": "SOLID",
+          "lineWidth": "3",
+          "lineOpacity": "1",
+          "pointStyle": "POINT",
+          "pointSize": "",
+          "movablePointSize": "",
+          "pointOpacity": "",
+          "fillOpacity": "",
+          "hidden": false,
+          "secret": false,
+          "dragMode": "AUTO",
+          "label": "",
+          "showLabel": false,
+          "labelSize": "",
+          "labelOrientation": "default",
+          "interactiveLabel": false,
+          "readonly": false,
+          "parametricDomain": {
+            "min": "",
+            "max": ""
+          },
+          "parametricDomain3Du": {
+            "min": "",
+            "max": ""
+          },
+          "parametricDomain3Dv": {
+            "min": "",
+            "max": ""
+          },
+          "parametricDomain3Dr": {
+            "min": "",
+            "max": ""
+          },
+          "parametricDomain3Dphi": {
+            "min": "",
+            "max": ""
+          },
+          "polarDomain": {
+            "min": "",
+            "max": ""
+          },
+          "domain": {
+            "min": "0",
+            "max": "1"
+          },
+          "playing": false
+        },
+        {
+          "id": "mock_negative_point",
+          "type": "expression",
+          "latex": "(-1,6)",
+          "color": "#22766d",
+          "lineStyle": "SOLID",
+          "lineWidth": "",
+          "lineOpacity": "",
+          "pointStyle": "POINT",
+          "pointSize": "7",
+          "movablePointSize": "",
+          "pointOpacity": "0.65",
+          "fillOpacity": "",
+          "hidden": false,
+          "secret": true,
+          "dragMode": "AUTO",
+          "label": "",
+          "showLabel": false,
+          "labelSize": "",
+          "labelOrientation": "default",
+          "interactiveLabel": false,
+          "readonly": false,
+          "parametricDomain": {
+            "min": "",
+            "max": ""
+          },
+          "parametricDomain3Du": {
+            "min": "",
+            "max": ""
+          },
+          "parametricDomain3Dv": {
+            "min": "",
+            "max": ""
+          },
+          "parametricDomain3Dr": {
+            "min": "",
+            "max": ""
+          },
+          "parametricDomain3Dphi": {
+            "min": "",
+            "max": ""
+          },
+          "polarDomain": {
+            "min": "",
+            "max": ""
+          },
+          "domain": {
+            "min": "0",
+            "max": "1"
+          },
+          "playing": false
+        },
+        {
+          "id": "mock_positive_point",
+          "type": "expression",
+          "latex": "(7,22)",
+          "color": "#22766d",
+          "lineStyle": "SOLID",
+          "lineWidth": "",
+          "lineOpacity": "",
+          "pointStyle": "POINT",
+          "pointSize": "15",
+          "movablePointSize": "15",
+          "pointOpacity": "1",
+          "fillOpacity": "",
+          "hidden": false,
+          "secret": true,
+          "dragMode": "AUTO",
+          "label": "(7, 22)",
+          "showLabel": true,
+          "labelSize": "",
+          "labelOrientation": "default",
+          "interactiveLabel": false,
+          "readonly": false,
+          "parametricDomain": {
+            "min": "",
+            "max": ""
+          },
+          "parametricDomain3Du": {
+            "min": "",
+            "max": ""
+          },
+          "parametricDomain3Dv": {
+            "min": "",
+            "max": ""
+          },
+          "parametricDomain3Dr": {
+            "min": "",
+            "max": ""
+          },
+          "parametricDomain3Dphi": {
+            "min": "",
+            "max": ""
+          },
+          "polarDomain": {
+            "min": "",
+            "max": ""
+          },
+          "domain": {
+            "min": "0",
+            "max": "1"
+          },
+          "playing": false
+        }
+      ],
+      "analysis": {
+        "mock_curve": {
+          "isGraphable": true,
+          "isError": false
+        },
+        "mock_negative_point": {
+          "isGraphable": true,
+          "isError": false,
+          "evaluationDisplayed": false
+        },
+        "mock_positive_point": {
+          "isGraphable": true,
+          "isError": false,
+          "evaluationDisplayed": false
+        },
+        "mock_line": {
+          "isGraphable": true,
+          "isError": false
+        }
+      }
+    },
+    "consoleErrors": [],
+    "pageErrors": [],
+    "blocked": []
+  }
+}

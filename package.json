@@ -18,7 +18,10 @@
     "bench:routing": "tsx evals/routing-bench.mts",
     "bench:replay": "tsx evals/replay.mts",
     "bench:rescore": "tsx evals/rescore-recorded.mts",
-    "bench:prompt": "tsx scripts/prompt-budget.mts"
+    "bench:prompt": "tsx scripts/prompt-budget.mts",
+    "dev:solver-preview": "node scripts/solver-preview.mjs dev",
+    "build:solver-preview": "node scripts/solver-preview.mjs build",
+    "typecheck:solver-preview": "tsc --noEmit --project prototypes/solver/tsconfig.json"
   },
   "engines": {
     "node": ">=22.0.0"
