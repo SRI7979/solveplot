@@ -34,7 +34,6 @@
   --radius-2xl: calc(var(--radius) + 8px);
 }
 
-
 .desmo-shell {
   --background: var(--appearance-light-background);
   --card: var(--appearance-light-card);
@@ -90,12 +89,14 @@
   --font-math: var(--font-stix), "Cambria Math", Cambria, serif;
   min-height: 100dvh;
   font-family: var(--font-sans);
-  font-feature-settings: 'ss01', 'cv11';
+  font-feature-settings: "ss01", "cv11";
   color: var(--foreground);
   background: var(--background);
   line-height: 1.5;
 }
-.desmo-shell { color-scheme: light; }
+.desmo-shell {
+  color-scheme: light;
+}
 html[data-theme="dark"] .desmo-shell {
   --background: var(--appearance-dark-background);
   --card: var(--appearance-dark-card);
@@ -150,25 +151,204 @@ html[data-theme="dark"] .desmo-shell {
   --font-mono: var(--appearance-dark-font-mono);
   color-scheme: dark;
 }
-.desmo-shell .font-sans { font-family: var(--font-sans); }
-.desmo-shell .font-mono { font-family: var(--font-mono); }
-.desmo-shell button { cursor: pointer; }
-.desmo-shell button:focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; }
-.desmo-shell ::selection { background: var(--brand-soft); color: var(--foreground); }
-.desmo-shell :is(button[data-primary], button.bg-primary) { background: var(--primary); color: var(--primary-foreground); }
-.desmo-shell[data-button="outline"] :is(button[data-primary], button.bg-primary):not(:disabled) {
-  background: transparent; color: var(--brand); border: 1px solid var(--brand);
+.desmo-shell .font-sans {
+  font-family: var(--font-sans);
 }
-.desmo-shell[data-button="raised"] :is(button[data-primary], button.bg-primary):not(:disabled) {
-  box-shadow: 0 3px 0 color-mix(in srgb, var(--primary), black 35%);
-  transition: transform 120ms ease, box-shadow 120ms ease;
+.desmo-shell .font-mono {
+  font-family: var(--font-mono);
 }
-.desmo-shell[data-button="raised"] :is(button[data-primary], button.bg-primary):active:not(:disabled) {
-  transform: translateY(2px);
-  box-shadow: 0 1px 0 color-mix(in srgb, var(--primary), black 35%);
+.desmo-shell button {
+  cursor: pointer;
+}
+.desmo-shell button:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 3px;
+}
+.desmo-shell ::selection {
+  background: var(--brand-soft);
+  color: var(--foreground);
+}
+.desmo-shell :is(button[data-primary], button.bg-primary) {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+.desmo-shell[data-button="outline"]
+  :is(button[data-primary], button.bg-primary):not(:disabled) {
+  background: transparent;
+  color: var(--brand);
+  border: 1px solid var(--brand);
 }
 @media (prefers-reduced-motion: reduce) {
-  .desmo-shell *, .desmo-shell *::before, .desmo-shell *::after {
-    animation: none !important; transition: none !important;
+  .desmo-shell *,
+  .desmo-shell *::before,
+  .desmo-shell *::after {
+    animation: none !important;
+    transition: none !important;
   }
+}
+
+.desmo-shell {
+  --ink: var(--appearance-light-ink);
+  --teal: var(--appearance-light-teal);
+  --teal-deep: var(--appearance-light-teal-deep);
+  --paper: var(--appearance-light-paper);
+  --canvas: var(--appearance-light-canvas);
+  --sidebar: var(--appearance-light-sidebar);
+  --raised: var(--appearance-light-raised);
+  --hover: var(--appearance-light-hover);
+  --control-border: var(--appearance-light-control-border);
+  --control-edge: var(--appearance-light-control-edge);
+  --accent-border: var(--appearance-light-accent-border);
+  --soft: var(--appearance-light-soft);
+  --answer-fill: var(--appearance-light-answer-fill);
+  --secondary-accent: var(--appearance-light-secondary-accent);
+  --secondary-soft: var(--appearance-light-secondary-soft);
+  --tertiary: var(--appearance-light-tertiary);
+  --tertiary-soft: var(--appearance-light-tertiary-soft);
+  --selection-accent: var(--appearance-light-selection-accent);
+  --selection-soft: var(--appearance-light-selection-soft);
+  --selection-border: var(--appearance-light-selection-border);
+  --primary-button: var(--appearance-light-primary-button);
+  --primary-button-hover: var(--appearance-light-primary-button-hover);
+  --primary-edge: var(--appearance-light-primary-edge);
+}
+
+html[data-theme="dark"] .desmo-shell {
+  --ink: var(--appearance-dark-ink);
+  --teal: var(--appearance-dark-teal);
+  --teal-deep: var(--appearance-dark-teal-deep);
+  --paper: var(--appearance-dark-paper);
+  --canvas: var(--appearance-dark-canvas);
+  --sidebar: var(--appearance-dark-sidebar);
+  --raised: var(--appearance-dark-raised);
+  --hover: var(--appearance-dark-hover);
+  --control-border: var(--appearance-dark-control-border);
+  --control-edge: var(--appearance-dark-control-edge);
+  --accent-border: var(--appearance-dark-accent-border);
+  --soft: var(--appearance-dark-soft);
+  --answer-fill: var(--appearance-dark-answer-fill);
+  --secondary-accent: var(--appearance-dark-secondary-accent);
+  --secondary-soft: var(--appearance-dark-secondary-soft);
+  --tertiary: var(--appearance-dark-tertiary);
+  --tertiary-soft: var(--appearance-dark-tertiary-soft);
+  --selection-accent: var(--appearance-dark-selection-accent);
+  --selection-soft: var(--appearance-dark-selection-soft);
+  --selection-border: var(--appearance-dark-selection-border);
+  --primary-button: var(--appearance-dark-primary-button);
+  --primary-button-hover: var(--appearance-dark-primary-button-hover);
+  --primary-edge: var(--appearance-dark-primary-edge);
+}
+
+/* Shared controls are scoped to the authenticated workspace. */
+.desmo-shell {
+  .outlinedControl,
+  .secondaryButton,
+  .primaryButton,
+  .pointButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 41px;
+    padding: 8px 15px;
+    border: 1px solid var(--control-border);
+    border-radius: 12px;
+    background: var(--paper);
+    color: var(--foreground);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1.3;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .outlinedControl {
+    gap: 7px;
+    min-height: 38px;
+    padding: 8px 12px;
+    border-width: 2px;
+    border-radius: 13px;
+    font-size: 12px;
+    font-weight: 750;
+  }
+  .outlinedControl:hover {
+    --press-face: var(--raised);
+    --press-outline: var(--control-edge);
+  }
+  .secondaryButton:hover {
+    --press-face: var(--raised);
+    --press-outline: var(--accent-border);
+  }
+  .primaryButton {
+    min-height: 46px;
+    padding: 11px 20px;
+    border-radius: 999px;
+    background: var(--primary-button);
+    color: var(--primary-foreground);
+    font-size: 15px;
+  }
+  .primaryButton:hover {
+    --press-face: var(--primary-button-hover);
+  }
+  .pointButton {
+    --press-padding: 7px;
+    min-height: 36px;
+    margin-top: 12px;
+    padding: 7px 12px;
+    border-radius: 10px;
+    color: var(--secondary-accent);
+    font-size: 13px;
+  }
+  .pointButton:hover {
+    --press-face: var(--raised);
+    --press-outline: var(--accent-border);
+  }
+  .copyButton:hover {
+    --press-outline: var(--accent-border);
+  }
+  :is(
+    .outlinedControl,
+    .secondaryButton,
+    .primaryButton,
+    .pointButton
+  ):disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+  .wsPageHeading {
+    margin-bottom: 32px;
+  }
+  .wsPageHeading h1 {
+    font-size: 30px;
+    line-height: 1.25;
+    font-weight: 850;
+    letter-spacing: -0.035em;
+  }
+  .wsPageHeading p {
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+  button,
+  summary,
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+  button svg,
+  a svg,
+  summary svg {
+    flex-shrink: 0;
+  }
+  @media (max-width: 860px) {
+    .wsPageHeading h1 {
+      display: flex;
+      align-items: center;
+      min-height: 40px;
+      padding-left: 46px;
+      font-size: 27px;
+    }
+  }
+}
+.desmo-shell .katex {
+  position: relative;
 }

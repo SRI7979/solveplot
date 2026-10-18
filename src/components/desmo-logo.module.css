@@ -9,7 +9,7 @@
   font-size: 27px;
   font-weight: 600;
   line-height: 1;
-  letter-spacing: -.045em;
+  letter-spacing: -0.045em;
   text-decoration: none;
 }
 
@@ -38,13 +38,33 @@
   margin: 0 auto 42px;
 }
 
-.workspaceLogo { gap: 8px; font-size: 15px; font-weight: 500; letter-spacing: -.025em; }
-.workspaceLogo .mark { width: 28px; height: 28px; border: 0; border-radius: 9px; background: var(--primary); color: var(--primary-foreground); }
-@supports (corner-shape: squircle) {
-  .workspaceLogo .mark { border-radius: 50%; corner-shape: squircle; }
+.workspaceLogo {
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.025em;
 }
-.workspaceLogo .mark svg { width: 16px; height: 16px; }
-.workspaceLogo .wordmark { text-transform: lowercase; }
+.workspaceLogo .mark {
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 9px;
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+@supports (corner-shape: squircle) {
+  .workspaceLogo .mark {
+    border-radius: 50%;
+    corner-shape: squircle;
+  }
+}
+.workspaceLogo .mark svg {
+  width: 16px;
+  height: 16px;
+}
+.workspaceLogo .wordmark {
+  text-transform: lowercase;
+}
 
 @media (max-width: 600px) {
   .logo {
@@ -66,4 +86,31 @@
   }
 }
 
-@media (max-width: 600px) { .workspaceLogo { min-height: 0; font-size: 15px; } }
+@media (max-width: 600px) {
+  .workspaceLogo {
+    min-height: 0;
+    font-size: 15px;
+  }
+}
+
+/* Workspace typography follows the approved solver, scoped away from the landing page. */
+.workspaceLogo {
+  gap: 10px;
+  font-size: 24px;
+  font-weight: 850;
+  letter-spacing: -1px;
+}
+.workspaceLogo .mark {
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+}
+.workspaceLogo .mark svg {
+  width: 24px;
+  height: 24px;
+}
+@media (max-width: 600px) {
+  .workspaceLogo {
+    font-size: 24px;
+  }
+}

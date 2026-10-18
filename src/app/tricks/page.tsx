@@ -6,36 +6,68 @@ import SavedTricks, { type SavedTrickItem } from "./saved-tricks";
 import styles from "./page.module.css";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Saved tricks | Desmo", robots: { index: false, follow: false } };
+export const metadata = {
+  title: "Saved tricks | Desmo",
+  robots: { index: false, follow: false },
+};
 
 export default async function TricksPage() {
   const user = await requireUser("/tricks");
   let tricks: SavedTrickItem[] | null;
   try {
-    tricks = (await listTricks(user.id)).map(({ id, techniqueName, structure, question, answer, selection, problemId }) => ({
-      id, techniqueName, structure, question, answer, selection, problemId,
-    }));
+    tricks = (await listTricks(user.id)).map(
+      ({
+        id,
+        techniqueName,
+        structure,
+        question,
+        answer,
+        selection,
+        problemId,
+        expressions,
+      }) => ({
+        id,
+        techniqueName,
+        structure,
+        question,
+        answer,
+        selection,
+        problemId,
+        expressions,
+      }),
+    );
   } catch {
     tricks = null;
   }
 
   return (
-    <HistoryShell email={user.email} avatarUrl={user.avatarUrl} name={user.name} active="tricks">
+    <HistoryShell
+      email={user.email}
+      avatarUrl={user.avatarUrl}
+      name={user.name}
+      active="tricks"
+    >
       <div className={styles.page}>
         <div className={styles.heading}>
           <div>
             <h1>Saved tricks</h1>
             <p>Techniques to use again on test day</p>
           </div>
-          <Link href="/solve" className={styles.button}>Open solver</Link>
+          <Link href="/solve" className={styles.button}>
+            Open solver
+          </Link>
         </div>
         {tricks === null ? (
           <div className={styles.empty} role="alert">
             <h2>Saved tricks couldn’t load</h2>
             <p>Try again in a moment</p>
-            <a href="/tricks" className={styles.button}>Retry</a>
+            <a href="/tricks" className={styles.button}>
+              Retry
+            </a>
           </div>
-        ) : <SavedTricks initial={tricks} />}
+        ) : (
+          <SavedTricks initial={tricks} />
+        )}
       </div>
     </HistoryShell>
   );

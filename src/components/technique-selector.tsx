@@ -1,20 +1,9 @@
 "use client";
-
-import { useId } from "react";
+import { useEffect, useId, useRef } from "react";
+import { Check, ChevronDown } from "lucide-react";
 import { methodApproach } from "@/lib/method-scoring";
 import type { MethodSummary } from "@/lib/method-summary";
 import styles from "./technique-selector.module.css";
-
-function ApproachLabel({ method }: { method: MethodSummary }) {
-  const approach = method.approach ?? methodApproach(method);
-  return <span className={styles.approach} data-approach={approach}>{approach === "math" ? "Math way" : "Desmos way"}</span>;
-}
-
-/**
- * A compact route picker inspired by the source UI's segmented method control.
- * It keeps every method that passed browser preflight available, even when the
- * solver found only one; the selected route's cost and shape remain visible.
- */
 export default function TechniqueSelector({
   methods,
   selectedId,
@@ -22,65 +11,81 @@ export default function TechniqueSelector({
 }: {
   methods: MethodSummary[];
   selectedId: string;
-  onSelect: (methodId: string) => void;
+  onSelect: (id: string) => void;
 }) {
   const headingId = useId();
-  const selected = methods.find((method) => method.id === selectedId) ?? methods[0];
+  const menu = useRef<HTMLDetailsElement>(null);
+  const selected =
+    methods.find((method) => method.id === selectedId) ?? methods[0];
+  useEffect(() => {
+    function outside(event: PointerEvent) {
+      if (menu.current && !menu.current.contains(event.target as Node))
+        menu.current.open = false;
+    }
+    document.addEventListener("pointerdown", outside);
+    return () => document.removeEventListener("pointerdown", outside);
+  }, []);
   if (!selected) return null;
-
-  function handleKeyDown(event: React.KeyboardEvent<HTMLButtonElement>, index: number) {
-    let next = index;
-    if (event.key === "ArrowRight" || event.key === "ArrowDown") next = (index + 1) % methods.length;
-    else if (event.key === "ArrowLeft" || event.key === "ArrowUp") next = (index - 1 + methods.length) % methods.length;
-    else if (event.key === "Home") next = 0;
-    else if (event.key === "End") next = methods.length - 1;
-    else return;
-    event.preventDefault();
-    const button = event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>("[role='tab']")[next];
-    button?.focus();
-    onSelect(methods[next].id);
-  }
-
+  const recommended = selected.badges.includes("Recommended");
   return (
-    <section className={styles.container} aria-labelledby={headingId} data-testid="technique-selector">
-      <div className={styles.routeHeading}>
-        <h3 id={headingId}>Choose your route</h3>
-        <span>{selected.cost.rows} {selected.cost.rows === 1 ? "row" : "rows"} · {selected.cost.derivationSteps} hand {selected.cost.derivationSteps === 1 ? "step" : "steps"}</span>
+    <section
+      className={styles.container}
+      aria-labelledby={headingId}
+      data-testid="technique-selector"
+    >
+      <div className={styles.heading}>
+        <span className={styles.recommendation}>
+          {recommended
+            ? "Recommended method"
+            : methodApproach(selected) === "math"
+              ? "Math alternative"
+              : "Alternative method"}
+        </span>
+        {methods.length > 1 && (
+          <details
+            className={styles.menu}
+            ref={menu}
+            onKeyDown={(event) => {
+              if (event.key === "Escape") {
+                event.currentTarget.open = false;
+                event.currentTarget.querySelector("summary")?.focus();
+              }
+            }}
+          >
+            <summary className="outlinedControl">
+              Other methods <ChevronDown size={14} />
+            </summary>
+            <div className={styles.options}>
+              <p>Choose a method</p>
+              {methods.map((method) => (
+                <button
+                  key={method.id}
+                  type="button"
+                  aria-pressed={method.id === selected.id}
+                  onClick={() => {
+                    onSelect(method.id);
+                    if (menu.current) menu.current.open = false;
+                  }}
+                >
+                  <span>
+                    <strong>{method.name}</strong>
+                    <small>
+                      {method.badges.includes("Recommended")
+                        ? "Recommended · "
+                        : ""}
+                      {methodApproach(method) === "math"
+                        ? "Math way"
+                        : "Desmos way"}
+                    </small>
+                  </span>
+                  {method.id === selected.id && <Check size={17} />}
+                </button>
+              ))}
+            </div>
+          </details>
+        )}
       </div>
-      <div className={styles.routeList} role="tablist" aria-label="Solving method">
-        {methods.map((method, index) => {
-          const active = method.id === selected.id;
-          const recommended = method.badges.includes("Recommended");
-          return (
-            <button
-              key={method.id}
-              type="button"
-              role="tab"
-              aria-selected={active}
-              aria-controls={`${headingId}-details`}
-              aria-label={`${method.name}${recommended ? ", Recommended" : ""}; ${method.shape}`}
-              title={method.shape}
-              tabIndex={active ? 0 : -1}
-              className={styles.routeButton}
-              data-selected={active || undefined}
-              onClick={() => onSelect(method.id)}
-              onKeyDown={(event) => handleKeyDown(event, index)}
-            >
-              <span className={styles.name}>{method.name}</span>
-              {recommended && <span className={styles.recommended}>Recommended</span>}
-              <ApproachLabel method={method} />
-            </button>
-          );
-        })}
-      </div>
-      <div className={styles.routeDetails} role="tabpanel" id={`${headingId}-details`} aria-label={`${selected.name} method details`}>
-        <p className={styles.shape}>{selected.shape}</p>
-        <dl className={styles.stats}>
-          <div><dt>Desmos rows</dt><dd>{selected.cost.rows}</dd></div>
-          <div><dt>Hand steps</dt><dd>{selected.cost.derivationSteps}</dd></div>
-          <div><dt>Math needed</dt><dd>{selected.mathLevel}</dd></div>
-        </dl>
-      </div>
+      <h3 id={headingId}>{selected.name}</h3>
     </section>
   );
 }

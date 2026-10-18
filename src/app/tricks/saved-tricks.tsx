@@ -2,6 +2,9 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import MathExpression from "@/components/math-expression";
+import { Copy, Check } from "lucide-react";
+import type { DesmosExpression } from "@/lib/solver-schema";
 import MathText from "@/components/math-text";
 import styles from "./page.module.css";
 
@@ -13,10 +16,17 @@ export type SavedTrickItem = {
   answer: string;
   selection: string | null;
   problemId: string | null;
+  expressions: DesmosExpression[];
 };
 
-export default function SavedTricks({ initial }: { initial: SavedTrickItem[] }) {
+export default function SavedTricks({
+  initial,
+}: {
+  initial: SavedTrickItem[];
+}) {
   const [tricks, setTricks] = useState(initial);
+  const [copied, setCopied] = useState<string | null>(null);
+  const [copyError, setCopyError] = useState(false);
   const [removing, setRemoving] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -29,7 +39,8 @@ export default function SavedTricks({ initial }: { initial: SavedTrickItem[] }) 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
       });
-      if (!response.ok && response.status !== 404) throw new Error("request failed");
+      if (!response.ok && response.status !== 404)
+        throw new Error("request failed");
       setTricks((current) => current.filter((trick) => trick.id !== id));
     } catch {
       setError("That trick could not be removed, please try again");
@@ -43,33 +54,106 @@ export default function SavedTricks({ initial }: { initial: SavedTrickItem[] }) 
       <div className={styles.empty} data-testid="saved-tricks">
         <h2>No saved tricks yet</h2>
         <p>Use Save this trick on a solution to keep its technique here</p>
-        <Link href="/solve" className={styles.button}>Solve a question</Link>
+        <Link href="/solve" className={styles.button}>
+          Solve a question
+        </Link>
       </div>
     );
   }
 
   return (
     <>
-      <p className={styles.count} data-testid="saved-tricks">{tricks.length} {tricks.length === 1 ? "trick" : "tricks"} saved</p>
-      {error && <p className={styles.error} role="alert">{error}</p>}
+      <p className={styles.count} data-testid="saved-tricks">
+        {tricks.length} {tricks.length === 1 ? "trick" : "tricks"} saved
+      </p>
+      {error && (
+        <p className={styles.error} role="alert">
+          {error}
+        </p>
+      )}
       <ul className={styles.list}>
         {tricks.map((trick) => (
-          <li key={trick.id} className={styles.card}>
+          <li key={trick.id} data-trick-id={trick.id} className={styles.card}>
             <div className={styles.cardTop}>
               <h2>{trick.techniqueName}</h2>
-              <button type="button" className={styles.remove} onClick={() => remove(trick.id)} disabled={removing === trick.id} aria-label={`Remove saved trick ${trick.techniqueName}`}>
+              <button
+                type="button"
+                className={styles.remove}
+                onClick={() => remove(trick.id)}
+                disabled={removing === trick.id}
+                aria-label={`Remove saved trick ${trick.techniqueName}`}
+              >
                 {removing === trick.id ? "Removing…" : "Remove"}
               </button>
             </div>
-            {trick.structure && <p className={styles.structure}><MathText>{trick.structure}</MathText></p>}
-            {trick.selection && <blockquote className={styles.selection}><MathText>{trick.selection}</MathText></blockquote>}
+            {trick.structure && (
+              <p className={styles.structure}>
+                <MathText>{trick.structure}</MathText>
+              </p>
+            )}
+            {trick.selection && (
+              <blockquote className={styles.selection}>
+                <MathText>{trick.selection}</MathText>
+              </blockquote>
+            )}
             <div className={styles.example}>
               <span>Saved from</span>
-              <p><MathText>{trick.question}</MathText></p>
+              <p>
+                <MathText>{trick.question}</MathText>
+              </p>
             </div>
+            {trick.expressions.length > 0 && (
+              <details className={styles.entries}>
+                <summary>Saved calculator entries</summary>
+                <ol>
+                  {trick.expressions.map((expression, index) => (
+                    <li key={index}>
+                      <div>
+                        <MathExpression latex={expression.latex} />
+                      </div>
+                      <button
+                        type="button"
+                        className="copyButton"
+                        aria-label={`Copy saved line ${index + 1} from ${trick.techniqueName}`}
+                        onClick={async () => {
+                          try {
+                            await navigator.clipboard.writeText(
+                              expression.latex,
+                            );
+                            setCopied(`${trick.id}:${index}`);
+                            setCopyError(false);
+                          } catch {
+                            setCopyError(true);
+                          }
+                        }}
+                      >
+                        {copied === `${trick.id}:${index}` ? (
+                          <Check size={14} />
+                        ) : (
+                          <Copy size={14} />
+                        )}
+                        {copied === `${trick.id}:${index}` ? "Copied" : "Copy"}
+                      </button>
+                    </li>
+                  ))}
+                </ol>
+                {copyError && (
+                  <p role="status">Select the expression to copy it.</p>
+                )}
+              </details>
+            )}
             <div className={styles.cardBottom}>
-              <span className={styles.answer}>Answer <strong><MathText>{trick.answer}</MathText></strong></span>
-              {trick.problemId && <Link href={`/history/${trick.problemId}`}>Open problem <span aria-hidden="true">→</span></Link>}
+              <span className={styles.answer}>
+                Answer{" "}
+                <strong>
+                  <MathText>{trick.answer}</MathText>
+                </strong>
+              </span>
+              {trick.problemId && (
+                <Link href={`/history/${trick.problemId}`}>
+                  Open problem <span aria-hidden="true">→</span>
+                </Link>
+              )}
             </div>
           </li>
         ))}

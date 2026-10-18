@@ -2,19 +2,47 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { ArrowRight, ImageIcon, Plus, Upload } from "lucide-react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  ChevronDown,
+  FileImage,
+  ImageIcon,
+  List,
+  ScanLine,
+  Upload,
+} from "lucide-react";
 import { WorkspaceAppearance } from "@/components/appearance-provider";
 import { CalculatorVerificationProvider } from "@/components/calculator-verification";
 import DesmosCalculator from "@/components/desmos-calculator";
-import DesmoLogo from "@/components/desmo-logo";
+import MathText from "@/components/math-text";
+import { createWorkspaceDraftStore } from "@/lib/workspace-draft";
+import { useSolverSplit } from "@/components/use-solver-split";
 import { preflight } from "@/components/preflight-gate";
 import { DESMOS_READY_EVENT, loadDesmos } from "@/lib/desmos-loader";
 import SolutionExplanation from "@/components/solution-explanation";
 import TechniqueSelector from "@/components/technique-selector";
-import { isNewProblemShortcut, NEW_PROBLEM_EVENT } from "@/lib/workspace-events";
+import {
+  isNewProblemShortcut,
+  NEW_PROBLEM_EVENT,
+  SHOW_CALCULATOR_EVENT,
+} from "@/lib/workspace-events";
 import { startSolveTiming, type SolveTimer } from "@/lib/client-timing";
-import { calculatorPayload, preflightInRankOrder, reportable, type ReportedVerdict } from "@/lib/desmos-preflight";
+import {
+  calculatorPayload,
+  preflightInRankOrder,
+  reportable,
+  type ReportedVerdict,
+} from "@/lib/desmos-preflight";
 import type { MethodSummary } from "@/lib/method-summary";
 import { retryCountdown } from "@/lib/retry-countdown";
 import {
@@ -41,7 +69,9 @@ const NO_METHODS: MethodSummary[] = [];
 const NDJSON = "application/x-ndjson";
 
 /** Adapts a fetch response body into the string chunks readNdjsonEvents expects. */
-async function* decodeBody(body: ReadableStream<Uint8Array>): AsyncGenerator<string> {
+async function* decodeBody(
+  body: ReadableStream<Uint8Array>,
+): AsyncGenerator<string> {
   const reader = body.getReader();
   const decoder = new TextDecoder();
   try {
@@ -83,30 +113,91 @@ const HONEST_FAILURE =
 const UNVERIFIED =
   "The calculator has not connected yet. Your solution is kept here. Retry the calculator to check and display it.";
 
-type PreflightOptions = { retried?: boolean; distrust?: boolean; resuming?: boolean };
+type PreflightOptions = {
+  retried?: boolean;
+  distrust?: boolean;
+  resuming?: boolean;
+};
 
-function isEvent(value: unknown): value is Record<string, unknown> & { type: string } {
-  return Boolean(value) && typeof value === "object" && typeof (value as { type?: unknown }).type === "string";
+function isEvent(
+  value: unknown,
+): value is Record<string, unknown> & { type: string } {
+  return (
+    Boolean(value) &&
+    typeof value === "object" &&
+    typeof (value as { type?: unknown }).type === "string"
+  );
 }
 
-export default function SolverWorkspace({ accountNav, fontClassName = "" }: { accountNav: ReactNode; fontClassName?: string }) {
-  const [image, setImage] = useState<{ file: File; url: string } | null>(null);
-  const [solution, setSolution] = useState<Solution | null>(null);
-  const [methods, setMethods] = useState<MethodSummary[]>(NO_METHODS);
-  const [verdicts, setVerdicts] = useState<Record<string, VerdictStatus>>({});
-  const [selectedMethodId, setSelectedMethodId] = useState<string | null>(null);
-  const [explanationStatus, setExplanationStatus] = useState<ExplanationStatus>("ready");
+type WorkspaceDraft = {
+  image: { file: File; url: string } | null;
+  solution: Solution | null;
+  methods: MethodSummary[];
+  verdicts: Record<string, VerdictStatus>;
+  selectedMethodId: string | null;
+  problemId: string | null;
+  cacheKey: string | null;
+  revision: number;
+  base: Solution | null;
+  explanations: [string, Solution][];
+};
+const drafts = createWorkspaceDraftStore<WorkspaceDraft>((url) =>
+  URL.revokeObjectURL(url),
+);
+
+export default function SolverWorkspace({
+  accountNav,
+  fontClassName = "",
+  userId,
+  startFresh = false,
+}: {
+  accountNav: ReactNode;
+  fontClassName?: string;
+  userId?: string;
+  startFresh?: boolean;
+}) {
+  const [initial] = useState(() => {
+    if (!userId) return null;
+    if (startFresh) {
+      drafts.clear(userId);
+      return null;
+    }
+    return drafts.read(userId);
+  });
+  const [image, setImage] = useState<{ file: File; url: string } | null>(
+    initial?.image ?? null,
+  );
+  const [solution, setSolution] = useState<Solution | null>(
+    initial?.solution ?? null,
+  );
+  const [methods, setMethods] = useState<MethodSummary[]>(
+    initial?.methods ?? NO_METHODS,
+  );
+  const [verdicts, setVerdicts] = useState<Record<string, VerdictStatus>>(
+    initial?.verdicts ?? {},
+  );
+  const [selectedMethodId, setSelectedMethodId] = useState<string | null>(
+    initial?.selectedMethodId ?? null,
+  );
+  const [explanationStatus, setExplanationStatus] =
+    useState<ExplanationStatus>("ready");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [awaitingCalculator, setAwaitingCalculator] = useState(false);
   const [sampleLoading, setSampleLoading] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [imageZoomed, setImageZoomed] = useState(false);
-  const [mobilePanel, setMobilePanel] = useState<"solution" | "calculator">("solution");
-  const [revision, setRevision] = useState(0);
-  const [problemId, setProblemId] = useState<string | null>(null);
+  const [mobilePanel, setMobilePanel] = useState<"solution" | "calculator">(
+    "solution",
+  );
+  const [revision, setRevision] = useState(initial?.revision ?? 0);
+  const [problemId, setProblemId] = useState<string | null>(
+    initial?.problemId ?? null,
+  );
   // The solve the shown methods come from, for the tutor and saved tricks.
-  const [cacheKey, setCacheKey] = useState<string | null>(null);
+  const [cacheKey, setCacheKey] = useState<string | null>(
+    initial?.cacheKey ?? null,
+  );
   const [historyWarning, setHistoryWarning] = useState<string | null>(null);
   const [needsSignIn, setNeedsSignIn] = useState(false);
   // A daily limit or a full day's capacity: information, not an error.
@@ -124,7 +215,11 @@ export default function SolverWorkspace({ accountNav, fontClassName = "" }: { ac
   // One per solve: pre-flight results, stream events, and reports from an
   // earlier solve are ignored once a new one starts.
   const solveToken = useRef(0);
-  const waitingPreflight = useRef<{ payload: MethodsPayload; token: number; options: PreflightOptions } | null>(null);
+  const waitingPreflight = useRef<{
+    payload: MethodsPayload;
+    token: number;
+    options: PreflightOptions;
+  } | null>(null);
   // What async handlers read after an await, where state would be stale.
   const current = useRef<{
     methods: MethodSummary[];
@@ -133,28 +228,70 @@ export default function SolverWorkspace({ accountNav, fontClassName = "" }: { ac
     base: Solution | null;
     /** The method the open solve stream is explaining, until the stream ends. */
     streamMethodId: string | null;
-  }>({ methods: NO_METHODS, cacheKey: null, selectedId: null, base: null, streamMethodId: null });
+  }>({
+    methods: initial?.methods ?? NO_METHODS,
+    cacheKey: initial?.cacheKey ?? null,
+    selectedId: initial?.selectedMethodId ?? null,
+    base: initial?.base ?? null,
+    streamMethodId: null,
+  });
   // Explanations that arrived, by method, so switching back is instant.
-  const explained = useRef(new Map<string, Solution>());
+  const explained = useRef(new Map<string, Solution>(initial?.explanations));
   // Where this solve's time goes, as the student experiences it (no UI).
   const timer = useRef<SolveTimer | null>(null);
   const busy = loading || sampleLoading;
+  const [originalOpen, setOriginalOpen] = useState(false);
+  const { containerRef, split, isDragging, separatorProps } = useSolverSplit();
   // Only techniques whose rows ran cleanly in the hidden Desmos instance.
-  const listed = useMemo(() => selectorMethods(methods, verdicts), [methods, verdicts]);
+  const listed = useMemo(
+    () => selectorMethods(methods, verdicts),
+    [methods, verdicts],
+  );
 
   useEffect(
     () => () => {
-      if (image) URL.revokeObjectURL(image.url);
+      if (image && !userId) URL.revokeObjectURL(image.url);
     },
-    [image],
+    [image, userId],
   );
+  useEffect(() => {
+    if (!userId) return;
+    const ready = !loading && explanationStatus === "ready";
+    drafts.write(userId, {
+      image,
+      solution: ready ? solution : null,
+      methods: ready ? methods : NO_METHODS,
+      verdicts: ready ? verdicts : {},
+      selectedMethodId: ready ? selectedMethodId : null,
+      problemId,
+      cacheKey: ready ? cacheKey : null,
+      revision,
+      base: ready ? current.current.base : null,
+      explanations: ready ? [...explained.current] : [],
+    });
+  }, [
+    userId,
+    image,
+    solution,
+    methods,
+    verdicts,
+    selectedMethodId,
+    problemId,
+    cacheKey,
+    revision,
+    loading,
+    explanationStatus,
+  ]);
   useEffect(() => () => request.current?.abort(), []);
   useEffect(() => () => switchRequest.current?.abort(), []);
 
   useEffect(() => {
     if (cooldownUntil === null) return;
     const interval = window.setInterval(() => {
-      const remaining = Math.max(0, Math.ceil((cooldownUntil - Date.now()) / 1000));
+      const remaining = Math.max(
+        0,
+        Math.ceil((cooldownUntil - Date.now()) / 1000),
+      );
       setCooldownSeconds(remaining);
       if (remaining === 0) setCooldownUntil(null);
     }, 250);
@@ -167,7 +304,13 @@ export default function SolverWorkspace({ accountNav, fontClassName = "" }: { ac
     solveToken.current += 1;
     switchToken.current += 1;
     switchRequest.current?.abort();
-    current.current = { methods: NO_METHODS, cacheKey: null, selectedId: null, base: null, streamMethodId: null };
+    current.current = {
+      methods: NO_METHODS,
+      cacheKey: null,
+      selectedId: null,
+      base: null,
+      streamMethodId: null,
+    };
     explained.current = new Map();
     setSolution(null);
     setMethods(NO_METHODS);
@@ -179,33 +322,53 @@ export default function SolverWorkspace({ accountNav, fontClassName = "" }: { ac
     setHistoryWarning(null);
   }, []);
 
-  const selectFile = useCallback((file: File) => {
-    if (!ACCEPTED_IMAGE_TYPES.some((type) => type === file.type)) {
-      setError("Choose a PNG, JPG, or WebP screenshot.");
-      return;
-    }
-    if (file.size === 0 || file.size > MAX_IMAGE_BYTES) {
-      setError("Choose a screenshot smaller than 8 MB that is not empty.");
-      return;
-    }
-    setImage({ file, url: URL.createObjectURL(file) });
-    setMobilePanel("solution");
-    resetResult();
-    setError(null);
-    setRevision((value) => value + 1);
-  }, [resetResult]);
+  const selectFile = useCallback(
+    (file: File) => {
+      if (!ACCEPTED_IMAGE_TYPES.some((type) => type === file.type)) {
+        setError("Choose a PNG, JPG, or WebP screenshot.");
+        return;
+      }
+      if (file.size === 0 || file.size > MAX_IMAGE_BYTES) {
+        setError("Choose a screenshot smaller than 8 MB that is not empty.");
+        return;
+      }
+      setImage({ file, url: URL.createObjectURL(file) });
+      setOriginalOpen(false);
+      setMobilePanel("solution");
+      resetResult();
+      setError(null);
+      setRevision((value) => value + 1);
+    },
+    [resetResult],
+  );
 
   useEffect(() => {
     const pasteImage = (event: ClipboardEvent) => {
-      if (busy) return;
-      const files = Array.from(event.clipboardData?.files ?? []).filter((item) =>
-        item.type.startsWith("image/"),
+      if (busy || event.defaultPrevented) return;
+      if (
+        event.target instanceof Element &&
+        event.target.closest(
+          "input:not([type=file]), textarea, [contenteditable]:not([contenteditable=false]), [role=textbox], .dcg-container",
+        )
+      )
+        return;
+      const files = Array.from(event.clipboardData?.files ?? []).filter(
+        (item) => item.type.startsWith("image/"),
       );
-      if (files.length > 0) {
-        event.preventDefault();
-        if (files.length > 1) setError("Upload one image at a time, with one complete math question.");
-        else selectFile(files[0]);
-      }
+      const file =
+        files[0] ??
+        Array.from(event.clipboardData?.items ?? [])
+          .find(
+            (item) => item.kind === "file" && item.type.startsWith("image/"),
+          )
+          ?.getAsFile();
+      if (!file) return;
+      event.preventDefault();
+      if (files.length > 1)
+        setError(
+          "Upload one image at a time, with one complete math question.",
+        );
+      else selectFile(file);
     };
     window.addEventListener("paste", pasteImage);
     return () => window.removeEventListener("paste", pasteImage);
@@ -252,7 +415,8 @@ export default function SolverWorkspace({ accountNav, fontClassName = "" }: { ac
     setSolution(ready ?? provisionalSolution(base, method));
     setExplanationStatus(ready ? "ready" : "pending");
     setRevision((value) => value + 1);
-    if (!ready && method.id !== current.current.streamMethodId) void fetchExplanation(method.id);
+    if (!ready && method.id !== current.current.streamMethodId)
+      void fetchExplanation(method.id);
   }
 
   /**
@@ -302,7 +466,10 @@ export default function SolverWorkspace({ accountNav, fontClassName = "" }: { ac
     void fetchExplanation(methodId);
   }
 
-  async function sendReport(key: string, reports: ReportedVerdict[]): Promise<PreflightReply | null> {
+  async function sendReport(
+    key: string,
+    reports: ReportedVerdict[],
+  ): Promise<PreflightReply | null> {
     try {
       const response = await fetch("/api/solve/preflight", {
         method: "POST",
@@ -310,9 +477,15 @@ export default function SolverWorkspace({ accountNav, fontClassName = "" }: { ac
         body: JSON.stringify({ cacheKey: key, verdicts: reports }),
       });
       const data = await response.json().catch(() => null);
-      if (response.status === 422) return { status: "failed", error: typeof data?.error === "string" ? data.error : HONEST_FAILURE };
+      if (response.status === 422)
+        return {
+          status: "failed",
+          error: typeof data?.error === "string" ? data.error : HONEST_FAILURE,
+        };
       const payload = response.ok ? parseMethodsPayload(data) : null;
-      return payload && (data.status === "ready" || data.status === "retry") ? { status: data.status, payload } : null;
+      return payload && (data.status === "ready" || data.status === "retry")
+        ? { status: data.status, payload }
+        : null;
     } catch {
       return null;
     }
@@ -335,7 +508,11 @@ export default function SolverWorkspace({ accountNav, fontClassName = "" }: { ac
    * call 1 once with the Desmos errors attached; if that fails too, this is an
    * honest failure with no rows.
    */
-  async function runPreflight(payload: MethodsPayload, token: number, options: PreflightOptions = {}) {
+  async function runPreflight(
+    payload: MethodsPayload,
+    token: number,
+    options: PreflightOptions = {},
+  ) {
     waitingPreflight.current = null;
     setAwaitingCalculator(false);
     current.current = {
@@ -343,7 +520,12 @@ export default function SolverWorkspace({ accountNav, fontClassName = "" }: { ac
       methods: payload.methods,
       cacheKey: payload.cacheKey,
       base: baseSolution(payload),
-      streamMethodId: options.retried || options.distrust ? null : options.resuming ? current.current.streamMethodId : payload.selectedMethodId,
+      streamMethodId:
+        options.retried || options.distrust
+          ? null
+          : options.resuming
+            ? current.current.streamMethodId
+            : payload.selectedMethodId,
     };
     setMethods(payload.methods);
     setCacheKey(payload.cacheKey);
@@ -353,7 +535,10 @@ export default function SolverWorkspace({ accountNav, fontClassName = "" }: { ac
       trusted: (method) => !options.distrust && method.verified,
       isCancelled: () => solveToken.current !== token,
       onVerdict: (method, verdict, checked) => {
-        setVerdicts((previous) => ({ ...previous, [method.id]: verdict.status }));
+        setVerdicts((previous) => ({
+          ...previous,
+          [method.id]: verdict.status,
+        }));
         const report = checked ? reportable(method.id, verdict) : null;
         if (report) reports.push(report);
       },
@@ -361,7 +546,8 @@ export default function SolverWorkspace({ accountNav, fontClassName = "" }: { ac
         setLoading(false);
         timer.current?.mark("rows_shown");
         showMethod(method);
-        if (method.verified && !options.distrust && method.rows.length > 0) void confirmCached(method, payload, token);
+        if (method.verified && !options.distrust && method.rows.length > 0)
+          void confirmCached(method, payload, token);
       },
     }).catch(() => null);
     if (solveToken.current !== token) return;
@@ -378,7 +564,9 @@ export default function SolverWorkspace({ accountNav, fontClassName = "" }: { ac
       if (reports.length > 0) void sendReport(payload.cacheKey, reports);
       return;
     }
-    const everyMethodErrored = payload.methods.every((method) => run.verdicts.get(method.id)?.status === "error");
+    const everyMethodErrored = payload.methods.every(
+      (method) => run.verdicts.get(method.id)?.status === "error",
+    );
     if (!everyMethodErrored) {
       if (reports.length > 0) void sendReport(payload.cacheKey, reports);
       return waitForCalculator();
@@ -400,7 +588,10 @@ export default function SolverWorkspace({ accountNav, fontClassName = "" }: { ac
     waitingPreflight.current = null;
     setError(null);
     setLoading(true);
-    void runPreflight(waiting.payload, waiting.token, { ...waiting.options, resuming: true });
+    void runPreflight(waiting.payload, waiting.token, {
+      ...waiting.options,
+      resuming: true,
+    });
   }
 
   async function retryCalculatorCheck() {
@@ -423,7 +614,8 @@ export default function SolverWorkspace({ accountNav, fontClassName = "" }: { ac
   // reconnect resumes only the still-current solve, never a discarded one.
   useEffect(() => {
     window.addEventListener(DESMOS_READY_EVENT, resumeCalculatorCheck);
-    return () => window.removeEventListener(DESMOS_READY_EVENT, resumeCalculatorCheck);
+    return () =>
+      window.removeEventListener(DESMOS_READY_EVENT, resumeCalculatorCheck);
   });
 
   /**
@@ -432,19 +624,35 @@ export default function SolverWorkspace({ accountNav, fontClassName = "" }: { ac
    * browser's Desmos disagrees, it is reported and never shown, and the rest
    * are re-checked here instead of trusting the cache.
    */
-  async function confirmCached(method: MethodSummary, payload: MethodsPayload, token: number) {
-    const verdict = await preflight(calculatorPayload(method.rows, method.answerState)).catch(() => null);
+  async function confirmCached(
+    method: MethodSummary,
+    payload: MethodsPayload,
+    token: number,
+  ) {
+    const verdict = await preflight(
+      calculatorPayload(method.rows, method.answerState),
+    ).catch(() => null);
     if (solveToken.current !== token || verdict?.status !== "error") return;
-    void sendReport(payload.cacheKey, [{ methodId: method.id, status: "error", errors: verdict.errors }]);
+    void sendReport(payload.cacheKey, [
+      { methodId: method.id, status: "error", errors: verdict.errors },
+    ]);
     explained.current.delete(method.id);
     setLoading(true);
     setSolution(null);
-    await runPreflight({ ...payload, methods: payload.methods.filter((item) => item.id !== method.id) }, token, { distrust: true });
+    await runPreflight(
+      {
+        ...payload,
+        methods: payload.methods.filter((item) => item.id !== method.id),
+      },
+      token,
+      { distrust: true },
+    );
   }
 
   function handleStreamSolution(event: Record<string, unknown>) {
     if (typeof event.problemId === "string") setProblemId(event.problemId);
-    if (typeof event.historyWarning === "string") setHistoryWarning(event.historyWarning);
+    if (typeof event.historyWarning === "string")
+      setHistoryWarning(event.historyWarning);
     current.current.streamMethodId = null;
     const parsed = solutionSchema.safeParse(event.solution);
     if (!parsed.success) return;
@@ -498,11 +706,18 @@ export default function SolverWorkspace({ accountNav, fontClassName = "" }: { ac
         if (response.status === 401) setNeedsSignIn(true);
         // Waiting a few seconds does not help either limit, so no countdown;
         // history and already-solved problems stay available.
-        if ((data?.kind === "daily_cap" || data?.kind === "at_capacity") && typeof data.error === "string") {
+        if (
+          (data?.kind === "daily_cap" || data?.kind === "at_capacity") &&
+          typeof data.error === "string"
+        ) {
           setNotice(data.error);
           return;
         }
-        const wait = retryCountdown(response.status, data, response.headers.get("Retry-After"));
+        const wait = retryCountdown(
+          response.status,
+          data,
+          response.headers.get("Retry-After"),
+        );
         if (wait !== null) {
           setCooldownSeconds(wait);
           setCooldownUntil(Date.now() + wait * 1000);
@@ -511,12 +726,15 @@ export default function SolverWorkspace({ accountNav, fontClassName = "" }: { ac
           typeof data?.error === "string"
             ? data.error
             : response.status === 413
-              // The host refused the upload before the app saw it (on Vercel, over 4.5 MB).
-              ? "That screenshot is too large to upload. Crop it to the question or export a smaller image."
+              ? // The host refused the upload before the app saw it (on Vercel, over 4.5 MB).
+                "That screenshot is too large to upload. Crop it to the question or export a smaller image."
               : "The solver could not finish. Please try again.",
         );
       }
-      if (!response.body) throw new Error("The solver returned an empty response. Please try again.");
+      if (!response.body)
+        throw new Error(
+          "The solver returned an empty response. Please try again.",
+        );
       // Rows arrive with the "methods" event and go through pre-flight while
       // the server writes the explanation; the "solution" event fills it in.
       let sawResult = false;
@@ -526,7 +744,10 @@ export default function SolverWorkspace({ accountNav, fontClassName = "" }: { ac
         if (event.type === "methods") {
           timer.current?.mark("methods");
           const payload = parseMethodsPayload(event);
-          if (!payload) throw new Error("The solver returned an invalid response. Please try again.");
+          if (!payload)
+            throw new Error(
+              "The solver returned an invalid response. Please try again.",
+            );
           sawResult = true;
           void runPreflight(payload, token);
         } else if (event.type === "solution") {
@@ -535,16 +756,27 @@ export default function SolverWorkspace({ accountNav, fontClassName = "" }: { ac
           handleStreamSolution(event);
         } else if (event.type === "saved") {
           // History is written after the explanation is sent, so it never delays it.
-          if (typeof event.problemId === "string") setProblemId(event.problemId);
-          if (typeof event.historyWarning === "string") setHistoryWarning(event.historyWarning);
+          if (typeof event.problemId === "string")
+            setProblemId(event.problemId);
+          if (typeof event.historyWarning === "string")
+            setHistoryWarning(event.historyWarning);
         } else if (event.type === "error") {
-          if (!sawResult) throw new Error(typeof event.error === "string" ? event.error : "The solver could not finish. Please try again.");
+          if (!sawResult)
+            throw new Error(
+              typeof event.error === "string"
+                ? event.error
+                : "The solver could not finish. Please try again.",
+            );
           current.current.streamMethodId = null;
           const selected = current.current.selectedId;
-          if (selected && !explained.current.has(selected)) setExplanationStatus("failed");
+          if (selected && !explained.current.has(selected))
+            setExplanationStatus("failed");
         }
       }
-      if (!sawResult && solveToken.current === token) throw new Error("The solver returned an invalid response. Please try again.");
+      if (!sawResult && solveToken.current === token)
+        throw new Error(
+          "The solver returned an invalid response. Please try again.",
+        );
       if (solveToken.current === token) timer.current?.finish();
     } catch (cause) {
       if (!controller.signal.aborted)
@@ -562,7 +794,12 @@ export default function SolverWorkspace({ accountNav, fontClassName = "" }: { ac
       if (request.current === controller) {
         request.current = null;
         // Pre-flight may still be choosing what to show; it ends loading itself.
-        if (solveToken.current !== token || current.current.selectedId || !current.current.methods.length) setLoading(false);
+        if (
+          solveToken.current !== token ||
+          current.current.selectedId ||
+          !current.current.methods.length
+        )
+          setLoading(false);
       }
     }
   }
@@ -595,266 +832,456 @@ export default function SolverWorkspace({ accountNav, fontClassName = "" }: { ac
     };
   }, [clearImage]);
 
+  useEffect(() => {
+    const show = () => setMobilePanel("calculator");
+    window.addEventListener(SHOW_CALCULATOR_EVENT, show);
+    return () => window.removeEventListener(SHOW_CALCULATOR_EVENT, show);
+  }, []);
+
   function switchTechnique(methodId: string) {
     if (methodId === current.current.selectedId) return;
     const method = listed.find((item) => item.id === methodId);
     if (method) showMethod(method);
   }
 
+  function panelKey(
+    event: React.KeyboardEvent<HTMLButtonElement>,
+    index: number,
+  ) {
+    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+    event.preventDefault();
+    const next = event.key === "Home" ? 0 : event.key === "End" ? 1 : 1 - index;
+    setMobilePanel(next === 0 ? "solution" : "calculator");
+    event.currentTarget.parentElement
+      ?.querySelectorAll("button")
+      [next]?.focus();
+  }
   return (
     <WorkspaceAppearance className={`${styles.shell} ${fontClassName}`}>
-      <header className={styles.header}>
-        <div className={`${styles.brandSlot} ${styles.mobileBrand}`}><DesmoLogo variant="workspace" /></div>
-        {accountNav}
+      <header className={styles.header}>{accountNav}</header>
+      <div
+        className={styles.mobilePanels}
+        data-workspace-panels
+        role="tablist"
+        aria-label="Workspace panels"
+      >
         <button
+          id="steps-tab"
           type="button"
-          data-primary
-          className={styles.headerNewProblem}
-          aria-label="New problem"
-          onClick={() => window.dispatchEvent(new Event(NEW_PROBLEM_EVENT))}
+          role="tab"
+          aria-selected={mobilePanel === "solution"}
+          tabIndex={mobilePanel === "solution" ? 0 : -1}
+          aria-controls="question-panel"
+          onKeyDown={(event) => panelKey(event, 0)}
+          onClick={() => setMobilePanel("solution")}
         >
-          <Plus aria-hidden="true" />
-          <span className="hidden sm:inline">New</span>
+          <List size={18} />
+          Steps
         </button>
-      </header>
-        <div className={styles.mobilePanels} role="tablist" aria-label="Workspace panels">
-          <button type="button" role="tab" aria-selected={mobilePanel === "solution"} onClick={() => setMobilePanel("solution")}>Explanation</button>
-          <button type="button" role="tab" aria-selected={mobilePanel === "calculator"} onClick={() => setMobilePanel("calculator")}>Calculator</button>
-        </div>
+        <button
+          id="calculator-tab"
+          type="button"
+          role="tab"
+          aria-selected={mobilePanel === "calculator"}
+          tabIndex={mobilePanel === "calculator" ? 0 : -1}
+          aria-controls="calculator-panel"
+          onKeyDown={(event) => panelKey(event, 1)}
+          onClick={() => setMobilePanel("calculator")}
+        >
+          <ScanLine size={18} />
+          Calculator
+        </button>
+      </div>
       <main className={styles.main}>
         <h1 className={styles.srOnly}>SAT Math solver</h1>
         <CalculatorVerificationProvider>
-        <div className={styles.workspace} data-mobile-panel={mobilePanel} data-empty={!image && !solution && !loading || undefined}>
-          <div className={styles.questionSolutionPanel}>
-          <section
-            className={`${styles.card} ${styles.uploadCard}`}
-            aria-labelledby="upload-title"
-            id="question-panel"
+          <div
+            className={styles.workspace}
+            ref={(node) => {
+              containerRef.current = node;
+            }}
+            data-mobile-panel={mobilePanel}
+            data-empty={(!solution && !loading) || undefined}
+            data-dragging={isDragging}
+            style={{ "--solution-width": `${split}%` } as CSSProperties}
           >
-            {image ? <div className={styles.cardHeading}><h2 id="upload-title">Problem</h2></div> : <h2 id="upload-title" className={styles.srOnly}>Drop in a problem</h2>}
-            <input
-              ref={fileInput}
-              id="question-image"
-              className={styles.srOnly}
-              type="file"
-              accept="image/png,image/jpeg,image/webp"
-              disabled={busy}
-              onChange={(event) => {
-                const file = event.target.files?.[0];
-                if (file) selectFile(file);
-                event.target.value = "";
-              }}
-            />
             <div
-              className={`${styles.uploadZone} ${image ? styles.hasImage : ""} ${dragging ? styles.dragging : ""} ${busy ? styles.uploadDisabled : ""}`}
-              onDragOver={(event) => {
-                event.preventDefault();
-                if (!busy) setDragging(true);
-              }}
-              onDragLeave={() => setDragging(false)}
-              onDrop={(event) => {
-                event.preventDefault();
-                setDragging(false);
-                if (!busy && event.dataTransfer.files.length > 1)
-                  setError("Upload one image at a time, with one complete math question.");
-                else if (!busy && event.dataTransfer.files[0])
-                  selectFile(event.dataTransfer.files[0]);
-              }}
+              className={styles.questionSolutionPanel}
+              id="question-panel"
+              aria-label="Guided solution"
             >
-              {image ? (
-                <label htmlFor="question-image" className={styles.previewPick}>
-                  <Image
-                    src={image.url}
-                    width={900}
-                    height={600}
-                    unoptimized
-                    alt="Your uploaded math question"
-                    className={styles.preview}
-                  />
-                  <span className={styles.replaceHint}>Replace image</span>
-                </label>
-              ) : (
-                <>
-                  <span className={styles.uploadIcon} aria-hidden="true">
-                    <Upload size={24} />
-                  </span>
-                  <div className={styles.uploadIntro}>
-                    <strong>Drop in a problem</strong>
-                    <span>Screenshot it, drop it here, and get the clever route.</span>
-                  </div>
-                  <button type="button" data-primary className={styles.chooseImage} onClick={() => fileInput.current?.click()} disabled={busy}>
-                    <ImageIcon size={16} aria-hidden="true" />
-                    Choose image
-                  </button>
-                  <small>PNG, JPG, or WebP · up to 8 MB</small>
-                  <button type="button" className={styles.sampleLink} onClick={loadSample} disabled={busy}>
-                    {sampleLoading ? "Loading…" : "Try the sample problem"}<ArrowRight size={14} aria-hidden="true" />
-                  </button>
-                </>
-              )}
-            </div>
-            {image && (
-              <>
-                <div className={styles.fileDetails}>
-                  <span title={image.file.name}>{image.file.name}</span>
-                  <div className={styles.fileActions}>
-                    <button ref={viewImageButton} type="button" onClick={() => imageDialog.current?.showModal()}>
-                      View larger
-                    </button>
-                    <button type="button" onClick={clearImage} disabled={busy}>
-                      Remove
-                    </button>
-                  </div>
-                </div>
-                <dialog
-                  ref={imageDialog}
-                  className={styles.imageDialog}
-                  aria-labelledby="question-preview-title"
-                  onClose={() => {
-                    setImageZoomed(false);
-                    viewImageButton.current?.focus();
+              <section
+                className={styles.uploadCard}
+                aria-labelledby="upload-title"
+              >
+                <input
+                  ref={fileInput}
+                  id="question-image"
+                  className={styles.srOnly}
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  disabled={busy}
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    if (file) selectFile(file);
+                    event.target.value = "";
                   }}
-                  onClick={(event) => {
-                    if (event.target === imageDialog.current) imageDialog.current?.close();
-                  }}
-                >
-                  <div className={styles.imageDialogHeading}>
-                    <h2 id="question-preview-title">Your question</h2>
-                    <div className={styles.imageDialogActions}>
-                      <button type="button" aria-pressed={imageZoomed} onClick={() => setImageZoomed((value) => !value)}>{imageZoomed ? "Fit to screen" : "Zoom in"}</button>
-                      <button type="button" onClick={() => imageDialog.current?.close()}>Close</button>
+                />
+                {solution ? (
+                  <>
+                    <div className={styles.summaryHeading}>
+                      <h2 id="upload-title">Your problem</h2>
+                      <button
+                        type="button"
+                        className="outlinedControl replaceControl"
+                        onClick={clearImage}
+                        disabled={busy}
+                      >
+                        Replace <ArrowUpRight size={13} />
+                      </button>
                     </div>
-                  </div>
-                  <div className={styles.imageDialogBody}>
-                    <Image
-                      src={image.url}
-                      width={1200}
-                      height={900}
-                      unoptimized
-                      alt="Your uploaded math question, enlarged"
-                      className={`${styles.largePreview} ${imageZoomed ? styles.zoomedPreview : ""}`}
-                    />
-                  </div>
-                </dialog>
-              </>
-            )}
-            <button
-              data-primary
-              className={styles.solveButton}
-              type="button"
-              disabled={!image || busy || cooldownSeconds > 0 || needsSignIn}
-              onClick={awaitingCalculator ? retryCalculatorCheck : solve}
-            >
-              {loading ? (
-                <>
-                  <span className={styles.spinner} /> Solving…
-                </>
-              ) : cooldownSeconds > 0 ? (
-                `Try again in ${cooldownSeconds}s`
-              ) : (
-                <>
-                  {awaitingCalculator ? "Retry calculator" : error && image ? "Try again" : "Solve"} <ArrowIcon />
-                </>
-              )}
-            </button>
-            {loading && (
-              <div className={styles.cancelRow}>
-                <button
-                  type="button"
-                  className={styles.textButton}
-                  onClick={() => request.current?.abort()}
-                >
-                  Cancel
-                </button>
-              </div>
-            )}
-            {notice && (
-              <p className={styles.limitNotice} role="status" data-testid="limit-notice">
-                {notice} <Link href="/history">Open your history</Link>
-              </p>
-            )}
-            {(error || needsSignIn) && (
-              <div className={styles.error} role="alert">
-                {error || "Your session expired"}
-                {needsSignIn && (
-                  <> <Link href="/login?next=%2Fsolve">Sign in to continue</Link></>
+                    <div className={styles.compactQuestion}>
+                      <MathText>
+                        {solution.question || "Your uploaded question"}
+                      </MathText>
+                    </div>
+                    {image && (
+                      <>
+                        <button
+                          type="button"
+                          className={styles.originalToggle}
+                          aria-expanded={originalOpen}
+                          aria-controls="original-image"
+                          onClick={() => setOriginalOpen((value) => !value)}
+                        >
+                          <FileImage size={15} />
+                          {originalOpen
+                            ? "Hide original question"
+                            : "View original question"}
+                          <ChevronDown size={15} />
+                        </button>
+                        {originalOpen && (
+                          <div
+                            id="original-image"
+                            className={styles.originalImage}
+                          >
+                            <Image
+                              src={image.url}
+                              width={900}
+                              height={600}
+                              unoptimized
+                              alt="Your uploaded math question"
+                            />
+                            <button
+                              type="button"
+                              ref={viewImageButton}
+                              onClick={() => imageDialog.current?.showModal()}
+                            >
+                              Open full-size image <ArrowUpRight size={13} />
+                            </button>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <header className={styles.uploadHeading}>
+                      <h2 id="upload-title">New problem</h2>
+                      <p>Add a screenshot of your question.</p>
+                    </header>
+                    <div
+                      className={`${styles.uploadZone} ${image ? styles.hasImage : ""} ${dragging ? styles.dragging : ""} ${busy ? styles.uploadDisabled : ""}`}
+                      role="group"
+                      aria-label="Question image upload"
+                      aria-describedby="paste-help"
+                      tabIndex={0}
+                      onDragOver={(event) => {
+                        event.preventDefault();
+                        if (!busy) setDragging(true);
+                      }}
+                      onDragLeave={() => setDragging(false)}
+                      onDrop={(event) => {
+                        event.preventDefault();
+                        setDragging(false);
+                        if (!busy && event.dataTransfer.files.length > 1)
+                          setError(
+                            "Upload one image at a time, with one complete math question.",
+                          );
+                        else if (!busy && event.dataTransfer.files[0])
+                          selectFile(event.dataTransfer.files[0]);
+                      }}
+                    >
+                      {image ? (
+                        <>
+                          <Image
+                            src={image.url}
+                            width={900}
+                            height={600}
+                            unoptimized
+                            alt="Your uploaded math question"
+                            className={styles.preview}
+                          />
+                          <div className={styles.fileDetails}>
+                            <span>{image.file.name}</span>
+                            <button
+                              type="button"
+                              onClick={clearImage}
+                              disabled={busy}
+                              aria-label="Remove uploaded image"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <span className={styles.uploadIcon}>
+                            <Upload size={27} strokeWidth={1.8} />
+                          </span>
+                          <strong>Drop your question here</strong>
+                          <p>A clear screenshot works best.</p>
+                        </>
+                      )}
+                      <button
+                        type="button"
+                        className="secondaryButton"
+                        onClick={() => fileInput.current?.click()}
+                        disabled={busy}
+                      >
+                        <ImageIcon size={17} />
+                        {image ? "Replace image" : "Choose image"}
+                      </button>
+                      <small>PNG, JPG, or WebP · up to 8 MB</small>
+                      <small id="paste-help">
+                        Paste an image with ⌘V or Ctrl+V
+                      </small>
+                    </div>
+                    {image && (
+                      <button
+                        type="button"
+                        className={`${styles.solveButton} primaryButton`}
+                        disabled={busy || cooldownSeconds > 0 || needsSignIn}
+                        onClick={
+                          awaitingCalculator ? retryCalculatorCheck : solve
+                        }
+                      >
+                        {loading ? (
+                          <>
+                            <span className={styles.spinner} /> Solving…
+                          </>
+                        ) : cooldownSeconds > 0 ? (
+                          `Try again in ${cooldownSeconds}s`
+                        ) : (
+                          <>
+                            {awaitingCalculator
+                              ? "Retry calculator"
+                              : error
+                                ? "Try again"
+                                : "Solve"}
+                            <ArrowIcon />
+                          </>
+                        )}
+                      </button>
+                    )}
+                    {loading && (
+                      <div className={styles.cancelRow}>
+                        <button
+                          type="button"
+                          className={styles.textButton}
+                          onClick={() => request.current?.abort()}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    )}
+                    {!image && (
+                      <section className={styles.sampleSection}>
+                        <div>
+                          <h3>Try a sample question</h3>
+                          <p>Explore how a Desmos method works.</p>
+                        </div>
+                        <button
+                          type="button"
+                          className="primaryButton"
+                          onClick={loadSample}
+                          disabled={busy}
+                        >
+                          {sampleLoading ? "Loading…" : "Use sample"}
+                          <ArrowRight size={18} />
+                        </button>
+                      </section>
+                    )}
+                  </>
                 )}
-              </div>
-            )}
-          </section>
-          <section
-            className={`${styles.card} ${styles.resultCard}`}
-            aria-labelledby="result-title"
-            aria-busy={loading}
-            id="explanation-panel"
-          >
-            <div className={styles.resultHeading}>
-              <h2 id="result-title" className={styles.srOnly}>Explanation</h2>
-            </div>
-            <div className={styles.resultBody}>
-              {loading ? (
-                <div className={styles.loadingState} role="status">
-                  <p className={styles.loadingLabel}><span className={styles.spinner} aria-hidden="true" /> Interpreting the question and checking a method…</p>
-                  <div className={styles.loadingSkeleton} aria-hidden="true">
-                    <span className={styles.skeletonAnswer} />
-                    <span className={styles.skeletonLine} />
-                    <span className={styles.skeletonShort} />
-                    <span className={styles.skeletonEquation} />
-                    <span className={styles.skeletonShort} />
+                {notice && (
+                  <p
+                    className={styles.limitNotice}
+                    role="status"
+                    data-testid="limit-notice"
+                  >
+                    {notice} <Link href="/history">Open your history</Link>
+                  </p>
+                )}
+                {(error || needsSignIn) && (
+                  <div className={styles.error} role="alert">
+                    {error || "Your session expired"}
+                    {needsSignIn && (
+                      <>
+                        {" "}
+                        <Link href="/login?next=%2Fsolve">
+                          Sign in to continue
+                        </Link>
+                      </>
+                    )}
                   </div>
-                </div>
-              ) : solution ? (
-                <>
-                  <SolutionExplanation
-                    solution={solution}
-                    techniqueSelector={listed.length > 0 && selectedMethodId ? (
-                      <TechniqueSelector methods={listed} selectedId={selectedMethodId} onSelect={switchTechnique} />
-                    ) : undefined}
-                    explanationStatus={explanationStatus}
-                    onRetryExplanation={retryExplanation}
-                    tutorSource={solution.status === "solved" && cacheKey && selectedMethodId ? { kind: "solve", cacheKey, methodId: selectedMethodId } : undefined}
+                )}
+              </section>
+              {(solution || loading) && (
+                <section
+                  className={styles.resultCard}
+                  aria-labelledby="result-title"
+                  aria-busy={loading}
+                  id="explanation-panel"
+                >
+                  <hr
+                    className={styles.problemDivider}
+                    aria-label="Problem and solution"
                   />
-                  {problemId && (
-                    <p className={styles.savedNotice} role="status">
-                      Saved to <Link href={`/history/${encodeURIComponent(problemId)}`}>your history</Link>
-                    </p>
+                  <h2 id="result-title" className={styles.solutionLabel}>
+                    Your solution
+                  </h2>
+                  {loading ? (
+                    <div className={styles.loadingState} role="status">
+                      <span className={styles.spinner} />
+                      <p>Reading your question and checking a Desmos method…</p>
+                    </div>
+                  ) : (
+                    solution && (
+                      <>
+                        <SolutionExplanation
+                          solution={solution}
+                          techniqueSelector={
+                            listed.length > 0 && selectedMethodId ? (
+                              <TechniqueSelector
+                                methods={listed}
+                                selectedId={selectedMethodId}
+                                onSelect={switchTechnique}
+                              />
+                            ) : undefined
+                          }
+                          explanationStatus={explanationStatus}
+                          onRetryExplanation={retryExplanation}
+                          tutorSource={
+                            solution.status === "solved" &&
+                            cacheKey &&
+                            selectedMethodId
+                              ? {
+                                  kind: "solve",
+                                  cacheKey,
+                                  methodId: selectedMethodId,
+                                }
+                              : undefined
+                          }
+                        />
+                        {problemId && (
+                          <p className={styles.savedNotice} role="status">
+                            Saved to{" "}
+                            <Link
+                              href={`/history/${encodeURIComponent(problemId)}`}
+                            >
+                              your history
+                            </Link>
+                          </p>
+                        )}
+                        {historyWarning && (
+                          <p className={styles.error} role="status">
+                            {historyWarning}
+                          </p>
+                        )}
+                      </>
+                    )
                   )}
-                  {historyWarning && <p className={styles.error} role="status">{historyWarning}</p>}
-                </>
-              ) : (
-                <div className={styles.emptyResult}>
-                  <p>Understand every step</p>
-                  <p>After you solve, you’ll see the method beside the calculator lines that use it.</p>
-                </div>
+                </section>
               )}
             </div>
-          </section>
+            <div className={styles.paneDivider} {...separatorProps}>
+              <span aria-hidden="true" />
+            </div>
+            <section
+              className={styles.calculatorCard}
+              aria-label="Desmos calculator"
+              id="calculator-panel"
+            >
+              <DesmosCalculator
+                expressions={
+                  solution?.status === "solved"
+                    ? solution.expressions
+                    : NO_EXPRESSIONS
+                }
+                bounds={
+                  solution?.status === "solved" ? solution.graphBounds : null
+                }
+                answerState={
+                  solution?.status === "solved" ? solution.answerState : null
+                }
+                revision={revision}
+                stateKey={
+                  userId && cacheKey && selectedMethodId
+                    ? `${userId}:${cacheKey}:${selectedMethodId}:${revision}`
+                    : undefined
+                }
+              />
+            </section>
           </div>
-          <section
-            className={`${styles.card} ${styles.calculatorCard}`}
-            aria-labelledby="calculator-title"
-            id="calculator-panel"
-          >
-            {/* The calculator's own Desmos bar is the visible header. */}
-            <h2 id="calculator-title" className={styles.srOnly}>Calculator</h2>
-            <DesmosCalculator
-              expressions={
-                solution?.status === "solved"
-                  ? solution.expressions
-                  : NO_EXPRESSIONS
-              }
-              bounds={
-                solution?.status === "solved" ? solution.graphBounds : null
-              }
-              answerState={
-                solution?.status === "solved" ? solution.answerState : null
-              }
-              revision={revision}
-            />
-          </section>
-        </div>
         </CalculatorVerificationProvider>
       </main>
+      {image && (
+        <dialog
+          ref={imageDialog}
+          className={styles.imageDialog}
+          aria-labelledby="question-preview-title"
+          onClose={() => {
+            setImageZoomed(false);
+            viewImageButton.current?.focus();
+          }}
+          onClick={(event) => {
+            if (event.target === imageDialog.current)
+              imageDialog.current?.close();
+          }}
+        >
+          <div className={styles.imageDialogHeading}>
+            <h2 id="question-preview-title">Your question</h2>
+            <div>
+              <button
+                type="button"
+                className="secondaryButton"
+                aria-pressed={imageZoomed}
+                onClick={() => setImageZoomed((value) => !value)}
+              >
+                {imageZoomed ? "Fit to screen" : "Zoom in"}
+              </button>
+              <button
+                type="button"
+                className="secondaryButton"
+                onClick={() => imageDialog.current?.close()}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+          <div className={styles.imageDialogBody}>
+            <Image
+              src={image.url}
+              width={1200}
+              height={900}
+              unoptimized
+              alt="Your uploaded math question, enlarged"
+              className={`${styles.largePreview} ${imageZoomed ? styles.zoomedPreview : ""}`}
+            />
+          </div>
+        </dialog>
+      )}
     </WorkspaceAppearance>
   );
 }

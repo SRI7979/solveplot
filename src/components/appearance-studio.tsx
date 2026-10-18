@@ -1,177 +1,348 @@
 "use client";
 
-import { useId, useRef, useSyncExternalStore } from "react";
-import { Check, Monitor, Moon, SlidersHorizontal, Sun, X } from "lucide-react";
-import { PALETTES } from "@/lib/appearance";
+import { useState, type CSSProperties } from "react";
+import { Bookmark, Check, RotateCcw } from "lucide-react";
 import { useAppearance } from "./appearance-provider";
 import { useTheme } from "./theme-provider";
-import styles from "./appearance-studio.module.css";
+import { Monitor, Moon, Sun } from "lucide-react";
+import Link from "next/link";
+import { getPalette, PALETTES, type Palette } from "@/lib/workspace-palettes";
+import "./appearance-settings.css";
 
-const THEME_OPTIONS = [
-  { value: "light", label: "Light", icon: Sun },
-  { value: "dark", label: "Dark", icon: Moon },
-  { value: "system", label: "System", icon: Monitor },
+const FILTERS = [
+  { id: "all", label: "All" },
+  { id: "cool", label: "Cool" },
+  { id: "warm", label: "Warm" },
+  { id: "neutral", label: "Neutral" },
 ] as const;
 
-const PREFERENCE_GROUPS = [
-  { key: "text", label: "Typography", options: ["Modern", "Editorial", "Technical"] },
-  { key: "button", label: "Button treatment", options: ["Solid", "Outline", "Raised"] },
-  { key: "corners", label: "Corner style", options: ["Crisp", "Soft", "Round"] },
-] as const;
+type Filter = (typeof FILTERS)[number]["id"];
 
-const noop = () => () => {};
+function PaletteSwatches({ palette }: { palette: Palette }) {
+  return (
+    <span className="appearanceSwatches" aria-hidden="true">
+      {(
+        palette.swatches ?? [
+          palette.accent,
+          palette.secondary,
+          palette.tertiary,
+          palette.canvas,
+        ]
+      ).map((color, index) => (
+        <span key={index} style={{ background: color }} />
+      ))}
+    </span>
+  );
+}
 
-export function AppearanceThemeToggle({ className = "" }: { className?: string }) {
-  const { theme, setTheme } = useTheme();
-  const mounted = useSyncExternalStore(noop, () => true, () => false);
+function WorkspacePreview() {
+  const { preferences } = useAppearance();
+  const palette = getPalette(preferences.palette);
+  const curve = Array.from({ length: 111 }, (_, index) => {
+    const x = -2 + index / 10;
+    const y = x * x - 6 * x - 7;
+    return `${index === 0 ? "M" : "L"}${((x + 2) * 17).toFixed(2)},${(152 - (y + 20) * 3).toFixed(2)}`;
+  }).join(" ");
 
   return (
-    <div role="radiogroup" aria-label="Theme" className={`${styles.themeToggle} flex items-center gap-0.5 rounded-full bg-muted p-0.5 ${className}`}>
-      {THEME_OPTIONS.map(({ value, label, icon: Icon }) => {
-        const selected = mounted && theme === value;
-        return (
-          <button
-            key={value}
-            type="button"
-            role="radio"
-            aria-checked={selected}
-            aria-label={label}
-            title={label}
-            onClick={() => setTheme(value)}
-            className={`${styles.themeOption} grid size-7 place-items-center rounded-full transition-all hover:text-foreground ${selected ? "bg-background text-foreground shadow-card" : "text-muted-foreground"}`}
-          >
-            <Icon className="size-3.5" aria-hidden="true" />
-          </button>
-        );
-      })}
-    </div>
+    <aside className="appearancePreview" aria-label="Workspace color preview">
+      <div className="appearancePreviewHeading">
+        <h2>Preview</h2>
+        <span>{palette.name}</span>
+      </div>
+      <div className="appearanceMiniApp">
+        <div className="appearanceMiniHeader">
+          <strong>Solver</strong>
+          <Bookmark size={14} />
+        </div>
+        <div className="appearanceMiniBody">
+          <p className="appearanceMiniLabel">Recommended method</p>
+          <h3>Read the intercepts</h3>
+          <p>
+            Subtract the equations, then find where the graph crosses the
+            x-axis.
+          </p>
+          <div className="appearanceMiniInput">
+            <span>1</span>
+            <code>y = x² − 4x + 1 − (2x + 8)</code>
+          </div>
+          <div className="appearanceMiniGraph">
+            <svg
+              viewBox="0 0 190 170"
+              role="img"
+              aria-label="Graph of y equals x squared minus 6x minus 7, with the positive intercept at 7, 0"
+            >
+              <defs>
+                <clipPath id="settings-preview-clip">
+                  <rect width="190" height="170" />
+                </clipPath>
+              </defs>
+              <g className="appearanceGraphGrid">
+                {[0, 34, 68, 102, 136, 170].map((x) => (
+                  <line key={`v${x}`} x1={x} x2={x} y1="0" y2="170" />
+                ))}
+                {[2, 32, 62, 92, 122, 152].map((y) => (
+                  <line key={`h${y}`} y1={y} y2={y} x1="0" x2="190" />
+                ))}
+              </g>
+              <g className="appearanceGraphAxes">
+                <line x1="34" x2="34" y1="0" y2="170" />
+                <line y1="92" y2="92" x1="0" x2="190" />
+              </g>
+              <path
+                d={curve}
+                clipPath="url(#settings-preview-clip)"
+                className="appearanceGraphCurve"
+              />
+              <circle
+                cx="153"
+                cy="92"
+                r="4.5"
+                className="appearanceGraphPoint"
+              />
+              <rect
+                x="132"
+                y="65"
+                width="50"
+                height="20"
+                rx="5"
+                className="appearanceGraphLabel"
+              />
+              <text x="157" y="79" textAnchor="middle">
+                (7, 0)
+              </text>
+            </svg>
+          </div>
+          <div className="appearanceMiniAnswer">
+            <span>
+              <Check size={15} /> Answer
+            </span>
+            <strong>7</strong>
+          </div>
+        </div>
+      </div>
+      <p className="appearancePreviewNote">
+        Colors update throughout your workspace. Your expressions and graph view
+        are preserved.
+      </p>
+    </aside>
   );
 }
 
 export function AppearanceStudio({ settings = false }: { settings?: boolean }) {
-  const { preferences, setPreferences, reset } = useAppearance();
-  const { setTheme } = useTheme();
-  const dialog = useRef<HTMLDialogElement>(null);
-  const instanceId = useId();
-  const titleId = `${instanceId}-appearance-title`;
-  const palette = PALETTES[preferences.palette];
+  const {
+    preferences,
+    setPreferences,
+    reset: resetAppearance,
+  } = useAppearance();
+  const paletteId = preferences.palette;
+  const palette = getPalette(paletteId);
+  const colorAmount = preferences.colorAmount;
+  const setPalette = (id: string) =>
+    setPreferences({ ...preferences, palette: id });
+  const setColorAmount = (amount: "soft" | "colorful") =>
+    setPreferences({ ...preferences, colorAmount: amount });
+  const [filter, setFilter] = useState<Filter>("all");
+  const [resetMessage, setResetMessage] = useState("");
+  const visiblePalettes = PALETTES.filter(
+    (item) => filter === "all" || item.family === filter,
+  );
 
+  if (!settings)
+    return (
+      <Link href="/settings" className="secondaryButton">
+        Appearance settings
+      </Link>
+    );
   return (
-    <>
-      {settings ? (
-        <button
-          type="button"
-          title="Customize appearance"
-          aria-haspopup="dialog"
-          onClick={() => dialog.current?.showModal()}
-          className={styles.settingsTrigger}
-        >
-          <SlidersHorizontal className="size-4" aria-hidden="true" />
-          <span><strong>Customize appearance</strong><span>{palette.name} · {preferences.text} · {preferences.button} · {preferences.corners}</span></span>
-        </button>
-      ) : (
-        <button
-          type="button"
-          title="Appearance settings"
-          aria-label="Appearance settings"
-          aria-haspopup="dialog"
-          onClick={() => dialog.current?.showModal()}
-          className={`${styles.iconTrigger} grid size-9 place-items-center rounded-xl border bg-card text-muted-foreground hover:text-foreground`}
-        >
-          <SlidersHorizontal className="size-4" aria-hidden="true" />
-        </button>
-      )}
-      <dialog
-        ref={dialog}
-        aria-labelledby={titleId}
-        className={`${styles.dialog} appearance-dialog m-auto max-h-[90dvh] w-[min(900px,94vw)] overflow-y-auto rounded-2xl border bg-background p-0 text-foreground shadow-pop backdrop:bg-black/50`}
-        onClick={(event) => {
-          if (event.target === event.currentTarget) dialog.current?.close();
-        }}
-      >
-        <header className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b bg-background px-6 py-5">
-          <div>
-            <p className="mb-1 text-xs font-medium uppercase tracking-widest text-muted-foreground">Settings / Appearance</p>
-            <h2 id={titleId} className="text-xl font-semibold tracking-tight">Make room for your style.</h2>
-          </div>
-          <button type="button" onClick={() => dialog.current?.close()} aria-label="Close appearance settings" className="grid size-9 shrink-0 place-items-center rounded-full hover:bg-muted">
-            <X className="size-5" aria-hidden="true" />
-          </button>
+    <div className="appearancePage">
+      <div className="wsPageInner appearancePageInner">
+        <header className="wsPageHeading">
+          <h1>Settings</h1>
+          <p>
+            Make the workspace comfortable for you.{" "}
+            <Link href="/profile">Manage your account ↗</Link>
+          </p>
         </header>
-        <div className="grid gap-8 p-6 md:grid-cols-[1fr_250px]">
-          <div className="flex flex-col gap-7">
-            <section>
-              <h3 className="font-medium">Curated palettes</h3>
-              <p className="mb-4 mt-1 text-sm text-muted-foreground">Not just an accent. A whole atmosphere.</p>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                {PALETTES.map((entry, index) => (
-                  <button
-                    key={entry.name}
-                    type="button"
-                    aria-pressed={preferences.palette === index}
-                    onClick={() => setPreferences({ ...preferences, palette: index })}
-                    className="rounded-xl border bg-card p-3 text-left transition-colors hover:border-brand"
-                    style={{ outline: preferences.palette === index ? "2px solid var(--brand)" : undefined, outlineOffset: "2px" }}
+        <div className="appearanceLayout">
+          <section
+            className="appearanceOptions"
+            aria-labelledby="appearance-heading"
+          >
+            <div className="appearanceSectionHeading">
+              <h2 id="appearance-heading">Appearance</h2>
+              <AppearanceThemeToggle />
+            </div>
+            <fieldset className="appearanceAmount">
+              <legend>Color amount</legend>
+              <p>Choose how much color appears in backgrounds and controls.</p>
+              <div className="appearanceAmountChoices">
+                {(["soft", "colorful"] as const).map((amount) => (
+                  <label
+                    key={amount}
+                    className="appearanceAmountChoice"
+                    data-selected={colorAmount === amount}
                   >
-                    <div className="mb-3 flex h-12 overflow-hidden rounded-lg" aria-hidden="true">
-                      {entry.light.filter((_, colorIndex) => [0, 2, 4, 5].includes(colorIndex)).map((color) => <span key={color} className="flex-1" style={{ background: color }} />)}
-                    </div>
-                    <div className="flex items-center justify-between text-sm font-medium">
-                      {entry.name}{preferences.palette === index && <Check className="size-4 text-brand" aria-hidden="true" />}
-                    </div>
-                    <p className="mt-1 text-xs text-muted-foreground">{entry.note}</p>
-                  </button>
+                    <input
+                      type="radio"
+                      name="color-amount"
+                      value={amount}
+                      checked={colorAmount === amount}
+                      onChange={() => {
+                        setColorAmount(amount);
+                        setResetMessage("");
+                      }}
+                    />
+                    <span
+                      className="appearanceAmountDot"
+                      data-amount={amount}
+                      aria-hidden="true"
+                    />
+                    {amount === "soft" ? "Soft" : "Colorful"}
+                    <Check size={14} aria-hidden="true" />
+                  </label>
                 ))}
               </div>
-            </section>
-            {PREFERENCE_GROUPS.map((group) => (
-              <fieldset key={group.key}>
-                <legend className="mb-3 text-sm font-medium">{group.label}</legend>
-                <div className="flex flex-wrap gap-2">
-                  {group.options.map((option) => (
-                    <label key={option} className="flex cursor-pointer items-center gap-2 rounded-lg border bg-card px-3 py-2 text-sm">
-                      <input
-                        className="accent-[var(--brand)]"
-                        type="radio"
-                        name={`${instanceId}-${group.key}`}
-                        checked={preferences[group.key] === option}
-                        onChange={() => setPreferences({ ...preferences, [group.key]: option })}
-                      />
-                      {option}
-                    </label>
+            </fieldset>
+
+            <fieldset className="appearancePaletteField">
+              <legend>Color palette</legend>
+              <div className="appearancePaletteToolbar">
+                <p>
+                  {PALETTES.length} palettes · <strong>{palette.name}</strong>{" "}
+                  selected
+                </p>
+                <div
+                  className="appearanceFilters"
+                  role="group"
+                  aria-label="Filter palettes"
+                >
+                  {FILTERS.map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      aria-pressed={filter === item.id}
+                      onClick={() => setFilter(item.id)}
+                    >
+                      {item.label}
+                    </button>
                   ))}
                 </div>
-              </fieldset>
-            ))}
-          </div>
-          <aside className="flex flex-col gap-5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium uppercase tracking-widest text-muted-foreground">Live preview</span>
-              <span className="size-2 rounded-full bg-brand" />
-            </div>
-            <div className="rounded-2xl border bg-card p-5">
-              <span className="rounded-full bg-brand-soft px-2 py-1 text-xs text-brand">Your next breakthrough</span>
-              <h3 className="mt-5 text-2xl font-semibold tracking-tight">A little clarity.<br />A lot of possibility.</h3>
-              <p className="mb-6 mt-3 text-sm leading-relaxed text-muted-foreground">A workspace that feels like you. Every detail, in harmony.</p>
-              <button type="button" onClick={(event) => event.currentTarget.focus()} className="h-10 w-full rounded-xl bg-primary text-sm font-medium text-primary-foreground" data-primary-button>
-                Try this button
+              </div>
+              <div className="appearancePaletteGrid">
+                {visiblePalettes.map((item) => (
+                  <label
+                    key={item.id}
+                    className="appearancePaletteChoice"
+                    data-selected={paletteId === item.id}
+                    style={{ "--swatch-accent": item.accent } as CSSProperties}
+                  >
+                    <input
+                      type="radio"
+                      name="color-palette"
+                      value={item.id}
+                      checked={paletteId === item.id}
+                      onChange={() => {
+                        setPalette(item.id);
+                        setResetMessage("");
+                      }}
+                      aria-label={`${item.name}: ${item.description}`}
+                    />
+                    <PaletteSwatches palette={item} />
+                    <span className="appearancePaletteName">
+                      {item.name}
+                      <span
+                        className="appearancePaletteCheck"
+                        aria-hidden="true"
+                      >
+                        {paletteId === item.id && (
+                          <Check size={13} strokeWidth={2.5} />
+                        )}
+                      </span>
+                    </span>
+                    <span className="appearancePaletteDescription">
+                      {item.description}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            <fieldset className="appearanceAmount">
+              <legend>Typography</legend>
+              <div className="appearanceAmountChoices">
+                {(["Modern", "Editorial", "Technical"] as const).map((text) => (
+                  <label
+                    key={text}
+                    className="appearanceAmountChoice"
+                    data-selected={preferences.text === text}
+                  >
+                    <input
+                      type="radio"
+                      name="workspace-font"
+                      checked={preferences.text === text}
+                      onChange={() => setPreferences({ ...preferences, text })}
+                    />
+                    {text}
+                    <Check size={14} aria-hidden="true" />
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            <footer className="appearanceFooter">
+              <div>
+                <p>Saved for this browser tab.</p>
+                <span role="status">{resetMessage}</span>
+              </div>
+              <button
+                type="button"
+                className="appearanceReset"
+                onClick={() => {
+                  resetAppearance();
+                  setFilter("all");
+                  setResetMessage(`Candy and Colorful restored.`);
+                }}
+              >
+                <RotateCcw size={14} /> Reset to default
               </button>
-            </div>
-            <div className="rounded-xl border p-4">
-              <h3 className="mb-3 text-sm font-medium">Light &amp; dark</h3>
-              <AppearanceThemeToggle />
-              <p className="mt-3 text-xs leading-relaxed text-muted-foreground">Every palette includes a coordinated dark appearance.</p>
-            </div>
-            <p className="text-xs leading-relaxed text-muted-foreground">Changes preview immediately across the app and last for this session. Calculator colors stay independent for mathematical clarity.</p>
-            <button type="button" onClick={() => { reset(); setTheme("light"); }} className="text-left text-sm text-muted-foreground underline underline-offset-4">Reset appearance</button>
-          </aside>
+            </footer>
+          </section>
+          <WorkspacePreview />
         </div>
-        <footer className="flex justify-end border-t px-6 py-4">
-          <button type="button" onClick={() => dialog.current?.close()} className="rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground" data-primary-button>
-            Back to workspace
-          </button>
-        </footer>
-      </dialog>
-    </>
+      </div>
+    </div>
+  );
+}
+
+export function AppearanceThemeToggle({
+  className = "",
+}: {
+  className?: string;
+}) {
+  const { theme, setTheme } = useTheme();
+  return (
+    <div
+      className={`appearanceThemeToggle ${className}`}
+      role="group"
+      aria-label="Color mode"
+    >
+      {(
+        [
+          { value: "light", label: "Light", icon: Sun },
+          { value: "dark", label: "Dark", icon: Moon },
+          { value: "system", label: "System", icon: Monitor },
+        ] as const
+      ).map(({ value, label, icon: Icon }) => (
+        <button
+          type="button"
+          key={value}
+          aria-pressed={theme === value}
+          aria-label={label}
+          title={label}
+          onClick={() => setTheme(value)}
+        >
+          <Icon size={17} />
+        </button>
+      ))}
+    </div>
   );
 }

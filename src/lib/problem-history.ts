@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { solutionSchema, type Solution } from "@/lib/solver-schema";
 import { normalizeDesmosExpressions } from "@/lib/desmos-latex";
+import { repairGraphGuidance } from "@/lib/graph-guidance";
 import { repairSavedNativeSolution } from "@/lib/desmos-native-plans";
 
 const BUCKET = "problem-images";
@@ -81,7 +82,7 @@ export async function getProblem(userId: string, id: string) {
     .eq("user_id", userId).eq("id", id).maybeSingle();
   if (error) throw new Error("Could not load this problem. Please try again.");
   if (!data) return null;
-  const parsed = repairSavedNativeSolution(solutionSchema.parse(data.solution));
+  const parsed = repairGraphGuidance(repairSavedNativeSolution(solutionSchema.parse(data.solution)));
   // Older saved responses may contain Unicode math operators that render in
   // the explanation but fail in the Desmos API. Repair them on read too.
   const solution = {

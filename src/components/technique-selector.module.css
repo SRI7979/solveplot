@@ -1,54 +1,90 @@
-.container { display: grid; min-width: 0; gap: 10px; }
-.routeHeading { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
-.routeHeading h3 { margin: 0; color: var(--foreground); font-size: 14px; font-weight: 550; letter-spacing: -.01em; }
-.routeHeading > span { color: var(--muted); font-size: 12px; }
-.routeList {
+.container {
+  margin: 28px 0 14px;
+}
+.heading {
   display: flex;
-  gap: 4px;
-  min-width: 0;
-  padding: 4px;
-  overflow-x: auto;
-  border-radius: var(--radius-xl);
-  background: var(--ui-muted, var(--surface-muted));
-  scrollbar-width: thin;
-}
-.routeButton {
-  position: relative;
-  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 7px;
-  flex: 1 0 auto;
-  min-width: 0;
-  max-width: 100%;
-  min-height: 36px;
-  padding: 6px 11px;
-  border: 1px solid transparent;
-  border-radius: var(--radius-lg);
-  background: transparent;
-  color: var(--muted);
-  font: inherit;
-  font-size: 13px;
-  text-align: center;
-  white-space: nowrap;
-  transition: color var(--ease-ui), background var(--ease-ui), box-shadow var(--ease-ui);
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 38px;
 }
-.routeButton:hover:not([data-selected]) { color: var(--foreground); }
-.routeButton[data-selected] { background: var(--surface-raised); color: var(--foreground); box-shadow: var(--shadow-card); }
-.routeButton:focus-visible { outline: 2px solid var(--accent-pressed); outline-offset: 2px; }
-.name { overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
-.recommended { flex: none; color: var(--accent-ink); font-size: 10px; font-weight: 650; }
-.approach { flex: none; padding: 2px 6px; border-radius: 999px; background: var(--accent-soft); color: var(--accent-ink); font-size: 10px; font-weight: 600; }
-.approach[data-approach="math"] { background: var(--surface); color: var(--muted); }
-.routeDetails { display: grid; gap: 8px; padding: 0 2px; }
-.shape { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
-.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 0; padding-top: 8px; border-top: 1px solid var(--border-subtle); }
-.stats > div { min-width: 0; }
-.stats > div + div { padding-left: 9px; border-left: 1px solid var(--border-subtle); }
-.stats dt { color: var(--muted); font-size: 10px; }
-.stats dd { margin: 2px 0 0; color: var(--foreground); font-family: var(--font-mono); font-size: 12px; font-weight: 600; text-transform: capitalize; overflow-wrap: anywhere; }
-@media (max-width: 520px) {
-  .routeHeading { align-items: flex-start; }
-  .routeButton { flex: 0 0 auto; }
-  .stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.recommendation {
+  color: var(--brand);
+  font-size: 12px;
+  font-weight: 800;
+}
+.container h3 {
+  margin: 10px 0 0;
+  font-size: 27px;
+  font-weight: 850;
+  letter-spacing: -0.035em;
+  line-height: 1.25;
+}
+.menu {
+  position: relative;
+  flex-shrink: 0;
+}
+.menu summary {
+  list-style: none;
+}
+.menu summary::-webkit-details-marker {
+  display: none;
+}
+.menu summary svg {
+  transition: transform 0.17s;
+}
+.menu[open] summary svg {
+  transform: rotate(180deg);
+}
+.options {
+  position: absolute;
+  z-index: 20;
+  right: 0;
+  top: calc(100% + 8px);
+  width: 290px;
+  max-width: calc(100vw - 60px);
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--paper);
+  box-shadow: var(--shadow-pop);
+}
+.options > p {
+  margin: 4px 9px 6px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 750;
+}
+.options button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 54px;
+  padding: 10px;
+  border: 0;
+  border-radius: 9px;
+  text-align: left;
+  background: transparent;
+  color: var(--foreground);
+}
+.options button:hover,
+.options button[aria-pressed="true"] {
+  background: var(--soft);
+}
+.options strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 750;
+}
+.options small {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.options svg {
+  color: var(--brand);
+  flex-shrink: 0;
 }
