@@ -2,6 +2,7 @@
 .newProblemPage .wsPageHeading{margin-bottom:30px}
 .newProblemDropzone{display:flex;flex-direction:column;align-items:center;gap:14px;padding:40px 24px;border:2px dashed var(--control-border);border-radius:22px;background:var(--raised);transition:border-color .18s,background .18s,box-shadow .18s}
 .newProblemDropzone.isDragging{border-color:var(--secondary);background:var(--secondary-soft);box-shadow:inset 0 0 0 3px var(--paper)}
+.newProblemDropzone:focus-visible{outline:3px solid var(--secondary);outline-offset:4px}
 .newProblemUploadIcon{display:grid;place-items:center;width:62px;height:62px;border:1px solid var(--control-border);border-radius:18px;background:var(--paper);color:var(--secondary);margin-bottom:4px}
 .newProblemDropzone h2{font-size:20px;line-height:1.3;margin:0;font-weight:800;letter-spacing:-.3px}
 .newProblemDropzone p{font-size:15px;color:var(--muted);margin:0 0 8px}
