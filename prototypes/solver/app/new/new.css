@@ -1,0 +1,21 @@
+.newProblemInner{max-width:760px;margin:0 auto}
+.newProblemPage .wsPageHeading{margin-bottom:30px}
+.newProblemDropzone{display:flex;flex-direction:column;align-items:center;gap:14px;padding:40px 24px;border:2px dashed var(--control-border);border-radius:22px;background:var(--raised);transition:border-color .18s,background .18s,box-shadow .18s}
+.newProblemDropzone.isDragging{border-color:var(--secondary);background:var(--secondary-soft);box-shadow:inset 0 0 0 3px var(--paper)}
+.newProblemUploadIcon{display:grid;place-items:center;width:62px;height:62px;border:1px solid var(--control-border);border-radius:18px;background:var(--paper);color:var(--secondary);margin-bottom:4px}
+.newProblemDropzone h2{font-size:20px;line-height:1.3;margin:0;font-weight:800;letter-spacing:-.3px}
+.newProblemDropzone p{font-size:15px;color:var(--muted);margin:0 0 8px}
+.newProblemFormats{font-size:12px;color:var(--muted);margin-top:2px}
+.newProblemDropzone.hasImage{padding:18px;background:var(--paper);border-style:solid}
+.newProblemDropzone>img{display:block;object-fit:contain;width:100%;height:auto;max-height:380px;border-radius:10px;background:var(--raised)}
+.newProblemFile{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;padding:0 3px;font-size:14px;color:var(--muted)}
+.newProblemFile span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.newProblemNote{font-size:13px;line-height:1.7;color:var(--muted);margin:18px 2px 32px;max-width:580px}
+.newProblemSample{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:28px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.newProblemSample h2{font-size:17px;font-weight:800;margin:0 0 5px;letter-spacing:-.2px}
+.newProblemSample p{font-size:14px;color:var(--muted);margin:0;line-height:1.5}
+.newProblemSample .primaryButton{flex-shrink:0;min-height:46px;padding:10px 20px;font-size:14px}
+.newProblemHistoryNote{font-size:13px;color:var(--muted);margin-top:22px}
+.newProblemHistoryNote a{color:var(--ink);text-underline-offset:3px;font-weight:700}
+@media(max-width:860px){.newProblemDropzone{padding:32px 18px}.newProblemSample{align-items:flex-start;flex-direction:column;gap:20px}.newProblemSample .primaryButton{width:100%}}
+@media(prefers-reduced-motion:reduce){.newProblemDropzone{transition:none}}

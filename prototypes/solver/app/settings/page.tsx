@@ -3,7 +3,7 @@
 import { useState, type CSSProperties } from 'react';
 import { Bookmark, Check, RotateCcw } from 'lucide-react';
 import { useAppearance } from '../appearance';
-import { PALETTES, type Palette } from '../palettes';
+import { DEFAULT_PALETTE_ID, getPalette, PALETTES, type Palette } from '../palettes';
 import './settings.css';
 
 const FILTERS = [
@@ -17,10 +17,7 @@ type Filter = (typeof FILTERS)[number]['id'];
 
 function PaletteSwatches({ palette }: { palette: Palette }) {
   return <span className="appearanceSwatches" aria-hidden="true">
-    <span style={{ background: palette.accent }} />
-    <span style={{ background: palette.secondary }} />
-    <span style={{ background: palette.tertiary }} />
-    <span style={{ background: palette.canvas }} />
+    {(palette.swatches ?? [palette.accent, palette.secondary, palette.tertiary, palette.canvas]).map((color, index) => <span key={index} style={{ background: color }} />)}
   </span>;
 }
 
@@ -100,7 +97,7 @@ export default function SettingsPage() {
             </label>)}
           </div>
         </fieldset>
-        <footer className="appearanceFooter"><div><p>Saved for this browser tab.</p><span role="status">{resetMessage}</span></div><button type="button" className="appearanceReset" onClick={() => { resetAppearance(); setFilter('all'); setResetMessage('Tidal and Colorful restored.'); }}><RotateCcw size={14} /> Reset to default</button></footer>
+        <footer className="appearanceFooter"><div><p>Saved for this browser tab.</p><span role="status">{resetMessage}</span></div><button type="button" className="appearanceReset" onClick={() => { resetAppearance(); setFilter('all'); setResetMessage(`${getPalette(DEFAULT_PALETTE_ID).name} and Colorful restored.`); }}><RotateCcw size={14} /> Reset to default</button></footer>
       </section>
       <WorkspacePreview />
     </div>

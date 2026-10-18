@@ -9,14 +9,16 @@ export type Palette = {
   tertiary: string;
   canvas: string;
   ink: string;
+  swatches?: readonly string[];
 };
 
-export const DEFAULT_PALETTE_ID = 'tidal';
+export const DEFAULT_PALETTE_ID = 'candy';
 
 // Every foreground accent has at least 4.5:1 contrast against white and
 // its own 13% tint, the strongest background used by the appearance provider.
 // Pale backgrounds are derived from these colors by the appearance provider.
 export const PALETTES: readonly Palette[] = [
+  { id: 'candy', name: 'Candy', family: 'cool', description: 'Soft green, sky blue, charcoal', accent: '#3b721f', accentDeep: '#2d5719', secondary: '#076b9e', tertiary: '#59616c', canvas: '#f7f8fa', ink: '#25282d', swatches: ['#dff2d2', '#dbf1ff', '#25282d', '#f4f5f7'] },
   { id: 'tidal', name: 'Tidal', family: 'cool', description: 'Teal, blue, coral', accent: '#08746a', accentDeep: '#07584f', secondary: '#315fbc', tertiary: '#a94838', canvas: '#f4faf9', ink: '#243438' },
   { id: 'lagoon', name: 'Lagoon', family: 'cool', description: 'Ocean, indigo, clay', accent: '#08727e', accentDeep: '#075565', secondary: '#4c60b4', tertiary: '#a84937', canvas: '#f3f9fb', ink: '#25363d' },
   { id: 'mint', name: 'Mint', family: 'cool', description: 'Mint, blue, cinnamon', accent: '#197651', accentDeep: '#15583e', secondary: '#4166a6', tertiary: '#9a5231', canvas: '#f4faf6', ink: '#29372f' },

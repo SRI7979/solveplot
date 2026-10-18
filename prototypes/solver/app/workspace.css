@@ -1,5 +1,5 @@
 .appearanceScope { display:contents; color:var(--ink); }
-.workspaceShell { display:grid; grid-template-columns:212px minmax(0,1fr); grid-template-rows:64px minmax(0,1fr); height:100dvh; min-height:460px; overflow:hidden; font-size:15px; line-height:1.5; background:var(--paper); }
+.workspaceShell { display:grid; grid-template-columns:212px minmax(0,1fr); grid-template-rows:minmax(0,1fr); height:100dvh; min-height:460px; overflow:hidden; font-size:15px; line-height:1.5; background:var(--paper); }
 .workspaceShell[data-sidebar=collapsed] { grid-template-columns:72px minmax(0,1fr); }
 .workspaceSidebar { grid-row:1/-1; display:flex; flex-direction:column; padding:20px 12px 14px; border-right:1px solid var(--border); background:var(--sidebar); min-width:0; }
 .wsBrandRow { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:0 3px; min-height:35px; margin-bottom:29px; }
@@ -10,14 +10,16 @@
 .wsNewProblem { display:flex; align-items:center; justify-content:center; gap:9px; min-height:43px; padding:8px 10px; margin-bottom:21px; border:1px solid var(--control-border); border-bottom:3px solid var(--control-edge); border-radius:13px; background:var(--paper); font-size:13px; font-weight:800; white-space:nowrap; }
 .wsNewProblem:hover { border-color:var(--accent-border); color:var(--teal); }
 .wsNewProblem:active { transform:translateY(2px); border-bottom-width:1px; }
-.wsNavigation { display:flex; flex-direction:column; gap:4px; }
-.wsNavLink { display:flex; align-items:center; min-height:42px; gap:11px; padding:9px 12px; color:var(--muted); border-radius:10px; font-size:14px; font-weight:700; white-space:nowrap; }
+.wsNavigation { display:flex; flex-direction:column; gap:7px; margin-bottom:28px; }
+.wsNavLink { display:flex; align-items:center; min-height:48px; gap:11px; padding:10px 12px; color:var(--muted); border:2px solid transparent; border-radius:17px; font-size:14px; font-weight:750; white-space:nowrap; transition:background .16s,border-color .16s,color .16s,box-shadow .16s; }
 .wsNavLink[data-section=history] { --nav-accent:var(--secondary); --nav-soft:var(--secondary-soft); }
 .wsNavLink[data-section=saved] { --nav-accent:var(--tertiary); --nav-soft:var(--tertiary-soft); }
 .wsNavLink > svg { color:var(--nav-accent,var(--teal)); }
 .wsNavLink:hover { color:var(--ink); background:var(--hover); }
-.wsNavLink[aria-current=page] { color:var(--nav-accent,var(--teal)); background:var(--nav-soft,var(--soft)); }
-.wsProfileLink { display:flex; align-items:center; gap:10px; padding:10px 8px; margin-top:auto; border-radius:12px; min-width:0; }
+.wsNavLink[aria-current=page] { color:var(--selection-accent); background:var(--selection-soft); border-color:var(--selection-border); box-shadow:0 1px 0 var(--selection-border); }
+.wsNavLink[aria-current=page] > svg { color:var(--selection-accent); }
+.wsProfileLink { position:relative; display:flex; align-items:center; gap:10px; padding:10px 8px; margin-top:auto; border-radius:12px; min-width:0; }
+.wsProfileLink::before { content:""; position:absolute; height:1px; background:var(--control-border); top:-13px; left:0; right:0; }
 .wsProfileLink:hover, .wsProfileLink[aria-current=page] { background:var(--hover); }
 .wsProfileLink > .wsSidebarText { min-width:0; }
 .wsProfileLink strong { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13px; font-weight:750; }
@@ -32,16 +34,11 @@
 .workspaceShell[data-sidebar=collapsed] .wsProfileLink { justify-content:center; padding:9px 0; }
 .wsExpand { display:grid; place-items:center; margin:0 auto; width:34px; height:28px; border-radius:7px; color:var(--subtle); }
 .wsExpand:hover { background:var(--hover); }
-.workspaceTopbar { grid-column:2; grid-row:1; display:flex; align-items:center; justify-content:space-between; padding:0 28px; border-bottom:1px solid var(--border); gap:15px; background:var(--paper); }
-.wsBreadcrumb { display:flex; align-items:center; gap:12px; font-size:13px; color:var(--muted); }
-.wsBreadcrumb strong { font-weight:750; color:var(--ink); }
-.wsBreadcrumbChevron { color:var(--subtle); }
-.wsTopbarNote { color:var(--muted); font-size:12px; }
-.workspaceContent { grid-column:2; grid-row:2; min-height:0; min-width:0; overflow:hidden; }
+.workspaceContent { grid-column:2; grid-row:1; min-height:0; min-width:0; overflow:hidden; }
 .wsMobileMenu { display:none; }
 .wsMobileNavigation { margin:0; padding:0; border:0; width:272px; max-width:85vw; height:100dvh; max-height:100dvh; color:var(--ink); background:var(--sidebar); }
 .wsMobileNavigation::backdrop { background:#26323845; }
-.wsMobileSidebar { height:100%; display:flex; flex-direction:column; padding:22px 16px 20px; }
+.wsMobileSidebar { height:100%; overflow-y:auto; display:flex; flex-direction:column; padding:22px 16px 20px; }
 .wsToast { position:fixed; z-index:70; left:50%; bottom:23px; transform:translate(-50%,8px); opacity:0; pointer-events:none; padding:10px 18px; border:1px solid var(--border); border-radius:999px; background:var(--ink); color:var(--paper); box-shadow:0 5px 18px #26323816; font-size:13px; font-weight:700; transition:opacity .15s,transform .15s; }
 .wsToast[data-visible=true] { opacity:1; transform:translate(-50%,0); }
 .wsPage { height:100%; overflow-y:auto; padding:50px clamp(28px,6vw,96px) 60px; background:var(--paper); }
@@ -82,19 +79,16 @@
 .wsProfileForm input:focus-visible { outline:2px solid var(--accent-border); outline-offset:2px; }
 .wsProfileForm .secondaryButton { min-height:45px; }
 .wsProfileNote { margin-top:30px; font-size:13px; line-height:1.75; color:var(--muted); max-width:500px; }
-@media (max-width:1150px) and (min-width:861px) { .workspaceShell { grid-template-columns:190px minmax(0,1fr); } .workspaceTopbar { padding:0 22px; } }
+@media (max-width:1150px) and (min-width:861px) { .workspaceShell { grid-template-columns:190px minmax(0,1fr); } }
 @media (max-width:860px) {
-  .workspaceShell, .workspaceShell[data-sidebar=collapsed] { grid-template-columns:minmax(0,1fr); grid-template-rows:60px minmax(0,1fr); min-height:400px; }
+  .workspaceShell, .workspaceShell[data-sidebar=collapsed] { grid-template-columns:minmax(0,1fr); grid-template-rows:minmax(0,1fr); min-height:400px; }
   .workspaceSidebar { display:none; }
-  .workspaceTopbar { grid-column:1; padding:0 18px 0 10px; }
   .workspaceContent { grid-column:1; }
-  .wsMobileMenu { display:grid; width:40px; height:40px; margin-right:1px; }
+  .wsMobileMenu { position:absolute; z-index:20; top:26px; left:16px; display:grid; width:38px; height:38px; background:var(--paper); border:1px solid var(--control-border); border-bottom-width:2px; border-radius:12px; }
+  .workspaceShell:has(.solverMock) > .wsMobileMenu { top:11px; left:16px; }
+  .workspaceContent .wsPageHeading h1 { padding-left:46px; min-height:40px; display:flex; align-items:center; }
   .wsMobileSidebar .wsNavLink { min-height:46px; }
   .wsMobileSidebar .wsIconButton { width:40px; height:40px; }
-  .wsBreadcrumb { gap:9px; }
-  .wsBreadcrumbRoot, .wsBreadcrumbChevron { display:none; }
-  .wsBreadcrumb strong { font-size:15px; }
-  .wsTopbarNote { font-size:11px; }
   .wsPage { padding:32px 22px 40px; }
   .wsPageHeading h1 { font-size:29px; }
   .wsPageHeading p { font-size:14px; }
@@ -113,8 +107,31 @@
 @media (prefers-reduced-motion:reduce) { .wsToast { transition:none; } }
 
 /* Keep color on useful landmarks rather than tinting every reading surface. */
-[data-color-amount=colorful] .wsNewProblem { background:var(--teal); color:var(--accent-ink); border-color:var(--teal-deep); }
-[data-color-amount=colorful] .wsNewProblem:hover { background:var(--accent-hover); }
+[data-color-amount=colorful] .wsNewProblem { background:var(--primary-button); color:var(--accent-ink); border-color:var(--primary-edge); }
+[data-color-amount=colorful] .wsNewProblem:hover { background:var(--primary-button-hover); }
 [data-color-amount=soft] .wsNavLink:not([aria-current=page]) > svg { color:var(--muted); }
 .wsPage[data-page=history] .wsDocumentIcon { color:var(--secondary); background:var(--secondary-soft); }
 .wsPage[data-page=saved] .wsDocumentIcon { color:var(--tertiary); background:var(--tertiary-soft); }
+
+/* Brief, single movements on intent; nothing animates while the page is idle. */
+.wsNewProblem, .wsIconButton, .wsExpand, .wsProfileLink { transition:background .16s,color .16s,border-color .16s,transform .16s; }
+.wsNavLink > svg, .wsNewProblem > svg, .wsMark > svg, .wsAvatar > svg { transform-origin:center; }
+@media (hover:hover) and (prefers-reduced-motion:no-preference) {
+  .wsNavLink:hover > svg, .wsNavLink:focus-visible > svg { animation:nav-nudge .36s ease-out; }
+  .wsNavLink[data-section=history]:hover > svg { animation:history-turn .4s ease-out; }
+  .wsNavLink[data-section=settings]:hover > svg { animation:settings-turn .4s ease-out; }
+  .wsNavLink[data-section=saved]:hover > svg { animation:bookmark-lift .36s ease-out; }
+  .wsBrand:hover .wsMark > svg { animation:nav-nudge .36s ease-out; }
+  .wsProfileLink:hover .wsAvatar > svg { animation:bookmark-lift .36s ease-out; }
+  .wsNewProblem:hover > svg { animation:settings-turn .36s ease-out; }
+}
+.wsNavLink:active > svg { transform:scale(.94); }
+.wsNewProblem[aria-current=page] { outline:2px solid var(--selection-border); outline-offset:3px; }
+[data-palette=candy] .wsMark { background:var(--ink); }
+[data-palette=candy] .wsAvatar { background:var(--raised); color:var(--muted); border-color:var(--control-border); }
+[data-palette=candy] .wsNavLink:not([aria-current=page]) > svg { color:var(--subtle); }
+@keyframes nav-nudge { 45% { transform:translateY(-1px) rotate(-6deg); } }
+@keyframes history-turn { 45% { transform:rotate(-20deg); } }
+@keyframes settings-turn { 55% { transform:rotate(25deg); } }
+@keyframes bookmark-lift { 45% { transform:translateY(-2px); } }
+@media (prefers-reduced-motion:reduce) { .wsNavLink > svg, .wsNewProblem, .wsNewProblem > svg, .wsMark > svg, .wsAvatar > svg { animation:none !important; transform:none !important; } }

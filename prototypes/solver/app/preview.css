@@ -40,8 +40,8 @@ h1 { font-size:27px; line-height:1.25; letter-spacing:-.035em; font-weight:800; 
 .secondaryButton { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:41px; padding:8px 15px; border:1px solid var(--control-border); border-bottom-width:3px; border-radius:12px; background:var(--paper); font-size:14px; font-weight:750; line-height:1.3; transition:background .15s,transform .15s,box-shadow .15s; }
 .secondaryButton:hover { background:var(--raised); border-color:var(--accent-border); }
 .secondaryButton:active { transform:translateY(2px); border-bottom-width:1px; }
-.primaryButton { display:inline-flex; align-items:center; justify-content:center; gap:10px; min-height:46px; padding:11px 20px; border:1px solid var(--teal-deep); border-bottom-width:4px; border-radius:999px; background:var(--teal); color:var(--accent-ink); font-size:15px; font-weight:800; transition:background .15s,transform .15s; }
-.primaryButton:hover { background:var(--accent-hover); }
+.primaryButton { display:inline-flex; align-items:center; justify-content:center; gap:10px; min-height:46px; padding:11px 20px; border:1px solid var(--primary-edge); border-bottom-width:4px; border-radius:999px; background:var(--primary-button); color:var(--accent-ink); font-size:15px; font-weight:800; transition:background .15s,transform .15s; }
+.primaryButton:hover { background:var(--primary-button-hover); }
 .primaryButton:active { transform:translateY(3px); border-bottom-width:1px; }
 .iconButton { display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:9px; color:var(--muted); }
 .iconButton:hover { background:var(--hover); color:var(--teal); }
@@ -71,10 +71,12 @@ h1 { font-size:27px; line-height:1.25; letter-spacing:-.035em; font-weight:800; 
 .recommended { color:var(--teal); font-size:12px; font-weight:750; }
 .alternative { color:var(--muted); font-size:12px; font-weight:650; }
 .methodMenu { position:relative; flex-shrink:0; font-size:12px; }
-.methodMenu summary { list-style:none; display:flex; gap:5px; align-items:center; min-height:30px; padding:5px 0; cursor:pointer; font-weight:650; color:var(--muted); }
+.methodMenu summary { list-style:none; cursor:pointer; }
 .methodMenu summary::-webkit-details-marker { display:none; }
-.methodMenu[open] summary { color:var(--teal); }
-.methodOptions { position:absolute; z-index:10; right:0; top:34px; width:290px; max-width:calc(100vw - 60px); border:1px solid var(--border); border-radius:14px; padding:6px; background:var(--paper); box-shadow:0 8px 25px var(--shadow); }
+.methodMenu[open] summary { color:var(--selection-accent); border-color:var(--selection-border); background:var(--selection-soft); }
+.methodMenu summary svg { transition:transform .18s ease; }
+.methodMenu[open] summary svg { transform:rotate(180deg); }
+.methodOptions { position:absolute; z-index:10; right:0; top:calc(100% + 8px); width:290px; max-width:calc(100vw - 60px); border:1px solid var(--border); border-radius:14px; padding:6px; background:var(--paper); box-shadow:0 8px 25px var(--shadow); }
 .methodOptions > p { font-size:11px; padding:8px 10px; color:var(--subtle); }
 .methodOptions button { display:flex; align-items:center; justify-content:space-between; gap:10px; text-align:left; width:100%; padding:11px 10px; border-radius:8px; }
 .methodOptions button:hover, .methodOptions button[aria-pressed=true] { background:var(--raised); }
@@ -140,25 +142,7 @@ h1 { font-size:27px; line-height:1.25; letter-spacing:-.035em; font-weight:800; 
 .calculatorPane:fullscreen { height:100vh; width:100vw; border:0; background:var(--paper); padding:16px; }
 .mobileTabs { display:none; }
 
-/* Upload is a short task dialog; libraries have their own routes. */
-.workspaceDialog { color:var(--ink); border:1px solid var(--border); border-radius:23px; padding:0; max-width:calc(100vw - 32px); width:480px; max-height:calc(100dvh - 48px); background:var(--paper); box-shadow:0 20px 70px var(--shadow); }
-.workspaceDialog::backdrop { background:#25343e55; backdrop-filter:blur(3px); }
-.workspaceDialog > header { display:flex; align-items:center; justify-content:space-between; gap:18px; padding:22px 25px; border-bottom:1px solid var(--border); }
-.workspaceDialog h2 { font-size:23px; line-height:1.2; letter-spacing:-.035em; font-weight:800; }
-.uploadContent { padding:24px; }
-.uploadContent > p { font-size:15px; line-height:1.65; color:var(--muted); }
-.uploadZone { border:2px dashed var(--control-border); border-radius:17px; background:var(--raised); margin-top:20px; padding:26px 16px; display:flex; flex-direction:column; gap:13px; align-items:center; color:var(--subtle); transition:border-color .15s,background .15s; }
-.uploadZone.dragging { background:var(--soft); border-color:var(--teal); }
-.uploadZone strong { font-size:17px; font-weight:750; color:var(--muted); }
-.uploadZone > span { font-size:11px; }
-.sampleButton { width:100%; margin-top:22px; }
-.sampleDescription { display:block; text-align:center; font-size:11px; color:var(--subtle); margin-top:8px; }
-.uploadError { color:var(--error) !important; margin-top:12px; font-size:13px !important; }
-.uploadPreview { margin-top:18px; }
-.uploadPreview > div { display:flex; align-items:center; justify-content:space-between; gap:10px; color:var(--muted); font-size:12px; }
-.uploadPreview > div > span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.uploadPreview img { display:block; width:100%; height:auto; max-height:170px; object-fit:contain; background:var(--paper); border:1px solid var(--border); border-radius:10px; }
-.uploadPreview p { font-size:12px; line-height:1.6; color:var(--muted); margin-top:9px; }
+.uploadError { color:var(--error); margin-top:12px; font-size:13px; }
 
 @container(max-width:350px) {
   .givenEquations { font-size:17px; gap:10px 18px; }
@@ -176,7 +160,7 @@ h1 { font-size:27px; line-height:1.25; letter-spacing:-.035em; font-weight:800; 
   .expressionToggle span { display:none; }
 }
 @media(max-width:860px) {
-  .mobileTabs { display:flex; align-items:center; gap:6px; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--paper); }
+  .mobileTabs { display:flex; align-items:center; gap:6px; padding:10px 18px 10px 66px; border-bottom:1px solid var(--border); background:var(--paper); }
   .mobileTabs button { display:flex; align-items:center; justify-content:center; gap:8px; flex:1; min-height:40px; color:var(--subtle); font-size:14px; font-weight:750; border-radius:11px; border:1px solid transparent; }
   .mobileTabs button[aria-selected=true] { color:var(--teal); background:var(--soft); border-color:var(--accent-border); box-shadow:0 2px 0 var(--soft); }
   .workspaceBody { display:block; }
@@ -202,9 +186,6 @@ h1 { font-size:27px; line-height:1.25; letter-spacing:-.035em; font-weight:800; 
   .calculatorHeader h2 { font-size:14px; }
   .expressionToggle { font-size:11px; padding:7px; }
   .graphContext { font-size:11px; }
-  .workspaceDialog > header { padding:18px 20px; }
-  .workspaceDialog h2 { font-size:22px; }
-  .uploadContent { padding:20px; }
 }
 @media(prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto !important; transition:none !important; animation:none !important; } }
 
@@ -216,3 +197,16 @@ h1 { font-size:27px; line-height:1.25; letter-spacing:-.035em; font-weight:800; 
 .graphContext[data-step="2"] { --context-accent:var(--tertiary); background:var(--tertiary-soft); }
 .contextStep { color:var(--context-accent); }
 .saveButton > svg { color:var(--tertiary); }
+
+/* Both sections stay in one reading pane, separated by a visible rule. */
+.problemDivider { border:0; height:3px; background:var(--border); margin:28px 0 24px; border-radius:99px; }
+.solutionSectionLabel { font-size:18px; font-weight:800; letter-spacing:-.025em; }
+.outlinedControl { display:inline-flex; align-items:center; justify-content:center; gap:7px; min-height:38px; padding:8px 12px; background:var(--paper); color:var(--ink); border:2px solid var(--control-border); border-bottom-width:4px; border-radius:13px; font-size:12px; font-weight:750; line-height:1.3; text-decoration:none; transition:background .15s,border-color .15s,transform .15s,box-shadow .15s; }
+.outlinedControl:hover { background:var(--raised); border-color:var(--control-edge); }
+.outlinedControl:active { transform:translateY(2px); box-shadow:0 -2px 0 var(--paper) inset; }
+.outlinedControl > svg { transition:transform .18s ease; }
+.replaceControl:hover > svg { transform:translate(1px,-1px); }
+.iconButton, .expressionToggle, .copyButton, .pointButton { transition:background .15s,color .15s,transform .15s,border-color .15s; }
+.iconButton:active, .expressionToggle:active { transform:scale(.96); }
+@media (max-width:430px) { .outlinedControl { min-height:40px; padding:8px 10px; } .problemDivider { margin-top:24px; } }
+@media (prefers-reduced-motion:reduce) { .outlinedControl:active, .replaceControl:hover > svg, .iconButton:active, .expressionToggle:active { transform:none; } }

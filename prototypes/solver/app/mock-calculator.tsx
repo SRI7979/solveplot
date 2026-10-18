@@ -124,7 +124,7 @@ export default function MockCalculator({
   expressionsOpen,
 }: Props) {
   const { palette, calculatorDraftRef } = useAppearance();
-  const { sampleRevision } = useWorkspace();
+  const { sampleRevision, currentProblemId, calculatorCaptureRef, rememberCalculatorState, readCalculatorState } = useWorkspace();
   const mountRef = useRef<HTMLDivElement>(null);
   const calculatorRef = useRef<Calculator | null>(null);
   const loadedMethodRef = useRef<Method | null>(null);
@@ -143,6 +143,12 @@ export default function MockCalculator({
     let instance: Calculator | null = null;
     let observer: ResizeObserver | undefined;
     let resizeFrame = 0;
+    const saveForRefresh = () => {
+      if (instance && loadedMethodRef.current) {
+        rememberCalculatorState(currentProblemId, { method: loadedMethodRef.current, state: instance.getState() });
+      }
+    };
+    window.addEventListener('pagehide', saveForRefresh);
 
     loadDesmos()
       .then((desmos) => {
@@ -166,13 +172,19 @@ export default function MockCalculator({
         }) as Calculator;
         calculatorRef.current = instance;
         const draft = calculatorDraftRef.current;
-        if (draft?.method === current.method && draft.sampleRevision === sampleRevision) {
-          instance.setState(draft.state);
+        const state = draft?.method === current.method && draft.sampleRevision === sampleRevision
+          ? draft.state
+          : readCalculatorState(currentProblemId, current.method);
+        if (state) {
+          instance.setState(state);
           updatePalette(instance, current.palette);
         } else {
           loadMethod(instance, current.method, current.palette);
         }
         loadedMethodRef.current = current.method;
+        calculatorCaptureRef.current = () => instance && loadedMethodRef.current
+          ? { method: loadedMethodRef.current, state: instance.getState() }
+          : null;
         highlightStep(instance, current.activeStep);
 
         observer = new ResizeObserver(() => {
@@ -191,6 +203,7 @@ export default function MockCalculator({
         observer?.disconnect();
         instance?.destroy();
         calculatorRef.current = null;
+        calculatorCaptureRef.current = null;
         loadedMethodRef.current = null;
         setReady(false);
         setError(failure instanceof Error ? failure.message : "Desmos could not load.");
@@ -198,22 +211,26 @@ export default function MockCalculator({
 
     return () => {
       active = false;
+      window.removeEventListener('pagehide', saveForRefresh);
       cancelAnimationFrame(resizeFrame);
       observer?.disconnect();
       if (instance && loadedMethodRef.current) {
         // Native state is kept opaque and scoped to this sample. Navigating to
         // Settings and back must preserve graph edits and zoom bounds.
-        calculatorDraftRef.current = {
-          method: loadedMethodRef.current,
-          sampleRevision,
-          state: instance.getState(),
-        };
+        const snapshot = { method: loadedMethodRef.current, state: instance.getState() };
+        rememberCalculatorState(currentProblemId, snapshot);
+        // History may have already selected a new revision before this old
+        // instance unmounts. Do not overwrite the state waiting to be restored.
+        if (!calculatorDraftRef.current || calculatorDraftRef.current.sampleRevision <= sampleRevision) {
+          calculatorDraftRef.current = { ...snapshot, sampleRevision };
+        }
       }
+      calculatorCaptureRef.current = null;
       instance?.destroy();
       calculatorRef.current = null;
       loadedMethodRef.current = null;
     };
-  }, [loadAttempt, calculatorDraftRef, sampleRevision]);
+  }, [loadAttempt, calculatorDraftRef, sampleRevision, currentProblemId, calculatorCaptureRef, rememberCalculatorState, readCalculatorState]);
 
   useEffect(() => {
     const calculator = calculatorRef.current;
