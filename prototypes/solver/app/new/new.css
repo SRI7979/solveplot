@@ -14,7 +14,7 @@
 .newProblemSample{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:28px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
 .newProblemSample h2{font-size:17px;font-weight:800;margin:0 0 5px;letter-spacing:-.2px}
 .newProblemSample p{font-size:14px;color:var(--muted);margin:0;line-height:1.5}
-.newProblemSample .primaryButton{flex-shrink:0;min-height:46px;padding:10px 20px;font-size:14px}
+.newProblemSample .primaryButton{--press-padding:10px;flex-shrink:0;min-height:46px;font-size:14px}
 .newProblemHistoryNote{font-size:13px;color:var(--muted);margin-top:22px}
 .newProblemHistoryNote a{color:var(--ink);text-underline-offset:3px;font-weight:700}
 @media(max-width:860px){.newProblemDropzone{padding:32px 18px}.newProblemSample{align-items:flex-start;flex-direction:column;gap:20px}.newProblemSample .primaryButton{width:100%}}

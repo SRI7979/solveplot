@@ -8,8 +8,7 @@
 .wsIconButton { width:30px; height:30px; padding:0; display:grid; place-items:center; border-radius:7px; color:var(--subtle); }
 .wsIconButton:hover { background:var(--hover); color:var(--ink); }
 .wsNewProblem { display:flex; align-items:center; justify-content:center; gap:9px; min-height:43px; padding:8px 10px; margin-bottom:21px; border:1px solid var(--control-border); border-bottom:3px solid var(--control-edge); border-radius:13px; background:var(--paper); font-size:13px; font-weight:800; white-space:nowrap; }
-.wsNewProblem:hover { border-color:var(--accent-border); color:var(--teal); }
-.wsNewProblem:active { transform:translateY(2px); border-bottom-width:1px; }
+.wsNewProblem:hover { --press-outline:var(--accent-border); color:var(--teal); }
 .wsNavigation { display:flex; flex-direction:column; gap:7px; margin-bottom:28px; }
 .wsNavLink { display:flex; align-items:center; min-height:48px; gap:11px; padding:10px 12px; color:var(--muted); border:2px solid transparent; border-radius:17px; font-size:14px; font-weight:750; white-space:nowrap; transition:background .16s,border-color .16s,color .16s,box-shadow .16s; }
 .wsNavLink[data-section=history] { --nav-accent:var(--secondary); --nav-soft:var(--secondary-soft); }
@@ -84,7 +83,7 @@
   .workspaceShell, .workspaceShell[data-sidebar=collapsed] { grid-template-columns:minmax(0,1fr); grid-template-rows:minmax(0,1fr); min-height:400px; }
   .workspaceSidebar { display:none; }
   .workspaceContent { grid-column:1; }
-  .wsMobileMenu { position:absolute; z-index:20; top:26px; left:16px; display:grid; width:38px; height:38px; background:var(--paper); border:1px solid var(--control-border); border-bottom-width:2px; border-radius:12px; }
+  .wsMobileMenu { --press-position:absolute; position:absolute; z-index:20; top:26px; left:16px; display:grid; width:38px; height:38px; background:var(--paper); border:1px solid var(--control-border); border-bottom-width:2px; border-radius:12px; }
   .workspaceShell:has(.solverMock) > .wsMobileMenu { top:11px; left:16px; }
   .workspaceContent .wsPageHeading h1 { padding-left:46px; min-height:40px; display:flex; align-items:center; }
   .wsMobileSidebar .wsNavLink { min-height:46px; }
@@ -107,8 +106,8 @@
 @media (prefers-reduced-motion:reduce) { .wsToast { transition:none; } }
 
 /* Keep color on useful landmarks rather than tinting every reading surface. */
-[data-color-amount=colorful] .wsNewProblem { background:var(--primary-button); color:var(--accent-ink); border-color:var(--primary-edge); }
-[data-color-amount=colorful] .wsNewProblem:hover { background:var(--primary-button-hover); }
+[data-color-amount=colorful] .wsNewProblem { --press-face:var(--primary-button); --press-base:var(--primary-edge); --press-outline:var(--primary-edge); color:var(--accent-ink); }
+[data-color-amount=colorful] .wsNewProblem:hover { --press-face:var(--primary-button-hover); }
 [data-color-amount=soft] .wsNavLink:not([aria-current=page]) > svg { color:var(--muted); }
 .wsPage[data-page=history] .wsDocumentIcon { color:var(--secondary); background:var(--secondary-soft); }
 .wsPage[data-page=saved] .wsDocumentIcon { color:var(--tertiary); background:var(--tertiary-soft); }
