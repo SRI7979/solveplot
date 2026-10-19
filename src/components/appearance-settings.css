@@ -256,8 +256,8 @@
     display: inline-flex;
     align-items: center;
     gap: 7px;
-    padding: 0;
-    min-height: 21px;
+    min-height: 38px;
+    border-radius: 12px;
     font-size: 12px;
     font-weight: 750;
     color: var(--muted);
@@ -497,7 +497,6 @@
     .appearanceReset {
       min-height: 40px;
       align-self: flex-start;
-      margin-top: -9px;
     }
     .appearancePreview {
       max-width: none;

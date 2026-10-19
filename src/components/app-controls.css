@@ -41,8 +41,11 @@
     cursor: not-allowed;
   }
   .iconControl {
-    --press-depth: 2px;
+    --press-depth: 1px;
     --press-padding: 4px;
+    --press-face: transparent;
+    --press-base: transparent;
+    --press-outline: transparent;
     display: inline-grid;
     place-items: center;
     flex-shrink: 0;
@@ -67,6 +70,16 @@
     font-size: 12px;
     line-height: 1.3;
   }
+  /* Keep action labels clear of the face's edge, including compact resets. */
+  :is(button, a, summary):is(
+    .primaryButton,
+    .secondaryButton,
+    .outlinedControl,
+    .copyButton,
+    .pointButton
+  ) {
+    padding-inline: var(--press-inline, 14px);
+  }
   :is(
     .choiceControl,
     .iconControl,
@@ -84,6 +97,54 @@
     --press-face: var(--selection-soft);
     color: var(--selection-accent);
   }
+  /* A group has one track; only its selected option needs a visible face. */
+  .segmentedControl {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    width: fit-content;
+    padding: 4px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--raised);
+  }
+  .segmentedControl > :is(.iconControl, .choiceControl) {
+    --press-depth: 0px;
+    --press-face: transparent;
+    --press-base: transparent;
+    --press-outline: transparent;
+    border-radius: 10px;
+    box-shadow: none;
+    background: transparent;
+  }
+  .segmentedControl > :is(.iconControl, .choiceControl):hover:not(:disabled) {
+    --press-face: var(--hover);
+    --press-outline: transparent;
+  }
+  .segmentedControl > :is(.iconControl, .choiceControl)[aria-pressed="true"] {
+    --press-face: var(--paper);
+    --press-outline: var(--control-border);
+    --press-base: transparent;
+    color: var(--foreground);
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+  }
+  .segmentedControl.themeControlGroup {
+    gap: 4px;
+    padding: 4px;
+    border-radius: 99px;
+  }
+  .segmentedControl.themeControlGroup > .iconControl {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+  }
+  .segmentedControl.themeControlGroup > .iconControl[aria-pressed="true"] {
+    --press-face: var(--selection-soft);
+    --press-outline: var(--selection-border);
+    color: var(--selection-accent);
+  }
   .menuChoice {
     border: 2px solid transparent;
     border-radius: 12px;
@@ -96,7 +157,9 @@
   .menuChoice:hover {
     background: var(--hover);
   }
-  .menuChoice:has(> .stepIndicator) { padding: 4px 6px; }
+  .menuChoice:has(> .stepIndicator) {
+    padding: 4px 6px;
+  }
   .menuChoice[aria-pressed="true"] {
     border-color: var(--selection-border);
     background: var(--selection-soft);

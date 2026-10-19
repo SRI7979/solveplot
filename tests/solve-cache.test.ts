@@ -42,6 +42,7 @@ test("the problem key comes from extracted text and choices, never image bytes",
   // Two different screenshots are two different inputs but one problem.
   assert.notEqual(inputHash(new Uint8Array([1, 2, 3])), inputHash(new Uint8Array([1, 2, 4])));
   assert.notEqual(inputHash(new Uint8Array([1])), inputHash({ problem: "\u0001", choices: null }));
+  assert.notEqual(inputHash({ problem: "x = 2; A) 2" }), inputHash({ problem: "x = 2; A) 2", choices: null }), "embedded choices must not reuse a no-choice retry's input mapping");
 });
 
 const configuration = {

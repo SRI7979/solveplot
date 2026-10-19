@@ -175,7 +175,7 @@ export async function loadSolveContext(): Promise<SolveContext> {
 export type SolveInput =
   /** bytes: the upload as received (hashed for the cache); modelBytes: what is sent, when downscaled. */
   | { kind: "image"; bytes: Buffer; mime: string; modelBytes?: Buffer }
-  | { kind: "text"; problem: string; choices: string[] | null };
+  | { kind: "text"; problem: string; choices?: string[] | null };
 
 export type PipelineDeps = {
   client: OpenAI;
@@ -281,7 +281,7 @@ export type ResolvedEntry =
 export type ReadyEntry = Extract<ResolvedEntry, { status: "ready" }>;
 
 export const HONEST_FAILURE =
-  "Every method found for this problem has a Desmos line that errors, even after one corrected attempt, so none is shown. Try a tighter crop of just this question.";
+  "Every method found for this problem has a Desmos line that errors, even after one corrected attempt, so none is shown. Check that the full question and all its values are included, then try again.";
 
 /** No method survived pre-flight, even after the one retry: an honest failure, never erroring rows. */
 export class PreflightFailedError extends Error {
@@ -568,7 +568,9 @@ export function outputTokenLimit(base: number, rejection: Rejection | undefined)
 }
 
 function textProblem(input: Extract<SolveInput, { kind: "text" }>): string {
-  const choices = input.choices
+  const choices = input.choices === undefined
+    ? "\nPreserve any answer choices included in the question above. If none are given, treat it as a student-produced response."
+    : input.choices
     ? `\nAnswer choices: ${input.choices.map((choice, index) => `${String.fromCharCode(65 + index)}) ${choice}`).join(", ")}`
     : "\n(Student-produced response; no answer choices.)";
   return `No image is attached for this request. The text below is the complete, already-transcribed question; solve it directly, exactly as if it had been read from a screenshot.\n\nProblem: ${input.problem}${choices}`;

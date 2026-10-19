@@ -26,6 +26,7 @@ import {
   type SolveResult,
   type SolveTrace,
   type StageTiming,
+  type SolveInput,
 } from "@/lib/solve-pipeline";
 import {
   createMeter,
@@ -48,11 +49,13 @@ import {
   unsupportedTypeMessage,
   validateImage,
 } from "@/lib/upload-validation";
+import { MAX_PROBLEM_TEXT_BODY_BYTES, MAX_PROBLEM_TEXT_LENGTH, typedProblemRequestSchema } from "@/lib/text-problem";
+import { textProblemPreview } from "@/lib/text-problem-preview";
 
 export type SolveDependencies = {
   getCurrentUser: () => Promise<{ id: string } | null>;
   reserveSolve: (userId: string) => Promise<{ allowed: boolean; retryAfter: number }>;
-  saveProblem: (input: { userId: string; bytes: Buffer; mime: string; solution: Solution }) => Promise<string>;
+  saveProblem: (input: { userId: string; bytes: Buffer; mime: string; solution: Solution; text?: string }) => Promise<string>;
   getCache: () => SolveCache;
   /** Where every OpenAI call's usage and cost is recorded, and the limits are checked. */
   getUsage: () => UsageStore;
@@ -216,6 +219,41 @@ async function readUpload(request: Request): Promise<File> {
   return image;
 }
 
+/** Bound text requests before parsing or reserving any model usage, including
+ * chunked bodies without a Content-Length. One request has one input source. */
+async function readTypedProblem(request: Request): Promise<Extract<SolveInput, {kind: "text"}>> {
+  if (Number(request.headers.get("content-length")) > MAX_PROBLEM_TEXT_BODY_BYTES) {
+    throw new UploadError("That question is too long. Keep it under 6,000 characters.", 413);
+  }
+  if (!request.body) throw new UploadError("Type a question before solving.", 400);
+  const reader = request.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+  try {
+    while (true) {
+      const {done, value} = await reader.read();
+      if (done) break;
+      size += value.byteLength;
+      if (size > MAX_PROBLEM_TEXT_BODY_BYTES) {
+        await reader.cancel();
+        throw new UploadError("That question is too long. Keep it under 6,000 characters.", 413);
+      }
+      chunks.push(value);
+    }
+  } finally { reader.releaseLock(); }
+  let body: unknown;
+  try { body = JSON.parse(Buffer.concat(chunks).toString("utf8")); }
+  catch { throw new UploadError("The question could not be read. Please try again.", 400); }
+  const parsed = typedProblemRequestSchema.safeParse(body);
+  if (!parsed.success) {
+    const value = body && typeof body === "object" ? (body as {problem?: unknown}).problem : null;
+    throw new UploadError(typeof value === "string" && value.trim().length > MAX_PROBLEM_TEXT_LENGTH
+      ? "That question is too long. Keep it under 6,000 characters."
+      : "Send one typed question, including any answer choices.", 400);
+  }
+  return {kind: "text", problem: parsed.data.problem};
+}
+
 function matchesImageSignature(bytes: Buffer, mime: string) {
   if (mime === "image/png") {
     return (
@@ -236,13 +274,17 @@ function matchesImageSignature(bytes: Buffer, mime: string) {
   );
 }
 
-function errorFor(error: unknown, diagnosticId: string): Response {
+function errorFor(error: unknown, diagnosticId: string, inputKind: "image" | "text" = "image"): Response {
   if (error instanceof SolveValidationError) {
     const development = process.env.NODE_ENV === "development";
     const message = error.stage === "semantic_inputs"
-      ? "The solver could not read all of the problem's values reliably. Try a clearer screenshot showing the full question and any tables or diagrams."
+      ? inputKind === "text"
+        ? "The solver could not confirm all of the problem's values. Include the full question and every table row, then try again."
+        : "The solver could not read all of the problem's values reliably. Try a clearer screenshot showing the full question and any tables or diagrams."
       : error.stage === "transcription_conflict"
-        ? "Some values in the screenshot could not be read consistently. Try a clearer crop of the full question."
+        ? inputKind === "text"
+          ? "Some values in the question could not be interpreted consistently. Check that the equations and table values are complete, then try again."
+          : "Some values in the screenshot could not be read consistently. Try a clearer crop of the full question."
         : "The solver could not verify a reliable solution after one correction. Please try again.";
     return Response.json(
       {
@@ -285,7 +327,9 @@ function errorFor(error: unknown, diagnosticId: string): Response {
     return Response.json({ status: "failed", error: HONEST_FAILURE }, { status: 422, headers: { "Cache-Control": "no-store" } });
   }
   if (error instanceof RefusalError) {
-    return errorResponse("The AI could not process that image. Try a clear crop of just the math question.", 422);
+    return errorResponse(inputKind === "text"
+      ? "The question could not be processed. Include a complete SAT Math question and try again."
+      : "The AI could not process that image. Try a clear crop of just the math question.", 422);
   }
   if (error instanceof GoldSolutionError) {
     return errorResponse("The gold solutions file is invalid. Check src/content/gold-solutions and try again.", 500);
@@ -297,7 +341,7 @@ function errorFor(error: unknown, diagnosticId: string): Response {
     );
   }
   if (error instanceof OpenAI.APIUserAbortError) {
-    return errorResponse("The solve was canceled. Upload the screenshot again to retry.", 408);
+    return errorResponse("The solve was canceled. Please try again.", 408);
   }
   if (error instanceof OpenAI.APIError) {
     const failure = classifyOpenAIError(error);
@@ -331,7 +375,7 @@ function errorFor(error: unknown, diagnosticId: string): Response {
     }
     return errorResponse("Could not reach the AI service. Please try again.", 502);
   }
-  return errorResponse("The screenshot could not be solved. Please try again.", 500);
+  return errorResponse("The problem could not be solved. Please try again.", 500);
 }
 
 function methodsPayload(resolved: ReadyEntry, cached: boolean, selectedMethodId = resolved.winner.id) {
@@ -416,6 +460,7 @@ export function createSolveHandler(dependencies: SolveDependencies) {
     let meter: Meter | null = null;
     let techniqueId: string | null = null;
     let streaming = false;
+    let inputKind: "image" | "text" = "image";
     const context = (details: TelemetryContext = {}): TelemetryContext => ({
       userId: currentUserId,
       solveId: diagnosticId,
@@ -457,15 +502,21 @@ export function createSolveHandler(dependencies: SolveDependencies) {
       }
       if (!user) return errorResponse("Sign in to solve and save your problems.", 401);
       currentUserId = user.id;
-      const image = await step(route, "upload", () => readUpload(request));
-      const bytes = Buffer.from(await image.arrayBuffer());
-      if (!matchesImageSignature(bytes, image.type)) {
-        telemetry.event("upload_rejected", context({ reason: "signature_mismatch", status: 415, mime: image.type, bytes: bytes.length }));
-        return errorResponse("This file is not a valid PNG, JPG, or WebP image. Export the screenshot again.", 415);
+      const isText = (request.headers.get("content-type") ?? "").split(";")[0].trim().toLowerCase() === "application/json";
+      inputKind = isText ? "text" : "image";
+      let input: SolveInput;
+      if (isText) {
+        input = await step(route, "text_input", () => readTypedProblem(request));
+      } else {
+        const image = await step(route, "upload", () => readUpload(request));
+        const bytes = Buffer.from(await image.arrayBuffer());
+        if (!matchesImageSignature(bytes, image.type)) {
+          telemetry.event("upload_rejected", context({ reason: "signature_mismatch", status: 415, mime: image.type, bytes: bytes.length }));
+          return errorResponse("This file is not a valid PNG, JPG, or WebP image. Export the screenshot again.", 415);
+        }
+        await step(route, "image_validate", () => validateImage(bytes, image.type));
+        input = { kind: "image", bytes, mime: image.type };
       }
-      // Fully decode before anything else is spent on it: a damaged or
-      // oversized image costs neither a rate-limit slot nor an OpenAI call.
-      await step(route, "image_validate", () => validateImage(bytes, image.type));
       if (!process.env.OPENAI_API_KEY?.trim()) return missingKey();
       if (request.signal.aborted) return errorResponse("The solve was canceled.", 408);
       let reservation: { allowed: boolean; retryAfter: number };
@@ -481,10 +532,15 @@ export function createSolveHandler(dependencies: SolveDependencies) {
           { status: 429, headers: { "Cache-Control": "no-store", "Retry-After": String(retryAfter) } },
         );
       }
-      // What OpenAI sees: at most 1600 px on the long edge. History keeps the original.
-      const modelImage = await step(route, "image_prepare", () => prepareModelImage(bytes, image.type));
       meter = meterFor(dependencies, user.id, diagnosticId);
-      telemetry.event("solve_started", context({ mime: image.type, bytes: bytes.length, width: modelImage.width, height: modelImage.height, downscaled: modelImage.resized }));
+      if (input.kind === "image") {
+        const {bytes, mime} = input;
+        const modelImage = await step(route, "image_prepare", () => prepareModelImage(bytes, mime));
+        input = {...input, modelBytes: modelImage.bytes};
+        telemetry.event("solve_started", context({ mime, bytes: bytes.length, width: modelImage.width, height: modelImage.height, downscaled: modelImage.resized }));
+      } else {
+        telemetry.event("solve_started", context({ inputKind: "text", characters: input.problem.length }));
+      }
 
       const pipeline = pipelineFor(
         dependencies.getCache(),
@@ -496,7 +552,6 @@ export function createSolveHandler(dependencies: SolveDependencies) {
         deadlineFor(dependencies, requestStarted),
       );
       pipeline.trace = createTrace();
-      const input = { kind: "image" as const, bytes, mime: image.type, modelBytes: modelImage.bytes };
       const userId = user.id;
 
       // History keeps the method the student actually sees. The browser runs
@@ -536,7 +591,10 @@ export function createSolveHandler(dependencies: SolveDependencies) {
       const save = async (settled: Settled): Promise<{ problemId: string | null; historyWarning?: string }> => {
         if (!settled.savable) return { problemId: null };
         try {
-          return { problemId: await dependencies.saveProblem({ userId, bytes, mime: image.type, solution: settled.solution }) };
+          const original = input.kind === "text"
+            ? { bytes: await textProblemPreview(input.problem), mime: "image/png", text: input.problem }
+            : { bytes: input.bytes, mime: input.mime };
+          return { problemId: await dependencies.saveProblem({ userId, ...original, solution: settled.solution }) };
         } catch {
           // Keep a usable answer even when storage is temporarily unavailable.
           return { problemId: null, historyWarning: "Your result is ready, but it could not be saved to history. Keep this page open to view it." };
@@ -612,7 +670,7 @@ export function createSolveHandler(dependencies: SolveDependencies) {
       } else if (!isExpected(error)) {
         failed(error, meter ? "solve" : "request");
       }
-      return errorFor(error, diagnosticId);
+      return errorFor(error, diagnosticId, inputKind);
     } finally {
       if (!streaming) await telemetry.flush();
     }

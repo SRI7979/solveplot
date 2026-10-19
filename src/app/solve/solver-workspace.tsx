@@ -16,6 +16,7 @@ import {
   ArrowUpRight,
   ChevronDown,
   FileImage,
+  FileText,
   ImageIcon,
   List,
   ScanLine,
@@ -26,6 +27,7 @@ import { CalculatorVerificationProvider } from "@/components/calculator-verifica
 import DesmosCalculator from "@/components/desmos-calculator";
 import MathText from "@/components/math-text";
 import { createWorkspaceDraftStore } from "@/lib/workspace-draft";
+import { MAX_PROBLEM_TEXT_LENGTH } from "@/lib/text-problem";
 import { useSolverSplit } from "@/components/use-solver-split";
 import { preflight } from "@/components/preflight-gate";
 import { DESMOS_READY_EVENT, loadDesmos } from "@/lib/desmos-loader";
@@ -109,7 +111,7 @@ type PreflightReply =
   | { status: "failed"; error: string };
 
 const HONEST_FAILURE =
-  "Every method found for this problem has a Desmos line that errors, so none is shown. Try a tighter crop of just this question.";
+  "The calculator could not verify any of the methods found. Check that the full question and all its values are included, then try again.";
 const UNVERIFIED =
   "The calculator has not connected yet. Your solution is kept here. Retry the calculator to check and display it.";
 
@@ -131,6 +133,8 @@ function isEvent(
 
 type WorkspaceDraft = {
   image: { file: File; url: string } | null;
+  inputMode: "image" | "text";
+  problemText: string;
   solution: Solution | null;
   methods: MethodSummary[];
   verdicts: Record<string, VerdictStatus>;
@@ -167,6 +171,13 @@ export default function SolverWorkspace({
   const [image, setImage] = useState<{ file: File; url: string } | null>(
     initial?.image ?? null,
   );
+  const [inputMode, setInputMode] = useState<"image" | "text">(
+    initial?.inputMode ?? "image",
+  );
+  const [problemText, setProblemText] = useState(initial?.problemText ?? "");
+  const textInput = useRef<HTMLTextAreaElement>(null);
+  const hasInput =
+    inputMode === "text" ? problemText.trim().length > 0 : image !== null;
   const [solution, setSolution] = useState<Solution | null>(
     initial?.solution ?? null,
   );
@@ -259,6 +270,8 @@ export default function SolverWorkspace({
     const ready = !loading && explanationStatus === "ready";
     drafts.write(userId, {
       image,
+      inputMode,
+      problemText,
       solution: ready ? solution : null,
       methods: ready ? methods : NO_METHODS,
       verdicts: ready ? verdicts : {},
@@ -272,6 +285,8 @@ export default function SolverWorkspace({
   }, [
     userId,
     image,
+    inputMode,
+    problemText,
     solution,
     methods,
     verdicts,
@@ -333,6 +348,7 @@ export default function SolverWorkspace({
         return;
       }
       setImage({ file, url: URL.createObjectURL(file) });
+      setInputMode("image");
       setOriginalOpen(false);
       setMobilePanel("solution");
       resetResult();
@@ -673,7 +689,7 @@ export default function SolverWorkspace({
   }
 
   async function solve() {
-    if (!image || busy || request.current || cooldownSeconds > 0) return;
+    if (!hasInput || busy || request.current || cooldownSeconds > 0) return;
     const controller = new AbortController();
     request.current = controller;
     let timedOut = false;
@@ -692,11 +708,19 @@ export default function SolverWorkspace({
     setRevision((value) => value + 1);
     try {
       const form = new FormData();
-      form.append("image", image.file);
+      if (inputMode === "image" && image) form.append("image", image.file);
       const response = await fetch("/api/solve", {
         method: "POST",
-        headers: { Accept: NDJSON },
-        body: form,
+        headers: {
+          Accept: NDJSON,
+          ...(inputMode === "text"
+            ? { "Content-Type": "application/json" }
+            : {}),
+        },
+        body:
+          inputMode === "text"
+            ? JSON.stringify({ problem: problemText.trim() })
+            : form,
         signal: controller.signal,
       });
       timer.current?.mark("response");
@@ -786,9 +810,7 @@ export default function SolverWorkspace({
             : "Could not connect to the solver. Please try again.",
         );
       else if (timedOut)
-        setError(
-          "This took too long. Try a clearer screenshot or solve again.",
-        );
+        setError("This took too long. Check the question and try again.");
     } finally {
       window.clearTimeout(timeout);
       if (request.current === controller) {
@@ -806,6 +828,7 @@ export default function SolverWorkspace({
 
   const clearImage = useCallback(() => {
     setImage(null);
+    setProblemText("");
     resetResult();
     setError(null);
     setRevision((value) => value + 1);
@@ -936,10 +959,21 @@ export default function SolverWorkspace({
                       <button
                         type="button"
                         className="outlinedControl replaceControl"
-                        onClick={clearImage}
+                        onClick={() => {
+                          if (inputMode === "image") clearImage();
+                          else {
+                            resetResult();
+                            setError(null);
+                            setRevision((value) => value + 1);
+                            requestAnimationFrame(() =>
+                              textInput.current?.focus(),
+                            );
+                          }
+                        }}
                         disabled={busy}
                       >
-                        Replace <ArrowUpRight size={13} />
+                        {inputMode === "text" ? "Edit question" : "Replace"}{" "}
+                        <ArrowUpRight size={13} />
                       </button>
                     </div>
                     <div className={styles.compactQuestion}>
@@ -947,125 +981,233 @@ export default function SolverWorkspace({
                         {solution.question || "Your uploaded question"}
                       </MathText>
                     </div>
-                    {image && (
+                    {inputMode === "text" ? (
                       <>
                         <button
                           type="button"
                           className={`${styles.originalToggle} textControl`}
                           aria-expanded={originalOpen}
-                          aria-controls="original-image"
                           onClick={() => setOriginalOpen((value) => !value)}
                         >
-                          <FileImage size={15} />
+                          <FileText size={15} />
                           {originalOpen
-                            ? "Hide original question"
-                            : "View original question"}
+                            ? "Hide original text"
+                            : "View original text"}
                           <ChevronDown size={15} />
                         </button>
                         {originalOpen && (
-                          <div
-                            id="original-image"
-                            className={styles.originalImage}
-                          >
-                            <Image
-                              src={image.url}
-                              width={900}
-                              height={600}
-                              unoptimized
-                              alt="Your uploaded math question"
-                            />
-                            <button
-                              type="button"
-                              className="textControl"
-                              ref={viewImageButton}
-                              onClick={() => imageDialog.current?.showModal()}
-                            >
-                              Open full-size image <ArrowUpRight size={13} />
-                            </button>
-                          </div>
+                          <pre className={styles.originalText}>
+                            {problemText.trim()}
+                          </pre>
                         )}
                       </>
+                    ) : (
+                      image && (
+                        <>
+                          <button
+                            type="button"
+                            className={`${styles.originalToggle} textControl`}
+                            aria-expanded={originalOpen}
+                            aria-controls="original-image"
+                            onClick={() => setOriginalOpen((value) => !value)}
+                          >
+                            <FileImage size={15} />
+                            {originalOpen
+                              ? "Hide original question"
+                              : "View original question"}
+                            <ChevronDown size={15} />
+                          </button>
+                          {originalOpen && (
+                            <div
+                              id="original-image"
+                              className={styles.originalImage}
+                            >
+                              <Image
+                                src={image.url}
+                                width={900}
+                                height={600}
+                                unoptimized
+                                alt="Your uploaded math question"
+                              />
+                              <button
+                                type="button"
+                                className="textControl"
+                                ref={viewImageButton}
+                                onClick={() => imageDialog.current?.showModal()}
+                              >
+                                Open full-size image <ArrowUpRight size={13} />
+                              </button>
+                            </div>
+                          )}
+                        </>
+                      )
                     )}
                   </>
                 ) : (
                   <>
                     <header className={styles.uploadHeading}>
                       <h2 id="upload-title">New problem</h2>
-                      <p>Add a screenshot of your question.</p>
+                      <p>Upload a screenshot or type your question.</p>
                     </header>
                     <div
-                      className={`${styles.uploadZone} ${image ? styles.hasImage : ""} ${dragging ? styles.dragging : ""} ${busy ? styles.uploadDisabled : ""}`}
+                      className={`${styles.inputModes} segmentedControl`}
                       role="group"
-                      aria-label="Question image upload"
-                      aria-describedby="paste-help"
-                      tabIndex={0}
-                      onDragOver={(event) => {
-                        event.preventDefault();
-                        if (!busy) setDragging(true);
-                      }}
-                      onDragLeave={() => setDragging(false)}
-                      onDrop={(event) => {
-                        event.preventDefault();
-                        setDragging(false);
-                        if (!busy && event.dataTransfer.files.length > 1)
-                          setError(
-                            "Upload one image at a time, with one complete math question.",
-                          );
-                        else if (!busy && event.dataTransfer.files[0])
-                          selectFile(event.dataTransfer.files[0]);
-                      }}
+                      aria-label="Problem input type"
                     >
-                      {image ? (
-                        <>
-                          <Image
-                            src={image.url}
-                            width={900}
-                            height={600}
-                            unoptimized
-                            alt="Your uploaded math question"
-                            className={styles.preview}
-                          />
-                          <div className={styles.fileDetails}>
-                            <span>{image.file.name}</span>
-                            <button
-                              type="button"
-                              className="textControl dangerControl"
-                              onClick={clearImage}
-                              disabled={busy}
-                              aria-label="Remove uploaded image"
-                            >
-                              Remove
-                            </button>
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          <span className={styles.uploadIcon}>
-                            <Upload size={27} strokeWidth={1.8} />
-                          </span>
-                          <strong>Drop your question here</strong>
-                          <p>A clear screenshot works best.</p>
-                        </>
-                      )}
                       <button
                         type="button"
-                        className="secondaryButton"
-                        onClick={() => fileInput.current?.click()}
+                        className="choiceControl"
+                        aria-pressed={inputMode === "image"}
                         disabled={busy}
+                        onClick={() => {
+                          setInputMode("image");
+                          resetResult();
+                          setError(null);
+                        }}
                       >
-                        <ImageIcon size={17} />
-                        {image ? "Replace image" : "Choose image"}
+                        <ImageIcon size={16} /> Image
                       </button>
-                      <small>PNG, JPG, or WebP · up to 8 MB</small>
-                      <small id="paste-help">
-                        Paste an image with ⌘V or Ctrl+V
-                      </small>
+                      <button
+                        type="button"
+                        className="choiceControl"
+                        aria-pressed={inputMode === "text"}
+                        disabled={busy}
+                        onClick={() => {
+                          setInputMode("text");
+                          resetResult();
+                          setError(null);
+                        }}
+                      >
+                        <FileText size={16} /> Type a problem
+                      </button>
                     </div>
-                    {image && (
+                    {inputMode === "text" ? (
+                      <div className={styles.textEntry}>
+                        <label htmlFor="problem-text">Your question</label>
+                        <textarea
+                          id="problem-text"
+                          ref={textInput}
+                          className={`${styles.problemText} appField`}
+                          value={problemText}
+                          disabled={busy}
+                          rows={8}
+                          maxLength={MAX_PROBLEM_TEXT_LENGTH}
+                          spellCheck={false}
+                          autoCapitalize="off"
+                          aria-describedby="problem-text-help"
+                          placeholder={
+                            "Example: y = x^2 − 4x + 1 and y = 2x + 8.\n\nWhat is the positive x-coordinate where the graphs intersect?"
+                          }
+                          onChange={(event) => {
+                            setProblemText(event.target.value);
+                            if (methods.length || awaitingCalculator)
+                              resetResult();
+                            setError(null);
+                          }}
+                          onKeyDown={(event) => {
+                            if (
+                              (event.metaKey || event.ctrlKey) &&
+                              event.key === "Enter" &&
+                              !busy &&
+                              !needsSignIn &&
+                              cooldownSeconds === 0
+                            ) {
+                              event.preventDefault();
+                              if (awaitingCalculator) retryCalculatorCheck();
+                              else void solve();
+                            }
+                          }}
+                        />
+                        <div className={styles.textEntryHelp}>
+                          <p id="problem-text-help">
+                            Include any answer choices. Use ^ for powers, like
+                            x^2.
+                          </p>
+                          <span>
+                            {problemText.length.toLocaleString()} / 6,000
+                          </span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div
+                        className={`${styles.uploadZone} ${image ? styles.hasImage : ""} ${dragging ? styles.dragging : ""} ${busy ? styles.uploadDisabled : ""}`}
+                        role="group"
+                        aria-label="Question image upload"
+                        aria-describedby="paste-help"
+                        tabIndex={0}
+                        onDragOver={(event) => {
+                          event.preventDefault();
+                          if (!busy) setDragging(true);
+                        }}
+                        onDragLeave={() => setDragging(false)}
+                        onDrop={(event) => {
+                          event.preventDefault();
+                          setDragging(false);
+                          if (!busy && event.dataTransfer.files.length > 1)
+                            setError(
+                              "Upload one image at a time, with one complete math question.",
+                            );
+                          else if (!busy && event.dataTransfer.files[0])
+                            selectFile(event.dataTransfer.files[0]);
+                        }}
+                      >
+                        {image ? (
+                          <>
+                            <Image
+                              src={image.url}
+                              width={900}
+                              height={600}
+                              unoptimized
+                              alt="Your uploaded math question"
+                              className={styles.preview}
+                            />
+                            <div className={styles.fileDetails}>
+                              <span>{image.file.name}</span>
+                              <button
+                                type="button"
+                                className="textControl dangerControl"
+                                onClick={clearImage}
+                                disabled={busy}
+                                aria-label="Remove uploaded image"
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <span className={styles.uploadIcon}>
+                              <Upload size={27} strokeWidth={1.8} />
+                            </span>
+                            <strong>Drop your question here</strong>
+                            <p>A clear screenshot works best.</p>
+                          </>
+                        )}
+                        <button
+                          type="button"
+                          className="secondaryButton"
+                          onClick={() => fileInput.current?.click()}
+                          disabled={busy}
+                        >
+                          <ImageIcon size={17} />
+                          {image ? "Replace image" : "Choose image"}
+                        </button>
+                        <small>PNG, JPG, or WebP · up to 8 MB</small>
+                        <small id="paste-help">
+                          Paste an image with ⌘V or Ctrl+V
+                        </small>
+                      </div>
+                    )}
+                    {(inputMode === "text" || image) && (
                       <button
                         type="button"
                         className={`${styles.solveButton} primaryButton`}
-                        disabled={busy || cooldownSeconds > 0 || needsSignIn}
+                        disabled={
+                          !hasInput ||
+                          busy ||
+                          cooldownSeconds > 0 ||
+                          needsSignIn
+                        }
                         onClick={
                           awaitingCalculator ? retryCalculatorCheck : solve
                         }
@@ -1099,7 +1241,7 @@ export default function SolverWorkspace({
                         </button>
                       </div>
                     )}
-                    {!image && (
+                    {!hasInput && (
                       <section className={styles.sampleSection}>
                         <div>
                           <h3>Try a sample question</h3>

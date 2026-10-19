@@ -52,6 +52,7 @@ export default async function SavedProblemPage({
       userId={user.id}
       solution={problem.solution}
       imageUrl={problem.imageUrl}
+      inputText={problem.inputText}
       problemId={problem.id}
       accountNav={
         <AccountNav

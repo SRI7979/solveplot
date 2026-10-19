@@ -9,6 +9,7 @@ import sharp from "sharp";
 import { createMemorySolveCache, withCacheFallback, type SolveCache } from "../src/lib/solve-cache";
 import { createMethodHandler, createPreflightHandler, createSolveHandler, type SolveDependencies } from "../src/lib/solve-handler";
 import { MAX_IMAGE_BYTES } from "../src/lib/solver-schema";
+import { MAX_PROBLEM_TEXT_BODY_BYTES, MAX_PROBLEM_TEXT_LENGTH, originalProblemText } from "../src/lib/text-problem";
 import { createMemoryUsageStore } from "../src/lib/spend";
 import { retryCountdown } from "../src/lib/retry-countdown";
 import { createTelemetry, memorySink, supabaseSink, type TelemetryRecord } from "../src/lib/telemetry";
@@ -101,6 +102,72 @@ function switchTo(cacheKey: string, methodId: string, headers: Record<string, st
     headers: { "Content-Type": "application/json", ...headers },
   });
 }
+
+function typed(body: unknown, headers: Record<string, string> = {}) {
+  return new Request("http://localhost/api/solve", {
+    method: "POST", body: JSON.stringify(body),
+    headers: { "Content-Type": "application/json", ...headers },
+  });
+}
+
+test("typed questions use text model input, retain their source in History, and stream cached results", async () => {
+  const {requests} = mockModel({candidates: candidatesResponse()});
+  const save = mock.method(dependencies, "saveProblem");
+  const problem = "What is the positive solution to x^2 = 9?\nA) 1\nB) 3\nC) 9";
+  const response = await POST(typed({problem: `  ${problem}\n`}));
+  assert.equal(response.status, 200);
+  const data = await response.json();
+  assert.equal(data.solution.answer, "3");
+  assert.equal(data.problemId, problemId);
+  assert.equal(data.cached, false);
+  const prompt = JSON.stringify(requests.candidates[0].input);
+  assert.match(prompt, /complete, already-transcribed question/);
+  assert.match(prompt, /positive solution to x\^2 = 9/);
+  assert.match(prompt, /Preserve any answer choices included/);
+  assert.doesNotMatch(prompt, /no answer choices/);
+  assert.doesNotMatch(prompt, /input_image|data:image/);
+  assert.match(response.headers.get("server-timing") ?? "", /text_input/);
+  assert.doesNotMatch(response.headers.get("server-timing") ?? "", /image_prepare|image_validate/);
+  const savedInput = save.mock.calls[0].arguments[0];
+  assert.equal(savedInput.text, problem);
+  assert.equal(savedInput.mime, "image/png");
+  assert.equal((await sharp(savedInput.bytes).metadata()).format, "png");
+  assert.equal(originalProblemText({...savedInput.solution, inputText: savedInput.text}), problem);
+  const stream = await POST(typed({problem}, {Accept: "application/x-ndjson"}));
+  assert.equal(stream.status, 200);
+  const streamed = await events(stream);
+  assert.ok(streamed.some(e => e.type === "methods" && e.cached === true));
+  assert.ok(streamed.some(e => e.type === "solution" && e.solution.answer === "3"));
+  assert.ok(streamed.some(e => e.type === "saved" && e.problemId === problemId));
+  assert.equal(requests.candidates.length, 1, "an identical typed problem reuses its own cache mapping");
+});
+
+test("invalid, oversized, and ambiguous typed input cannot reserve usage or reach the model", async () => {
+  const reserve = mock.method(dependencies, "reserveSolve");
+  const {fetchMock} = mockModel({candidates: candidatesResponse()});
+  for (const body of [{problem: "   "}, {problem: 5}, {problem: "x".repeat(MAX_PROBLEM_TEXT_LENGTH + 1)}, {problem: "x^2=9", image: "also an image"}, {problem: "x\u0000=1"}, null, []]) {
+    assert.equal((await POST(typed(body))).status, 400);
+  }
+  const excessiveHeader = typed({problem: "x^2=9"}, {"Content-Length": String(MAX_PROBLEM_TEXT_BODY_BYTES + 1)});
+  assert.equal((await POST(excessiveHeader)).status, 413);
+  const excessiveBody = new Request("http://localhost/api/solve", {method: "POST", headers: {"Content-Type": "application/json"}, body: new Uint8Array(MAX_PROBLEM_TEXT_BODY_BYTES + 1)});
+  assert.equal((await POST(excessiveBody)).status, 413);
+  const malformed = new Request("http://localhost/api/solve", {method: "POST", headers: {"Content-Type": "application/json"}, body: "{"});
+  assert.equal((await POST(malformed)).status, 400);
+  assert.equal(reserve.mock.callCount(), 0);
+  assert.equal(fetchMock.mock.callCount(), 0);
+});
+
+test("typed input keeps the same authentication, cross-site, and rate-limit guards as uploads", async () => {
+  const reserve = mock.method(dependencies, "reserveSolve", async () => ({allowed: false, retryAfter: 27}));
+  mock.method(dependencies, "getCurrentUser", async () => null);
+  assert.equal((await POST(typed({problem: "x^2=9"}))).status, 401);
+  assert.equal((await POST(typed({problem: "x^2=9"}, {Origin: "https://another-site.example"}))).status, 403);
+  assert.equal(reserve.mock.callCount(), 0);
+  dependencies.getCurrentUser = async () => ({id: userId});
+  assert.equal((await POST(typed({problem: "x^2=9"}))).status, 429);
+  assert.equal(reserve.mock.callCount(), 1);
+});
 
 function report(cacheKey: string, verdicts: unknown[]) {
   return new Request("http://localhost/api/solve/preflight", {
@@ -772,10 +839,10 @@ test("conflicting rational table cells are retried once and then explained witho
   assert.equal("solution" in data, false);
 });
 
-test("no solver-mode remnant survives in the workspace UI: no segmented control, no mode field, no dead badge usage", () => {
+test("removed solver modes and their badges do not return to the workspace UI", () => {
   const workspace = readFileSync("src/app/solve/solver-workspace.tsx", "utf8");
   const css = readFileSync("src/app/solve/page.module.css", "utf8");
-  for (const pattern of [/Weaponized/i, /Desmos First/i, /Fastest SAT/i, /mode/i, /segmented/i]) {
+  for (const pattern of [/Weaponized/i, /Desmos First/i, /Fastest SAT/i, /\b(?:SolveMode|solverMode|setMode)\b|\bmode\s*[:=]/i, /SegmentedMode/i]) {
     assert.doesNotMatch(workspace, pattern, `solver-workspace.tsx must not reference ${pattern}`);
   }
   assert.doesNotMatch(css, /\.modeOption|\.modes\b|\.modeSelected|\.modeHint/, "no dead mode CSS in page.module.css");

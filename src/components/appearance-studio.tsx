@@ -213,7 +213,7 @@ export function AppearanceStudio({ settings = false }: { settings?: boolean }) {
                   selected
                 </p>
                 <div
-                  className="appearanceFilters"
+                  className="appearanceFilters segmentedControl"
                   role="group"
                   aria-label="Filter palettes"
                 >
@@ -322,7 +322,7 @@ export function AppearanceThemeToggle({
   const { theme, setTheme } = useTheme();
   return (
     <div
-      className={`appearanceThemeToggle ${className}`}
+      className={`appearanceThemeToggle segmentedControl themeControlGroup ${className}`}
       role="group"
       aria-label="Color mode"
     >

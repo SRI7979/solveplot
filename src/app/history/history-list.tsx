@@ -34,7 +34,11 @@ export default function HistoryList({
   return (
     <>
       <div className={styles.toolbar}>
-        <div className={styles.filters} aria-label="Filter history">
+        <div
+          className={`${styles.filters} segmentedControl`}
+          role="group"
+          aria-label="Filter history"
+        >
           <button
             type="button"
             className="choiceControl"

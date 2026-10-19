@@ -568,3 +568,57 @@
     width: 100%;
   }
 }
+
+.inputModes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: -7px 0 24px;
+}
+.textEntry {
+  display: grid;
+  gap: 10px;
+}
+.textEntry label {
+  font-size: 14px;
+  font-weight: 800;
+}
+.textEntry .problemText {
+  display: block;
+  width: 100%;
+  min-height: 220px;
+  resize: vertical;
+  font-size: 16px;
+  line-height: 1.65;
+}
+.problemText::placeholder {
+  color: var(--subtle);
+}
+.textEntryHelp {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.textEntryHelp p {
+  margin: 0;
+}
+.textEntryHelp span {
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+.originalText {
+  margin: 10px 0 0;
+  padding: 16px;
+  border: 1px solid var(--control-border);
+  border-radius: 13px;
+  background: var(--raised);
+  color: var(--foreground);
+  font: 14px/1.7 var(--font-sans);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

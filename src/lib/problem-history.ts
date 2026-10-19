@@ -7,6 +7,7 @@ import { solutionSchema, type Solution } from "@/lib/solver-schema";
 import { normalizeDesmosExpressions } from "@/lib/desmos-latex";
 import { repairGraphGuidance } from "@/lib/graph-guidance";
 import { repairSavedNativeSolution } from "@/lib/desmos-native-plans";
+import { originalProblemText, typedProblemRequestSchema } from "@/lib/text-problem";
 
 const BUCKET = "problem-images";
 export const HISTORY_PAGE_SIZE = 20;
@@ -27,12 +28,14 @@ export async function saveProblem(input: {
   bytes: Buffer;
   mime: string;
   solution: Solution;
+  text?: string;
 }): Promise<string> {
   const parsed = solutionSchema.parse(input.solution);
   const solution = {
     ...parsed,
     expressions: normalizeDesmosExpressions(parsed.expressions),
   };
+  const inputText = input.text === undefined ? null : typedProblemRequestSchema.parse({problem: input.text}).problem;
   const id = randomUUID();
   const extension = { "image/png": "png", "image/jpeg": "jpg", "image/webp": "webp" }[input.mime];
   if (!extension || !uuidPattern.test(input.userId)) throw new Error("Invalid problem upload");
@@ -46,7 +49,7 @@ export async function saveProblem(input: {
     const { error } = await db.from("problems").insert({
       id, user_id: input.userId, image_path: imagePath,
       question: solution.question, answer: solution.answer, method: solution.method,
-      status: solution.status, solution,
+      status: solution.status, solution: inputText ? {...solution, inputText} : solution,
     });
     if (error) throw new Error("Could not save solution");
   } catch (error) {
@@ -89,6 +92,7 @@ export async function getProblem(userId: string, id: string) {
     ...parsed,
     expressions: normalizeDesmosExpressions(parsed.expressions),
   };
-  const { data: image } = await db.storage.from(BUCKET).createSignedUrl(data.image_path, 300);
-  return { id: data.id as string, solution, imageUrl: image?.signedUrl ?? null, created_at: data.created_at as string };
+  const inputText = originalProblemText(data.solution);
+  const image = inputText ? null : await db.storage.from(BUCKET).createSignedUrl(data.image_path, 300);
+  return { id: data.id as string, solution, inputText, imageUrl: image?.data?.signedUrl ?? null, created_at: data.created_at as string };
 }

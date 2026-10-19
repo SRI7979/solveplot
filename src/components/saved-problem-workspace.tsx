@@ -6,6 +6,7 @@ import {
   ArrowUpRight,
   ChevronDown,
   FileImage,
+  FileText,
   List,
   ScanLine,
 } from "lucide-react";
@@ -21,12 +22,14 @@ import styles from "@/app/solve/page.module.css";
 export default function SavedProblemWorkspace({
   solution,
   imageUrl,
+  inputText = null,
   problemId,
   userId,
   accountNav,
 }: {
   solution: Solution;
   imageUrl: string | null;
+  inputText?: string | null;
   problemId: string;
   userId: string;
   accountNav: ReactNode;
@@ -103,7 +106,25 @@ export default function SavedProblemWorkspace({
                 <div className={styles.compactQuestion}>
                   <MathText>{solution.question}</MathText>
                 </div>
-                {imageUrl ? (
+                {inputText ? (
+                  <>
+                    <button
+                      type="button"
+                      className={`${styles.originalToggle} textControl`}
+                      aria-expanded={originalOpen}
+                      onClick={() => setOriginalOpen((value) => !value)}
+                    >
+                      <FileText size={15} />
+                      {originalOpen
+                        ? "Hide original text"
+                        : "View original text"}
+                      <ChevronDown size={15} />
+                    </button>
+                    {originalOpen && (
+                      <pre className={styles.originalText}>{inputText}</pre>
+                    )}
+                  </>
+                ) : imageUrl ? (
                   <>
                     <button
                       type="button"
