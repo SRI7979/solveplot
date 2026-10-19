@@ -460,6 +460,7 @@
 .historyMain > * {
   width: min(100%, 1100px);
   margin-inline: auto;
+  flex-shrink: 0;
 }
 .mobilePanels {
   display: none;

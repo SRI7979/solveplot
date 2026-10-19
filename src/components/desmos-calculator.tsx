@@ -2,10 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { List } from "lucide-react";
-import { useTheme } from "./theme-provider";
 import type { RowEvaluation } from "@/lib/answer-consistency";
 import {
-  displayColor,
   MATH_OPTIONS,
   type DesmosCalculatorInstance,
 } from "@/lib/desmos-engine";
@@ -89,8 +87,6 @@ function collectRows(analysis: DesmosAnalysis, key: string): CalculatorRows {
   return { key, rows };
 }
 
-const isDark = () => document.documentElement.dataset.theme === "dark";
-
 function validBounds(bounds: Bounds | null): Bounds {
   return bounds &&
     Object.values(bounds).every(Number.isFinite) &&
@@ -127,7 +123,6 @@ export default function DesmosCalculator({
     expressionsOpenRef.current = expressionsOpen;
   }, [expressionsOpen]);
   const expandButtonRef = useRef<HTMLButtonElement>(null);
-  const { resolvedTheme } = useTheme();
   // Rows this component pulled after the visible calculator flagged them.
   const [blockedKey, setBlockedKey] = useState<string | null>(null);
   const apiKey = process.env.NEXT_PUBLIC_DESMOS_API_KEY?.trim();
@@ -149,7 +144,6 @@ export default function DesmosCalculator({
     rows: string;
     payloadKey: string;
     ids: string[];
-    colors: string[];
   } | null>(null);
 
   useEffect(() => {
@@ -206,7 +200,7 @@ export default function DesmosCalculator({
         settingsMenu: true,
         keypad: true,
         fontSize: 17,
-        invertedColors: isDark(),
+        invertedColors: false,
       });
       calculatorRef.current = instance;
       instance.observe("selectedExpressionId.trace", () => {
@@ -364,25 +358,6 @@ export default function DesmosCalculator({
     setLoadAttempt((value) => value + 1);
   }
 
-  // Change only the visible calculator's palette. The hidden pre-flight math
-  // instance stays untouched, and no expressions are cleared or revalidated:
-  // the loaded rows are recolored in place, so a student's edits survive.
-  useEffect(() => {
-    const calculator = calculatorRef.current;
-    const dark = resolvedTheme === "dark";
-    calculator?.updateSettings?.({ invertedColors: dark });
-    const rows = loaded.current;
-    if (!calculator?.setExpression || !rows) return;
-    const surviving = new Set(calculator.getExpressions().map((row) => row.id));
-    rows.ids.forEach((id, index) => {
-      if (surviving.has(id))
-        calculator.setExpression!({
-          id,
-          color: displayColor(rows.colors[index], dark),
-        });
-    });
-  }, [resolvedTheme, scriptReady]);
-
   useEffect(() => {
     if (!expanded) return;
     const close = (event: KeyboardEvent) => {
@@ -421,13 +396,7 @@ export default function DesmosCalculator({
       if (!insertable || payload.items.length === 0) return;
 
       try {
-        const dark = isDark();
-        calculator.setExpressions(
-          payload.items.map((item) => ({
-            ...item,
-            color: displayColor(item.color, dark),
-          })),
-        );
+        calculator.setExpressions(payload.items);
         // Keep the public key tied to the canonical solution. loadedRows still
         // proves that the actual sanitized calculator rows were not edited.
         loaded.current = {
@@ -435,14 +404,13 @@ export default function DesmosCalculator({
           rows: loadedRows(calculator),
           payloadKey: payload.key,
           ids: payload.items.map((item) => item.id),
-          colors: payload.items.map((item) => item.color),
         };
         calculator.setMathBounds(validBounds(bounds));
         const draft = stateKey ? graphDrafts.get(stateKey) : null;
         if (draft && calculator.setState) {
           calculator.setState(draft);
           calculator.updateSettings?.({
-            invertedColors: isDark(),
+            invertedColors: false,
             expressionsCollapsed: !expressionsOpenRef.current,
           });
           setEntriesEdited(loadedRows(calculator) !== loaded.current.rows);

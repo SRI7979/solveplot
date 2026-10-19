@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, type RefObject } from "react";
+import { createPortal } from "react-dom";
 import MathExpression from "@/components/math-expression";
 import MathText from "@/components/math-text";
 import type { TutorAnswer, TutorSource } from "@/lib/tutor";
@@ -287,7 +288,13 @@ function selectionTexts(range: Range): { query: string; display: string } {
   };
 }
 
-type Offer = { text: string; display: string; top: number; left: number };
+type Offer = {
+  text: string;
+  display: string;
+  top: number;
+  left: number;
+  portal: Element;
+};
 
 function readOffer(container: HTMLElement | null): Offer | null {
   const selection = window.getSelection();
@@ -310,11 +317,39 @@ function readOffer(container: HTMLElement | null): Offer | null {
   if (!isExplainableSelection(query)) return null;
   const rect = range.getBoundingClientRect();
   const box = container.getBoundingClientRect();
+  let top = 0;
+  let bottom = window.innerHeight;
+  // A selection near the bottom of the scrolling explanation still needs a
+  // reachable action. Position the action in the shell, outside that clipping pane.
+  for (
+    let parent = container.parentElement;
+    parent;
+    parent = parent.parentElement
+  ) {
+    if (/(auto|scroll|hidden)/.test(getComputedStyle(parent).overflowY)) {
+      const bounds = parent.getBoundingClientRect();
+      top = Math.max(top, bounds.top);
+      bottom = Math.min(bottom, bounds.bottom);
+    }
+  }
+  if (rect.bottom < top || rect.top > bottom) return null;
+  const portal = container.closest(".desmo-shell");
+  if (!portal) return null;
   return {
+    portal,
     text: query,
     display: display || query,
-    top: rect.bottom - box.top + 6,
-    left: Math.max(0, Math.min(rect.left - box.left, box.width - 160)),
+    top: Math.max(
+      top + 6,
+      Math.min(
+        rect.bottom + 48 < bottom ? rect.bottom + 6 : rect.top - 46,
+        bottom - 46,
+      ),
+    ),
+    left: Math.max(
+      8,
+      Math.min(rect.left, box.right - 156, window.innerWidth - 164),
+    ),
   };
 }
 
@@ -350,20 +385,24 @@ export function SelectionAskTutor({
     };
     document.addEventListener("selectionchange", update);
     document.addEventListener("keydown", dismiss);
+    window.addEventListener("scroll", update, true);
+    window.addEventListener("resize", update);
     return () => {
       window.clearTimeout(timer);
       document.removeEventListener("selectionchange", update);
       document.removeEventListener("keydown", dismiss);
+      window.removeEventListener("scroll", update, true);
+      window.removeEventListener("resize", update);
     };
   }, [enabled, containerRef]);
   if (!enabled || !offer) return null;
-  return (
+  return createPortal(
     <button
       type="button"
       className={`${shared.copyButton} ${styles.selectionButton}`}
       style={{ top: offer.top, left: offer.left }}
       // Keep the selection while the button is pressed.
-      onMouseDown={(event) => event.preventDefault()}
+      onPointerDown={(event) => event.preventDefault()}
       onClick={() => {
         tutor.open(
           { kind: "text", text: offer.text },
@@ -377,7 +416,8 @@ export function SelectionAskTutor({
     >
       <TutorIcon />
       Ask AI Tutor
-    </button>
+    </button>,
+    offer.portal,
   );
 }
 
@@ -423,7 +463,15 @@ function TutorComposer({
   const [question, setQuestion] = useState(initialQuestion);
   const input = useRef<HTMLTextAreaElement>(null);
   const inputId = useId();
-  useEffect(() => input.current?.focus({ preventScroll: true }), []);
+  useEffect(() => {
+    input.current?.focus({ preventScroll: true });
+    input.current?.closest("[data-tutor-panel]")?.scrollIntoView({
+      block: "nearest",
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "instant"
+        : "smooth",
+    });
+  }, []);
   return (
     <form
       className={styles.composer}
@@ -446,7 +494,7 @@ function TutorComposer({
       />
       <div className={styles.composerActions}>
         <span>Leave blank for an explanation of the highlighted text</span>
-        <button type="submit" className={styles.askButton}>
+        <button type="submit" className={`${styles.askButton} primaryButton`}>
           <TutorIcon /> Ask AI Tutor
         </button>
       </div>

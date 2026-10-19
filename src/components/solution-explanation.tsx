@@ -22,6 +22,7 @@ import {
   SaveTrickButton,
   SelectionAskTutor,
   TutorPanel,
+  TutorIcon,
   useTutor,
   type TutorSource,
 } from "./tutor-panel";
@@ -143,35 +144,6 @@ export default function SolutionExplanation({
             <Check size={16} />
           </span>
           <span className={styles.eyebrow}>Answer</span>
-          {formattedAnswer.label && (
-            <span className={styles.answerChoice}>
-              Choice {formattedAnswer.label}
-            </span>
-          )}
-          {check.status === "verified" && (
-            <span
-              className={styles.verifiedBadge}
-              data-testid="verified-badge"
-              title={check.message}
-            >
-              <svg
-                viewBox="0 0 16 16"
-                width="12"
-                height="12"
-                fill="none"
-                aria-hidden="true"
-              >
-                <path
-                  d="M3 8.5 6.2 12 13 4"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              Verified in Desmos
-            </span>
-          )}
         </div>
         <div className={styles.answerValue}>
           {/^-?\d+(?:\.\d+)?$/.test(formattedAnswer.text.trim()) ? (
@@ -180,6 +152,35 @@ export default function SolutionExplanation({
             <MathText>{formattedAnswer.text}</MathText>
           )}
         </div>
+        {formattedAnswer.label && (
+          <span className={styles.answerChoice}>
+            Choice {formattedAnswer.label}
+          </span>
+        )}
+        {check.status === "verified" && (
+          <span
+            className={styles.verifiedBadge}
+            data-testid="verified-badge"
+            title={check.message}
+          >
+            <svg
+              viewBox="0 0 16 16"
+              width="12"
+              height="12"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M3 8.5 6.2 12 13 4"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            Verified in Desmos
+          </span>
+        )}
       </div>
       {techniqueSelector ?? (
         <h3 className={styles.strategyTitle}>
@@ -352,6 +353,21 @@ export default function SolutionExplanation({
                     </span>
                   </button>
                   <span className={styles.lineActions}>
+                    {tutor.enabled && (
+                      <button
+                        type="button"
+                        className={`${styles.copyButton} copyButton`}
+                        onClick={() =>
+                          tutor.open(
+                            { kind: "row", row: index + 1 },
+                            `calculator line ${index + 1}`,
+                          )
+                        }
+                        aria-label={`Ask AI about line ${index + 1}`}
+                      >
+                        <TutorIcon /> Ask AI
+                      </button>
+                    )}
                     <button
                       type="button"
                       className={`${styles.copyButton} copyButton`}

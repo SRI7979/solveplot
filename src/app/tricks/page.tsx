@@ -1,9 +1,10 @@
 import Link from "next/link";
+import { Bookmark, Plus } from "lucide-react";
 import { requireUser } from "@/lib/auth";
 import { listTricks } from "@/lib/saved-tricks";
 import HistoryShell from "@/app/history/history-shell";
 import SavedTricks, { type SavedTrickItem } from "./saved-tricks";
-import styles from "./page.module.css";
+import styles from "@/components/library-ui.module.css";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
@@ -48,20 +49,25 @@ export default async function TricksPage() {
       active="tricks"
     >
       <div className={styles.page}>
-        <div className={styles.heading}>
-          <div>
-            <h1>Saved tricks</h1>
-            <p>Techniques to use again on test day</p>
+        <header className={styles.heading}>
+          <div className={styles.title}>
+            <span className={styles.pageIcon}>
+              <Bookmark size={24} />
+            </span>
+            <div>
+              <h1>Saved tricks</h1>
+              <p>Your collection of Desmos shortcuts.</p>
+            </div>
           </div>
-          <Link href="/solve" className={styles.button}>
-            Open solver
+          <Link href="/solve?new=1" className="primaryButton">
+            <Plus size={17} /> New problem
           </Link>
-        </div>
+        </header>
         {tricks === null ? (
           <div className={styles.empty} role="alert">
             <h2>Saved tricks couldn’t load</h2>
             <p>Try again in a moment</p>
-            <a href="/tricks" className={styles.button}>
+            <a href="/tricks" className="secondaryButton">
               Retry
             </a>
           </div>

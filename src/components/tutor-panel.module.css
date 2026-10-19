@@ -6,9 +6,22 @@
   background: var(--surface-raised);
   box-shadow: var(--shadow-card);
 }
-.heading { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
-.heading h3 { margin: 0; color: var(--foreground); font-size: var(--text-base); font-weight: 700; letter-spacing: -.02em; }
-.heading h3:focus { outline: none; }
+.heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.heading h3 {
+  margin: 0;
+  color: var(--foreground);
+  font-size: var(--text-base);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.heading h3:focus {
+  outline: none;
+}
 .about {
   width: fit-content;
   max-width: 100%;
@@ -21,17 +34,57 @@
   font-size: var(--text-xs);
   overflow-wrap: anywhere;
 }
-.panel p { margin: var(--space-2) 0 0; color: var(--muted); font-size: var(--text-sm); line-height: 1.6; overflow-wrap: anywhere; }
-.panel p.about { margin-top: var(--space-3); color: var(--muted); font-size: var(--text-xs); }
-.panel h4 { margin: var(--space-4) 0 0; color: var(--foreground); font-size: var(--text-sm); font-weight: 700; }
-.exampleRow { margin-top: var(--space-2); }
-.actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2) var(--space-3); margin-top: var(--space-4); }
-.panel .actions p { margin: 0; }
-.panel .error { color: var(--danger); }
+.panel p {
+  margin: var(--space-2) 0 0;
+  color: var(--muted);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.panel p.about {
+  margin-top: var(--space-3);
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+.panel h4 {
+  margin: var(--space-4) 0 0;
+  color: var(--foreground);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+.exampleRow {
+  margin-top: var(--space-2);
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-3);
+  margin-top: var(--space-4);
+}
+.panel .actions p {
+  margin: 0;
+}
+.panel .error {
+  color: var(--danger);
+}
 
-.composer { display: grid; gap: var(--space-2); margin-top: var(--space-4); }
-.composer label { color: var(--foreground); font-size: var(--text-sm); font-weight: 700; }
-.composer label span { color: var(--muted); font-size: var(--text-xs); font-weight: 400; }
+.composer {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+.composer label {
+  color: var(--foreground);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+.composer label span {
+  color: var(--muted);
+  font-size: var(--text-xs);
+  font-weight: 400;
+}
 .composer textarea {
   display: block;
   width: 100%;
@@ -45,13 +98,32 @@
   color: var(--foreground);
   font-size: var(--text-sm);
   line-height: 1.5;
-  transition: border-color var(--ease-ui), background var(--ease-ui);
+  transition:
+    border-color var(--ease-ui),
+    background var(--ease-ui);
 }
-.composer textarea:hover { border-color: var(--accent); }
-.composer textarea:focus-visible { border-color: var(--accent); background: var(--surface-raised); }
-.composer textarea::placeholder { color: var(--subtle); }
-.composerActions { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--space-2); }
-.composerActions > span { color: var(--muted); font-size: var(--text-xs); line-height: 1.4; }
+.composer textarea:hover {
+  border-color: var(--accent);
+}
+.composer textarea:focus-visible {
+  border-color: var(--accent);
+  background: var(--surface-raised);
+}
+.composer textarea::placeholder {
+  color: var(--subtle);
+}
+.composerActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-2);
+}
+.composerActions > span {
+  color: var(--muted);
+  font-size: var(--text-xs);
+  line-height: 1.4;
+}
 .askButton {
   display: inline-flex;
   align-items: center;
@@ -66,11 +138,21 @@
   font-size: var(--text-xs);
   font-weight: 750;
   white-space: nowrap;
-  transition: background var(--ease-ui), transform var(--ease-ui);
+  transition:
+    background var(--ease-ui),
+    transform var(--ease-ui);
 }
-.askButton:hover { background: var(--accent-hover); }
-.askButton:active { transform: translateY(1px); }
-.actionButtons { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.askButton:hover {
+  background: var(--accent-hover);
+}
+.askButton:active {
+  transform: translateY(1px);
+}
+.actionButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
 .anotherButton {
   margin-top: var(--space-3);
   padding: var(--space-2) 0;
@@ -81,11 +163,15 @@
   font-weight: 700;
   text-align: left;
 }
-.anotherButton:hover { text-decoration: underline; text-underline-offset: 3px; }
+.anotherButton:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 
 button.selectionButton {
-  position: absolute;
-  z-index: 5;
+  --press-position: fixed;
+  position: fixed;
+  z-index: 60;
   min-height: 40px;
   max-width: 100%;
   padding-inline: var(--space-3);
@@ -96,10 +182,62 @@ button.selectionButton {
   box-shadow: var(--shadow-float);
   white-space: nowrap;
 }
-button.selectionButton:hover { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-ink); }
-button.selectionButton:active { background: var(--surface); box-shadow: none; }
-button.selectionButton:focus-visible, .saveControl button:focus-visible { outline: 2px solid var(--accent-pressed); outline-offset: 3px; }
-.saveControl { display: inline-flex; flex-direction: column; align-items: flex-end; gap: var(--space-1); max-width: min(100%, 34ch); }
+.panel {
+  scroll-margin: 20px;
+  box-shadow: none;
+  border-width: 2px;
+  border-radius: 16px;
+}
+.askButton {
+  color: var(--primary-foreground);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .panel {
+    animation: tutor-enter 180ms ease-out;
+  }
+  button.selectionButton {
+    animation: tutor-action-enter 140ms ease-out;
+  }
+}
+@keyframes tutor-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes tutor-action-enter {
+  from {
+    opacity: 0;
+    translate: 0 3px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+button.selectionButton:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+}
+button.selectionButton:active {
+  background: var(--surface);
+  box-shadow: none;
+}
+button.selectionButton:focus-visible,
+.saveControl button:focus-visible {
+  outline: 2px solid var(--accent-pressed);
+  outline-offset: 3px;
+}
+.saveControl {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-1);
+  max-width: min(100%, 34ch);
+}
 .saveControl button {
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -107,15 +245,43 @@ button.selectionButton:focus-visible, .saveControl button:focus-visible { outlin
   color: var(--foreground);
   white-space: nowrap;
 }
-.saveControl button:hover { border-color: var(--border-accent); background: var(--surface); color: var(--accent-ink); }
-.saveControl button:active { background: var(--accent-soft); }
-.saveControl button[aria-pressed="true"] { border-color: var(--border-accent); background: var(--accent-soft); color: var(--accent-ink); }
-.saveControl button:disabled { opacity: .65; cursor: progress; }
-.saveError { color: var(--danger); font-size: var(--text-xs); line-height: 1.4; text-align: right; overflow-wrap: anywhere; }
+.saveControl button:hover {
+  border-color: var(--border-accent);
+  background: var(--surface);
+  color: var(--accent-ink);
+}
+.saveControl button:active {
+  background: var(--accent-soft);
+}
+.saveControl button[aria-pressed="true"] {
+  border-color: var(--border-accent);
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+}
+.saveControl button:disabled {
+  opacity: 0.65;
+  cursor: progress;
+}
+.saveError {
+  color: var(--danger);
+  font-size: var(--text-xs);
+  line-height: 1.4;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
 
 @media (max-width: 480px) {
-  .panel { padding: var(--space-3); }
-  .composerActions > span { flex-basis: 100%; }
-  .askButton { width: 100%; min-height: 44px; }
-  button.selectionButton { min-height: 44px; }
+  .panel {
+    padding: var(--space-3);
+  }
+  .composerActions > span {
+    flex-basis: 100%;
+  }
+  .askButton {
+    width: 100%;
+    min-height: 44px;
+  }
+  button.selectionButton {
+    min-height: 44px;
+  }
 }

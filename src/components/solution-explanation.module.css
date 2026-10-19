@@ -6,9 +6,8 @@
 .answerBox {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   flex-wrap: wrap;
-  gap: 8px 14px;
+  gap: 8px 12px;
   margin: 20px 0 28px;
   padding: 12px 15px;
   border: 1px solid var(--accent-border);
@@ -29,11 +28,15 @@
   place-items: center;
   width: 25px;
   height: 25px;
+  flex-shrink: 0;
   border-radius: 50%;
   background: var(--brand);
   color: var(--paper);
 }
 .answerValue {
+  flex: 0 1 auto;
+  margin-right: auto;
+  min-width: 40px;
   color: var(--foreground);
   font-size: 26px;
   font-weight: 850;
@@ -51,9 +54,20 @@
   gap: 4px;
   font-size: 10px;
   font-weight: 700;
+  color: var(--brand);
+  margin-left: auto;
 }
 .eyebrow {
   font-size: 13px;
+}
+@media (max-width: 520px) {
+  .answerBox {
+    gap: 6px 10px;
+  }
+  .verifiedBadge {
+    flex-basis: 100%;
+    margin-left: 35px;
+  }
 }
 .structureNote {
   margin: 12px 0 25px;
@@ -387,9 +401,6 @@
   .expressionSteps > li > p {
     margin-left: 0;
   }
-  .verifiedBadge {
-    display: none;
-  }
   .stepSelect strong {
     font-size: 15px;
   }
@@ -403,25 +414,46 @@
   line-height: 1.25;
 }
 
-.answerHeading {
-  display: contents;
+@media (prefers-reduced-motion: no-preference) {
+  .stepNumber {
+    transition:
+      background 180ms,
+      color 180ms,
+      border-color 180ms;
+  }
+  .answerCheck svg {
+    animation: answer-check-in 240ms ease-out;
+  }
+  .whyDetail[open] p,
+  .transcription[open] > :not(summary) {
+    animation: details-in 160ms ease-out;
+  }
 }
-.answerCheck {
-  order: 0;
+@keyframes answer-check-in {
+  from {
+    opacity: 0;
+    transform: scale(0.75);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
-.eyebrow {
-  order: 1;
-  color: var(--brand);
-  font-weight: 800;
+@keyframes details-in {
+  from {
+    opacity: 0.35;
+    translate: 0 -3px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
 }
-.answerValue {
-  order: 2;
-}
-.answerChoice {
-  order: 3;
-  margin-left: auto;
-}
-.verifiedBadge {
-  order: 4;
-  color: var(--brand);
+@media (max-width: 520px) {
+  .lineHeading {
+    flex-wrap: wrap;
+  }
+  .lineActions {
+    margin-left: 44px;
+  }
 }

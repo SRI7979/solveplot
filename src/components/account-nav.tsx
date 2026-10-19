@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import Link, { useLinkStatus } from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import {
   Bookmark,
@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { NEW_PROBLEM_EVENT } from "@/lib/workspace-events";
 import DesmoLogo from "./desmo-logo";
+import WorkspacePlaceholder from "./workspace-placeholder";
 import styles from "./account-nav.module.css";
 
 type View = "solve" | "history" | "tricks" | "settings" | "profile";
@@ -45,6 +46,22 @@ const links = [
   { href: "/settings", label: "Settings", view: "settings", icon: Settings },
 ] as const;
 
+function NavigationPending({ onSettled }: { onSettled: () => void }) {
+  const { pending } = useLinkStatus();
+  const wasPending = useRef(false);
+  useEffect(() => {
+    if (wasPending.current && !pending) onSettled();
+    wasPending.current = pending;
+  }, [pending, onSettled]);
+  return (
+    <span
+      className={styles.pending}
+      data-pending={pending || undefined}
+      aria-hidden="true"
+    />
+  );
+}
+
 export default function AccountNav({
   email,
   avatarUrl,
@@ -59,7 +76,12 @@ export default function AccountNav({
   const collapsed = useSyncExternalStore(subscribe, snapshot, () => false);
   const [open, setOpen] = useState(false);
   const [photoFailed, setPhotoFailed] = useState(false);
+  const [destination, setDestination] = useState<{
+    href: string;
+    label: string;
+  } | null>(null);
   const pathname = usePathname();
+  const router = useRouter();
   const dialog = useRef<HTMLDialogElement>(null);
   const opener = useRef<HTMLButtonElement>(null);
   const displayName = name || email?.split("@")[0] || "Your profile";
@@ -114,6 +136,7 @@ export default function AccountNav({
         </div>
         <Link
           href="/solve?new=1"
+          prefetch={null}
           className={`${styles.newProblem} wsNewProblem`}
           aria-label="New problem"
           title="New problem (N)"
@@ -135,6 +158,13 @@ export default function AccountNav({
           {links.map(({ href, label, view, icon: Icon }) => (
             <Link
               href={href}
+              prefetch={null}
+              onNavigate={() => {
+                if (pathname !== href) setDestination({ href, label });
+              }}
+              onMouseEnter={() => router.prefetch(href)}
+              onFocus={() => router.prefetch(href)}
+              onTouchStart={() => router.prefetch(href)}
               key={href}
               data-section={view}
               aria-label={label}
@@ -144,11 +174,19 @@ export default function AccountNav({
             >
               <Icon size={20} strokeWidth={1.8} />
               <span className={styles.navText}>{label}</span>
+              <NavigationPending
+                onSettled={() =>
+                  setDestination((current) =>
+                    current?.href === href ? null : current,
+                  )
+                }
+              />
             </Link>
           ))}
         </nav>
         <Link
           href="/profile"
+          prefetch={null}
           className={styles.profile}
           aria-label="Your profile"
           aria-current={active === "profile" ? "page" : undefined}
@@ -178,6 +216,15 @@ export default function AccountNav({
   }
   return (
     <div className={styles.root} data-sidebar-collapsed={collapsed}>
+      {destination && (
+        <div
+          className={styles.destination}
+          role="status"
+          aria-label={`Loading ${destination.label}`}
+        >
+          <WorkspacePlaceholder title={destination.label} />
+        </div>
+      )}
       <aside
         className={`${styles.sidebar}${collapsed ? ` ${styles.collapsed}` : ""}`}
         aria-label="Workspace sidebar"

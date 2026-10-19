@@ -3,10 +3,19 @@
 import Link from "next/link";
 import { useState } from "react";
 import MathExpression from "@/components/math-expression";
-import { Copy, Check } from "lucide-react";
+import {
+  Copy,
+  Check,
+  Bookmark,
+  Search,
+  Trash2,
+  ChevronDown,
+  Calculator,
+  ArrowUpRight,
+} from "lucide-react";
 import type { DesmosExpression } from "@/lib/solver-schema";
 import MathText from "@/components/math-text";
-import styles from "./page.module.css";
+import styles from "@/components/library-ui.module.css";
 
 export type SavedTrickItem = {
   id: string;
@@ -29,6 +38,12 @@ export default function SavedTricks({
   const [copyError, setCopyError] = useState(false);
   const [removing, setRemoving] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const matching = tricks.filter((trick) =>
+    `${trick.techniqueName} ${trick.structure ?? ""} ${trick.question}`
+      .toLowerCase()
+      .includes(query.toLowerCase().trim()),
+  );
 
   async function remove(id: string) {
     setRemoving(id);
@@ -54,7 +69,8 @@ export default function SavedTricks({
       <div className={styles.empty} data-testid="saved-tricks">
         <h2>No saved tricks yet</h2>
         <p>Use Save this trick on a solution to keep its technique here</p>
-        <Link href="/solve" className={styles.button}>
+        <Bookmark size={30} />
+        <Link href="/solve" className="secondaryButton">
           Solve a question
         </Link>
       </div>
@@ -63,86 +79,105 @@ export default function SavedTricks({
 
   return (
     <>
-      <p className={styles.count} data-testid="saved-tricks">
-        {tricks.length} {tricks.length === 1 ? "trick" : "tricks"} saved
-      </p>
+      <div className={styles.toolbar}>
+        <p
+          className={styles.count}
+          data-testid="saved-tricks"
+          aria-live="polite"
+        >
+          {tricks.length} {tricks.length === 1 ? "trick" : "tricks"} saved
+        </p>
+        <label className={styles.search}>
+          <Search size={17} />
+          <input
+            type="search"
+            aria-label="Search saved tricks"
+            placeholder="Search your tricks"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </label>
+      </div>
       {error && (
         <p className={styles.error} role="alert">
           {error}
         </p>
       )}
       <ul className={styles.list}>
-        {tricks.map((trick) => (
-          <li key={trick.id} data-trick-id={trick.id} className={styles.card}>
-            <div className={styles.cardTop}>
-              <h2>{trick.techniqueName}</h2>
-              <button
-                type="button"
-                className={styles.remove}
-                onClick={() => remove(trick.id)}
-                disabled={removing === trick.id}
-                aria-label={`Remove saved trick ${trick.techniqueName}`}
-              >
-                {removing === trick.id ? "Removing…" : "Remove"}
-              </button>
+        {matching.map((trick) => (
+          <li key={trick.id} data-trick-id={trick.id} className={styles.trick}>
+            <div className={styles.row}>
+              <span className={styles.rowIcon}>
+                <Bookmark size={20} />
+              </span>
+              <div className={styles.rowContent}>
+                <div className={styles.rowHeading}>
+                  <h2>{trick.techniqueName}</h2>
+                  <button
+                    type="button"
+                    className={styles.remove}
+                    onClick={() => remove(trick.id)}
+                    disabled={removing !== null}
+                    aria-label={`Remove saved trick ${trick.techniqueName}`}
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+                <p className={styles.excerpt}>
+                  <MathText>{trick.structure || trick.question}</MathText>
+                </p>
+                {trick.selection && (
+                  <blockquote className={styles.selection}>
+                    <MathText>{trick.selection}</MathText>
+                  </blockquote>
+                )}
+              </div>
             </div>
-            {trick.structure && (
-              <p className={styles.structure}>
-                <MathText>{trick.structure}</MathText>
-              </p>
-            )}
-            {trick.selection && (
-              <blockquote className={styles.selection}>
-                <MathText>{trick.selection}</MathText>
-              </blockquote>
-            )}
-            <div className={styles.example}>
-              <span>Saved from</span>
+            <details className={styles.details}>
+              <summary>
+                <Calculator size={15} /> Review trick
+                {trick.expressions.length > 0 &&
+                  ` · ${trick.expressions.length} ${trick.expressions.length === 1 ? "line" : "lines"}`}
+                <ChevronDown size={15} />
+              </summary>
               <p>
                 <MathText>{trick.question}</MathText>
               </p>
-            </div>
-            {trick.expressions.length > 0 && (
-              <details className={styles.entries}>
-                <summary>Saved calculator entries</summary>
-                <ol>
-                  {trick.expressions.map((expression, index) => (
-                    <li key={index}>
-                      <div>
-                        <MathExpression latex={expression.latex} />
-                      </div>
-                      <button
-                        type="button"
-                        className="copyButton"
-                        aria-label={`Copy saved line ${index + 1} from ${trick.techniqueName}`}
-                        onClick={async () => {
-                          try {
-                            await navigator.clipboard.writeText(
-                              expression.latex,
-                            );
-                            setCopied(`${trick.id}:${index}`);
-                            setCopyError(false);
-                          } catch {
-                            setCopyError(true);
-                          }
-                        }}
-                      >
-                        {copied === `${trick.id}:${index}` ? (
-                          <Check size={14} />
-                        ) : (
-                          <Copy size={14} />
-                        )}
-                        {copied === `${trick.id}:${index}` ? "Copied" : "Copy"}
-                      </button>
-                    </li>
-                  ))}
-                </ol>
-                {copyError && (
-                  <p role="status">Select the expression to copy it.</p>
-                )}
-              </details>
-            )}
-            <div className={styles.cardBottom}>
+              <ol className={styles.entries}>
+                {trick.expressions.map((expression, index) => (
+                  <li key={index}>
+                    <div>
+                      <MathExpression latex={expression.latex} />
+                    </div>
+                    <button
+                      type="button"
+                      className="copyButton"
+                      aria-label={`Copy saved line ${index + 1} from ${trick.techniqueName}`}
+                      onClick={async () => {
+                        try {
+                          await navigator.clipboard.writeText(expression.latex);
+                          setCopied(`${trick.id}:${index}`);
+                          setCopyError(false);
+                        } catch {
+                          setCopyError(true);
+                        }
+                      }}
+                    >
+                      {copied === `${trick.id}:${index}` ? (
+                        <Check size={14} />
+                      ) : (
+                        <Copy size={14} />
+                      )}
+                      {copied === `${trick.id}:${index}` ? "Copied" : "Copy"}
+                    </button>
+                  </li>
+                ))}
+              </ol>
+              {copyError && (
+                <p role="status">Select the expression to copy it.</p>
+              )}
+            </details>
+            <div className={styles.rowFooter}>
               <span className={styles.answer}>
                 Answer{" "}
                 <strong>
@@ -150,14 +185,31 @@ export default function SavedTricks({
                 </strong>
               </span>
               {trick.problemId && (
-                <Link href={`/history/${trick.problemId}`}>
-                  Open problem <span aria-hidden="true">→</span>
+                <Link
+                  href={`/history/${trick.problemId}`}
+                  className="outlinedControl"
+                >
+                  View solution <ArrowUpRight size={14} />
                 </Link>
               )}
             </div>
           </li>
         ))}
       </ul>
+      {matching.length === 0 && (
+        <div className={styles.empty} role="status">
+          <Search size={28} />
+          <h2>No matching tricks</h2>
+          <p>Try another search.</p>
+          <button
+            type="button"
+            className="secondaryButton"
+            onClick={() => setQuery("")}
+          >
+            Clear search
+          </button>
+        </div>
+      )}
     </>
   );
 }
