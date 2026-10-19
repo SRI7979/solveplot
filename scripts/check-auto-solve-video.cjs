@@ -40,7 +40,7 @@ const output = "docs/auto-solve-video-review";
       assert.equal(before.loop, true);
       assert.equal(before.controls, false);
       assert.ok(before.src.includes(`auto-solve-${variant}.webm`));
-      assert.equal(new URL(before.src).searchParams.get("v"), "5", "Player must request the new recording rather than a cached old video");
+      assert.equal(new URL(before.src).searchParams.get("v"), "6", "Player must request the new recording rather than a cached old video");
       const expectedPixels = variant === "desktop" ? [3600, 2250] : [1260, 2340];
       assert.ok(before.nativeWidth >= expectedPixels[0] && before.nativeHeight >= expectedPixels[1], "Recording must retain native triple-density resolution");
       assert.equal(await film.locator("button").count(), 0, "No buttons on/below film");

@@ -146,7 +146,15 @@ try {
       // A complete workspace makes the clearest desktop still; on phones the
       // final graph/result is more readable than the preceding explanation tab.
       if(index===(variant==='desktop'?164:230))await sharp(image).webp({lossless:true}).toFile(`${staging}/auto-solve-${variant}.webp`);
-      if(index===230){const result=await page.evaluate(()=>({rows:window.demoCalculator.getExpressions().map(({id,latex})=>({id,latex})),answer:window.demoCalculator.expressionAnalysis.desmo_6.evaluation.value}));assert.equal(result.answer,143);assert.equal(result.rows.filter(row=>row.latex).length,6);evidence.push({variant,width:width*3,height:height*3,fps,appearance,camera:'problem close-up → full workspace → result close-up',dragFrom:'left',ending:'hold then direct loop',requests,liveModelCalls:0,result,errors});}
+      if(index===230){
+        const result=await page.evaluate(()=>({rows:window.demoCalculator.getExpressions().map(({id,latex})=>({id,latex})),answer:window.demoCalculator.expressionAnalysis.desmo_6.evaluation.value}));
+        assert.equal(result.answer,143);
+        assert.equal(result.rows.filter(row=>row.latex).length,6);
+        const normalize = latex => latex.replace(/\\(?:left|right)/g, '').replace(/[{}\s]/g, '');
+        assert.equal(normalize(result.rows.find(row=>row.id==='desmo_5').latex), 'f(x)=ax^2+bx+c');
+        assert.equal(normalize(result.rows.find(row=>row.id==='desmo_6').latex), 'f(10)');
+        evidence.push({variant,width:width*3,height:height*3,fps,appearance,camera:'problem close-up → full workspace → result close-up',dragFrom:'left',ending:'hold then direct loop',requests,liveModelCalls:0,result,errors});
+      }
     }
     encoder.stdin.end();const [code]=await finished;if(code!==0)throw Error(log);
     assert.deepEqual(errors,[]);assert.equal(requests,1);

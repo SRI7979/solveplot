@@ -15,7 +15,9 @@ There are no recording-specific overrides to the app's spacing or typography.
 
 Only the solve response is intercepted with a schema-validated example. Recording
 and playback make no paid model requests. Native Desmos evaluates the regression
-and confirms `a(10)^2+b(10)+c = 143` in both recordings. This checkout inserts
+and confirms `f(10) = 143` in both recordings. After the regression, the demo
+defines `f(x) = ax² + bx + c`, then evaluates `f(10)`. Plain `x` is the function
+input; the subscripted `x₁` stays in the regression as the data list. This checkout inserts
 data lists rather than a native table, and the recording shows that behavior.
 
 The original coast/lighthouse art, centered headline and CTA remain. This refresh

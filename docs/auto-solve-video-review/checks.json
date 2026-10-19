@@ -27,19 +27,19 @@
         },
         {
           "id": "desmo_3",
-          "latex": "y_{1}\\sim ax_{1}^2+bx_{1}+c"
-        },
-        {
-          "id": "desmo_4",
-          "latex": "y=ax^2+bx+c"
-        },
-        {
-          "id": "desmo_5",
           "latex": "(x_{1},y_{1})"
         },
         {
+          "id": "desmo_4",
+          "latex": "y_{1}\\sim ax_{1}^2+bx_{1}+c"
+        },
+        {
+          "id": "desmo_5",
+          "latex": "f(x)=ax^2+bx+c"
+        },
+        {
           "id": "desmo_6",
-          "latex": "a(10)^2+b(10)+c"
+          "latex": "f(10)"
         }
       ],
       "answer": 143
@@ -74,19 +74,19 @@
         },
         {
           "id": "desmo_3",
-          "latex": "y_{1}\\sim ax_{1}^2+bx_{1}+c"
-        },
-        {
-          "id": "desmo_4",
-          "latex": "y=ax^2+bx+c"
-        },
-        {
-          "id": "desmo_5",
           "latex": "(x_{1},y_{1})"
         },
         {
+          "id": "desmo_4",
+          "latex": "y_{1}\\sim ax_{1}^2+bx_{1}+c"
+        },
+        {
+          "id": "desmo_5",
+          "latex": "f(x)=ax^2+bx+c"
+        },
+        {
           "id": "desmo_6",
-          "latex": "a(10)^2+b(10)+c"
+          "latex": "f(10)"
         }
       ],
       "answer": 143
