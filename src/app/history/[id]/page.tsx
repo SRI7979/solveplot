@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { getProblem } from "@/lib/problem-history";
 import HistoryShell from "../history-shell";
-import styles from "../page.module.css";
+import styles from "@/components/library-ui.module.css";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
@@ -35,11 +35,11 @@ export default async function SavedProblemPage({
           <p>Your saved work has not been changed.</p>
           <a
             href={`/history/${encodeURIComponent(id)}`}
-            className={styles.button}
+            className="secondaryButton"
           >
             Retry
           </a>
-          <Link href="/history" className={styles.backLink}>
+          <Link href="/history" className="textControl">
             Back to history
           </Link>
         </div>

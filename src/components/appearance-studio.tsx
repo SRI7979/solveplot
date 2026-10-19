@@ -221,6 +221,7 @@ export function AppearanceStudio({ settings = false }: { settings?: boolean }) {
                     <button
                       key={item.id}
                       type="button"
+                      className="choiceControl"
                       aria-pressed={filter === item.id}
                       onClick={() => setFilter(item.id)}
                     >
@@ -295,7 +296,7 @@ export function AppearanceStudio({ settings = false }: { settings?: boolean }) {
               </div>
               <button
                 type="button"
-                className="appearanceReset"
+                className="appearanceReset secondaryButton"
                 onClick={() => {
                   resetAppearance();
                   setFilter("all");
@@ -335,6 +336,7 @@ export function AppearanceThemeToggle({
         <button
           type="button"
           key={value}
+          className="iconControl"
           aria-pressed={theme === value}
           aria-label={label}
           title={label}

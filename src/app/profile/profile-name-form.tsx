@@ -9,6 +9,7 @@ export default function ProfileNameForm({ name }: { name: string }) {
       <label htmlFor="profile-name">
         Display name
         <input
+          className="appField"
           id="profile-name"
           name="name"
           defaultValue={name}

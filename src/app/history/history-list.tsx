@@ -37,6 +37,7 @@ export default function HistoryList({
         <div className={styles.filters} aria-label="Filter history">
           <button
             type="button"
+            className="choiceControl"
             aria-pressed={filter === "all"}
             onClick={() => setFilter("all")}
           >
@@ -44,6 +45,7 @@ export default function HistoryList({
           </button>
           <button
             type="button"
+            className="choiceControl"
             aria-pressed={filter === "solved"}
             onClick={() => setFilter("solved")}
           >
@@ -52,6 +54,7 @@ export default function HistoryList({
           {problems.some((p) => p.status !== "solved") && (
             <button
               type="button"
+              className="choiceControl"
               aria-pressed={filter === "attention"}
               onClick={() => setFilter("attention")}
             >

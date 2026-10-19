@@ -399,7 +399,7 @@ export function SelectionAskTutor({
   return createPortal(
     <button
       type="button"
-      className={`${shared.copyButton} ${styles.selectionButton}`}
+      className={`${shared.copyButton} ${styles.selectionButton} copyButton`}
       style={{ top: offer.top, left: offer.left }}
       // Keep the selection while the button is pressed.
       onPointerDown={(event) => event.preventDefault()}
@@ -484,6 +484,7 @@ function TutorComposer({
         Add a question <span>(optional)</span>
       </label>
       <textarea
+        className="appField"
         ref={input}
         id={inputId}
         value={question}
@@ -553,14 +554,14 @@ export function TutorPanel({ tutor }: { tutor: Tutor }) {
             <div className={styles.actionButtons}>
               <button
                 type="button"
-                className={shared.retryButton}
+                className={`${shared.retryButton} secondaryButton`}
                 onClick={() => tutor.edit(true)}
               >
                 Edit question
               </button>
               <button
                 type="button"
-                className={shared.retryButton}
+                className={`${shared.retryButton} secondaryButton`}
                 onClick={tutor.retry}
               >
                 Try again
@@ -598,7 +599,7 @@ export function TutorPanel({ tutor }: { tutor: Tutor }) {
             />
             <button
               type="button"
-              className={styles.anotherButton}
+              className={`${styles.anotherButton} textControl`}
               onClick={() => tutor.edit()}
             >
               Ask another question about this text
@@ -622,7 +623,7 @@ function PracticeSection({
       <div className={styles.actions}>
         <button
           type="button"
-          className={shared.retryButton}
+          className={`${shared.retryButton} secondaryButton`}
           onClick={onRequest}
         >
           Practice problem
@@ -645,7 +646,7 @@ function PracticeSection({
         </p>
         <button
           type="button"
-          className={shared.retryButton}
+          className={`${shared.retryButton} secondaryButton`}
           onClick={onRequest}
         >
           Try again
@@ -660,13 +661,13 @@ function PracticeSection({
         <MathText>{practice.problem}</MathText>
       </p>
       <details className={shared.transcription}>
-        <summary>Show hint</summary>
+        <summary className="disclosureControl">Show hint</summary>
         <p>
           <MathText>{practice.hint}</MathText>
         </p>
       </details>
       <details className={shared.transcription}>
-        <summary>Show answer</summary>
+        <summary className="disclosureControl">Show answer</summary>
         <p>
           <MathText>{practice.answer}</MathText>
         </p>

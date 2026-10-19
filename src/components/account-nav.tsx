@@ -112,7 +112,7 @@ export default function AccountNav({
           {mobile ? (
             <button
               type="button"
-              className={styles.iconButton}
+              className={`${styles.iconButton} iconControl`}
               aria-label="Close navigation"
               onClick={close}
             >
@@ -121,7 +121,7 @@ export default function AccountNav({
           ) : (
             <button
               type="button"
-              className={styles.collapse}
+              className={`${styles.collapse} iconControl`}
               aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
               onClick={toggleSidebar}
               title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
@@ -187,7 +187,7 @@ export default function AccountNav({
         <Link
           href="/profile"
           prefetch={null}
-          className={styles.profile}
+          className={`${styles.profile} appProfile`}
           aria-label="Your profile"
           aria-current={active === "profile" ? "page" : undefined}
           onClick={close}

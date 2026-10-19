@@ -120,7 +120,7 @@ export default function SolutionExplanation({
         </p>
         {solution.question && (
           <details>
-            <summary>What we could read</summary>
+            <summary className="disclosureControl">What we could read</summary>
             <p>
               <MathText>{solution.question}</MathText>
             </p>
@@ -233,7 +233,7 @@ export default function SolutionExplanation({
           {onRetryExplanation && (
             <button
               type="button"
-              className={styles.retryButton}
+              className={`${styles.retryButton} secondaryButton`}
               onClick={onRetryExplanation}
               data-testid="explanation-retry"
             >
@@ -260,7 +260,7 @@ export default function SolutionExplanation({
           </p>
           {solution.why.split(/(?<=[.!?])\s+(?=[A-Z])/).length > 1 && (
             <details className={styles.whyDetail}>
-              <summary>
+              <summary className="disclosureControl">
                 Why this works <ChevronDown size={14} />
               </summary>
               <p>
@@ -336,7 +336,7 @@ export default function SolutionExplanation({
                 <div className={styles.lineHeading} data-tutor-ignore>
                   <button
                     type="button"
-                    className={styles.stepSelect}
+                    className={`${styles.stepSelect} menuChoice`}
                     aria-pressed={tracedRow === index + 1}
                     aria-label={`Select step ${index + 1}: Enter line ${index + 1}`}
                     onClick={() =>
@@ -346,7 +346,9 @@ export default function SolutionExplanation({
                       })
                     }
                   >
-                    <span className={styles.stepNumber}>{index + 1}</span>
+                    <span className={`${styles.stepNumber} stepIndicator`}>
+                      {index + 1}
+                    </span>
                     <span>
                       <small>Type</small>
                       <strong>Enter line {index + 1}</strong>
@@ -480,7 +482,10 @@ export default function SolutionExplanation({
           <ol className={styles.steps}>
             {solution.steps.map((step, index) => (
               <li key={index}>
-                <span className={styles.stepNumber} data-tutor-ignore>
+                <span
+                  className={`${styles.stepNumber} stepIndicator`}
+                  data-tutor-ignore
+                >
                   {index + 1}
                 </span>
                 <p>
@@ -516,7 +521,7 @@ export default function SolutionExplanation({
       )}
       {solution.choices && solution.choices.length > 0 && (
         <details className={styles.transcription}>
-          <summary>Answer choices</summary>
+          <summary className="disclosureControl">Answer choices</summary>
           <ul className={styles.choiceList}>
             {solution.choices.map((choice) => (
               <li
@@ -539,7 +544,7 @@ export default function SolutionExplanation({
         </details>
       )}
       <details className={styles.transcription}>
-        <summary>Question text</summary>
+        <summary className="disclosureControl">Question text</summary>
         <p>
           <MathText>{solution.question}</MathText>
         </p>

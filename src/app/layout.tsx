@@ -9,6 +9,7 @@ import "katex/dist/katex.min.css";
 import "./globals.css";
 import "./solve/solver-ui.css";
 import "@/components/raised-buttons.css";
+import "@/components/app-controls.css";
 import RaisedButtonFeedback from "@/components/raised-buttons";
 
 const themeInit = `(()=>{try{const value=localStorage.getItem("desmo-theme");const dark=value==="dark"||(value==="system"&&matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.dataset.theme=dark?"dark":"light"}catch{document.documentElement.dataset.theme="light"}})()`;

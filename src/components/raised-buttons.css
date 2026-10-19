@@ -1,5 +1,5 @@
 /* The shell and hit area stay fixed. Only the face and its contents compress. */
-.desmo-shell
+.desmo-shell[data-palette]
   :is(
     .outlinedControl,
     .secondaryButton,
@@ -9,7 +9,9 @@
     .wsNewProblem,
     .wsMobileMenu,
     .appearanceAmountChoice,
-    .appearancePaletteChoice
+    .appearancePaletteChoice,
+    .iconControl,
+    .choiceControl
   ) {
   --press-travel: 0px;
   position: var(--press-position, relative);
@@ -27,7 +29,7 @@
     color 0.15s;
 }
 
-.desmo-shell
+.desmo-shell[data-palette]
   :is(
     .outlinedControl,
     .secondaryButton,
@@ -37,9 +39,11 @@
     .wsNewProblem,
     .wsMobileMenu,
     .appearanceAmountChoice,
-    .appearancePaletteChoice
+    .appearancePaletteChoice,
+    .iconControl,
+    .choiceControl
   )::before,
-.desmo-shell
+.desmo-shell[data-palette]
   :is(
     .outlinedControl,
     .secondaryButton,
@@ -49,7 +53,9 @@
     .wsNewProblem,
     .wsMobileMenu,
     .appearanceAmountChoice,
-    .appearancePaletteChoice
+    .appearancePaletteChoice,
+    .iconControl,
+    .choiceControl
   )::after {
   content: "";
   position: absolute;
@@ -60,7 +66,7 @@
 }
 
 /* The base never moves, including during a held press. */
-.desmo-shell
+.desmo-shell[data-palette]
   :is(
     .outlinedControl,
     .secondaryButton,
@@ -70,14 +76,16 @@
     .wsNewProblem,
     .wsMobileMenu,
     .appearanceAmountChoice,
-    .appearancePaletteChoice
+    .appearancePaletteChoice,
+    .iconControl,
+    .choiceControl
   )::before {
   top: calc(var(--press-depth, 3px) - var(--press-border, 1px));
   bottom: calc(0px - var(--press-border, 1px) - var(--press-depth, 3px));
   background: var(--press-base, var(--control-edge));
 }
 
-.desmo-shell
+.desmo-shell[data-palette]
   :is(
     .outlinedControl,
     .secondaryButton,
@@ -87,7 +95,9 @@
     .wsNewProblem,
     .wsMobileMenu,
     .appearanceAmountChoice,
-    .appearancePaletteChoice
+    .appearancePaletteChoice,
+    .iconControl,
+    .choiceControl
   )::after {
   border: var(--press-border, 1px) solid
     var(--press-outline, var(--control-border));
@@ -100,7 +110,7 @@
     border-color 0.15s;
 }
 
-.desmo-shell
+.desmo-shell[data-palette]
   :is(
     .outlinedControl,
     .secondaryButton,
@@ -110,7 +120,9 @@
     .wsNewProblem,
     .wsMobileMenu,
     .appearanceAmountChoice,
-    .appearancePaletteChoice
+    .appearancePaletteChoice,
+    .iconControl,
+    .choiceControl
   ):is(
     [data-pressing],
     :focus-visible:active,
@@ -119,7 +131,7 @@
   --press-travel: var(--press-depth, 3px);
   transition-duration: 65ms;
 }
-.desmo-shell
+.desmo-shell[data-palette]
   :is(
     .outlinedControl,
     .secondaryButton,
@@ -129,7 +141,9 @@
     .wsNewProblem,
     .wsMobileMenu,
     .appearanceAmountChoice,
-    .appearancePaletteChoice
+    .appearancePaletteChoice,
+    .iconControl,
+    .choiceControl
   ):is(
     [data-pressing],
     :focus-visible:active,
@@ -166,7 +180,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .desmo-shell
+  .desmo-shell[data-palette]
     :is(
       .outlinedControl,
       .secondaryButton,
@@ -176,9 +190,11 @@
       .wsNewProblem,
       .wsMobileMenu,
       .appearanceAmountChoice,
-      .appearancePaletteChoice
+      .appearancePaletteChoice,
+      .iconControl,
+      .choiceControl
     ),
-  .desmo-shell
+  .desmo-shell[data-palette]
     :is(
       .outlinedControl,
       .secondaryButton,
@@ -188,7 +204,9 @@
       .wsNewProblem,
       .wsMobileMenu,
       .appearanceAmountChoice,
-      .appearancePaletteChoice
+      .appearancePaletteChoice,
+      .iconControl,
+      .choiceControl
     )::after {
     transition: none;
   }

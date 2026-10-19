@@ -61,6 +61,7 @@ export default function TechniqueSelector({
                 <button
                   key={method.id}
                   type="button"
+                  className="menuChoice"
                   aria-pressed={method.id === selected.id}
                   onClick={() => {
                     onSelect(method.id);

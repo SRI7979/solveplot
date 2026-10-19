@@ -52,12 +52,6 @@
   background: var(--primary);
   color: var(--primary-foreground);
 }
-@supports (corner-shape: squircle) {
-  .workspaceLogo .mark {
-    border-radius: 50%;
-    corner-shape: squircle;
-  }
-}
 .workspaceLogo .mark svg {
   width: 16px;
   height: 16px;
@@ -103,11 +97,19 @@
 .workspaceLogo .mark {
   width: 34px;
   height: 34px;
-  border-radius: 11px;
+  border-radius: 13px;
 }
 .workspaceLogo .mark svg {
   width: 24px;
   height: 24px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .workspaceLogo .mark svg {
+    transition: transform 180ms ease;
+  }
+  .workspaceLogo:hover .mark svg {
+    transform: rotate(-5deg);
+  }
 }
 @media (max-width: 600px) {
   .workspaceLogo {

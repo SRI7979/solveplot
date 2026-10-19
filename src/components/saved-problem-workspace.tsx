@@ -51,6 +51,7 @@ export default function SavedProblemWorkspace({
         <button
           type="button"
           role="tab"
+          className="choiceControl"
           aria-selected={panel === "solution"}
           aria-controls="question-panel"
           onClick={() => setPanel("solution")}
@@ -61,6 +62,7 @@ export default function SavedProblemWorkspace({
         <button
           type="button"
           role="tab"
+          className="choiceControl"
           aria-selected={panel === "calculator"}
           aria-controls="calculator-panel"
           onClick={() => setPanel("calculator")}
@@ -81,7 +83,10 @@ export default function SavedProblemWorkspace({
             style={{ "--solution-width": `${split}%` } as CSSProperties}
           >
             <div className={styles.questionSolutionPanel} id="question-panel">
-              <Link href="/history" className={styles.originalToggle}>
+              <Link
+                href="/history"
+                className={`${styles.originalToggle} textControl`}
+              >
                 ← History
               </Link>
               <section className={styles.uploadCard}>
@@ -102,7 +107,7 @@ export default function SavedProblemWorkspace({
                   <>
                     <button
                       type="button"
-                      className={styles.originalToggle}
+                      className={`${styles.originalToggle} textControl`}
                       aria-expanded={originalOpen}
                       onClick={() => setOriginalOpen((value) => !value)}
                     >

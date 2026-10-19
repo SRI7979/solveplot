@@ -869,6 +869,7 @@ export default function SolverWorkspace({
           id="steps-tab"
           type="button"
           role="tab"
+          className="choiceControl"
           aria-selected={mobilePanel === "solution"}
           tabIndex={mobilePanel === "solution" ? 0 : -1}
           aria-controls="question-panel"
@@ -882,6 +883,7 @@ export default function SolverWorkspace({
           id="calculator-tab"
           type="button"
           role="tab"
+          className="choiceControl"
           aria-selected={mobilePanel === "calculator"}
           tabIndex={mobilePanel === "calculator" ? 0 : -1}
           aria-controls="calculator-panel"
@@ -949,7 +951,7 @@ export default function SolverWorkspace({
                       <>
                         <button
                           type="button"
-                          className={styles.originalToggle}
+                          className={`${styles.originalToggle} textControl`}
                           aria-expanded={originalOpen}
                           aria-controls="original-image"
                           onClick={() => setOriginalOpen((value) => !value)}
@@ -974,6 +976,7 @@ export default function SolverWorkspace({
                             />
                             <button
                               type="button"
+                              className="textControl"
                               ref={viewImageButton}
                               onClick={() => imageDialog.current?.showModal()}
                             >
@@ -1026,6 +1029,7 @@ export default function SolverWorkspace({
                             <span>{image.file.name}</span>
                             <button
                               type="button"
+                              className="textControl dangerControl"
                               onClick={clearImage}
                               disabled={busy}
                               aria-label="Remove uploaded image"
@@ -1088,7 +1092,7 @@ export default function SolverWorkspace({
                       <div className={styles.cancelRow}>
                         <button
                           type="button"
-                          className={styles.textButton}
+                          className={`${styles.textButton} textControl`}
                           onClick={() => request.current?.abort()}
                         >
                           Cancel

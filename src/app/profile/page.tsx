@@ -13,7 +13,7 @@ export default async function ProfilePage() {
   const user = await requireUser("/profile");
   return (
     <HistoryShell {...user} active="profile">
-      <div className={styles.page}>
+      <div className={`${styles.page} appPageEnter`}>
         <header className="wsPageHeading">
           <h1>Your profile</h1>
           <p>Manage your account.</p>

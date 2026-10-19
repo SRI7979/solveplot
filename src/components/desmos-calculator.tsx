@@ -476,7 +476,7 @@ export default function DesmosCalculator({
           <div className={styles.graphControls}>
             <button
               type="button"
-              className={styles.expressionToggle}
+              className={`${styles.expressionToggle} choiceControl`}
               aria-pressed={expressionsOpen}
               title="Show or hide Desmos expressions"
               onClick={() => setExpressionsOpen((value) => !value)}
@@ -486,7 +486,7 @@ export default function DesmosCalculator({
             </button>
             <button
               type="button"
-              className={styles.graphIconButton}
+              className={`${styles.graphIconButton} iconControl`}
               title="Reset graph view"
               aria-label="Reset graph view"
               disabled={!scriptReady || !!unavailableMessage}
@@ -513,7 +513,7 @@ export default function DesmosCalculator({
             <button
               ref={expandButtonRef}
               type="button"
-              className={styles.graphIconButton}
+              className={`${styles.graphIconButton} iconControl`}
               title={expanded ? "Exit full screen" : "Full screen"}
               aria-label={expanded ? "Exit full screen" : "Full screen"}
               aria-pressed={expanded}
@@ -564,6 +564,7 @@ export default function DesmosCalculator({
             lineCount > 0 ? (
               <button
                 type="button"
+                className="textControl"
                 onClick={() => {
                   const row = document.getElementById(
                     `${traceId}-row-${selection.row}`,
@@ -599,7 +600,7 @@ export default function DesmosCalculator({
               <p>{unavailableMessage || "Loading calculator…"}</p>
               {unavailableMessage && apiKey && (
                 <button
-                  className={styles.reload}
+                  className={`${styles.reload} secondaryButton`}
                   type="button"
                   onClick={retryCalculator}
                 >
@@ -626,7 +627,7 @@ export default function DesmosCalculator({
             </span>
             <button
               type="button"
-              className={styles.replay}
+              className={`${styles.replay} textControl`}
               title="Restore the original loaded equations"
               disabled={!scriptReady || !!unavailableMessage || !insertable}
               onClick={() => {
@@ -650,7 +651,7 @@ export default function DesmosCalculator({
                 shown.{" "}
                 <button
                   type="button"
-                  className={styles.replay}
+                  className={`${styles.replay} textControl`}
                   onClick={retryCalculator}
                 >
                   Retry check

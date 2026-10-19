@@ -1,4 +1,5 @@
 import DesmoLogo from "@/components/desmo-logo";
+import { WorkspaceAppearance } from "@/components/appearance-provider";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { AuthForm } from "@/app/login/auth-form";
@@ -8,13 +9,16 @@ export const metadata = { title: "Reset password · Desmo" };
 export const dynamic = "force-dynamic";
 
 export default async function ResetPasswordPage() {
-  if (!(await getCurrentUser())) redirect("/login?mode=forgot&notice=link-expired");
+  if (!(await getCurrentUser()))
+    redirect("/login?mode=forgot&notice=link-expired");
   return (
-    <main className={styles.page}>
-      <DesmoLogo centered />
-      <section className={styles.card}>
-        <AuthForm mode="reset" next="/solve" />
-      </section>
-    </main>
+    <WorkspaceAppearance className={styles.entry}>
+      <main className={styles.page}>
+        <DesmoLogo centered variant="workspace" />
+        <section className={`${styles.card} appPageEnter`}>
+          <AuthForm mode="reset" next="/solve" />
+        </section>
+      </main>
+    </WorkspaceAppearance>
   );
 }

@@ -115,7 +115,7 @@ export default function SavedTricks({
                   <h2>{trick.techniqueName}</h2>
                   <button
                     type="button"
-                    className={styles.remove}
+                    className={`${styles.remove} iconControl dangerControl`}
                     onClick={() => remove(trick.id)}
                     disabled={removing !== null}
                     aria-label={`Remove saved trick ${trick.techniqueName}`}
@@ -134,7 +134,7 @@ export default function SavedTricks({
               </div>
             </div>
             <details className={styles.details}>
-              <summary>
+              <summary className="disclosureControl">
                 <Calculator size={15} /> Review trick
                 {trick.expressions.length > 0 &&
                   ` · ${trick.expressions.length} ${trick.expressions.length === 1 ? "line" : "lines"}`}

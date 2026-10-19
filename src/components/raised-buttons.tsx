@@ -3,11 +3,11 @@
 import { useEffect } from "react";
 
 const CONTROLS =
-  ".outlinedControl, .secondaryButton, .primaryButton, .copyButton, .pointButton, .wsNewProblem, .wsMobileMenu, .appearanceAmountChoice, .appearancePaletteChoice";
+  ".outlinedControl, .secondaryButton, .primaryButton, .copyButton, .pointButton, .wsNewProblem, .wsMobileMenu, .appearanceAmountChoice, .appearancePaletteChoice, .iconControl, .choiceControl";
 
 export default function RaisedButtonFeedback() {
   useEffect(() => {
-    let held: { control: HTMLElement; pointerId: number } | null = null;
+    let held: { control: HTMLElement; pointerId: number | null } | null = null;
 
     function release() {
       held?.control.removeAttribute("data-pressing");
@@ -23,6 +23,7 @@ export default function RaisedButtonFeedback() {
           : null;
       if (
         !control ||
+        !control.closest(".desmo-shell") ||
         control.matches(":disabled, [aria-disabled=true], :has(input:disabled)")
       )
         return;
@@ -42,6 +43,27 @@ export default function RaisedButtonFeedback() {
       );
     }
 
+    function keyDown(event: KeyboardEvent) {
+      if (event.repeat || ![" ", "Enter"].includes(event.key)) return;
+      const control =
+        event.target instanceof Element
+          ? event.target.closest<HTMLElement>(CONTROLS)
+          : null;
+      if (
+        !control ||
+        !control.closest(".desmo-shell") ||
+        control.matches(":disabled, [aria-disabled=true], :has(input:disabled)")
+      )
+        return;
+      release();
+      held = { control, pointerId: null };
+      control.setAttribute("data-pressing", "");
+    }
+    function keyUp(event: KeyboardEvent) {
+      if (held?.pointerId === null && [" ", "Enter"].includes(event.key))
+        release();
+    }
+
     function end(event: PointerEvent) {
       if (event.pointerId === held?.pointerId) release();
     }
@@ -52,6 +74,8 @@ export default function RaisedButtonFeedback() {
     document.addEventListener("pointermove", move, { passive: true });
     document.addEventListener("pointerup", end, { passive: true });
     document.addEventListener("pointercancel", end, { passive: true });
+    document.addEventListener("keydown", keyDown);
+    document.addEventListener("keyup", keyUp);
     window.addEventListener("blur", release);
     return () => {
       release();
@@ -59,6 +83,8 @@ export default function RaisedButtonFeedback() {
       document.removeEventListener("pointermove", move);
       document.removeEventListener("pointerup", end);
       document.removeEventListener("pointercancel", end);
+      document.removeEventListener("keydown", keyDown);
+      document.removeEventListener("keyup", keyUp);
       window.removeEventListener("blur", release);
     };
   }, []);
