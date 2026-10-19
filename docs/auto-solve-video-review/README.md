@@ -6,13 +6,20 @@ cursor drops the image and clicks Solve. Desmo inserts all six expressions
 automatically. The desktop composition shows question/explanation and calculator
 together; the phone composition uses the app's existing Calculator tab.
 
+The October 19 refresh records the current workspace in **Candy, light mode,
+Colorful, Modern typography**, with its rounded Raised buttons. Appearance is
+explicitly selected and asserted before capture. The recording uses the real
+full-width upload screen, compact solved problem, recommended method, and green
+answer panel. A visible cursor click opens Expressions before the final close-up.
+There are no recording-specific overrides to the app's spacing or typography.
+
 Only the solve response is intercepted with a schema-validated example. Recording
 and playback make no paid model requests. Native Desmos evaluates the regression
 and confirms `a(10)^2+b(10)+c = 143` in both recordings. This checkout inserts
 data lists rather than a native table, and the recording shows that behavior.
 
-The original coast/lighthouse art, centered headline and CTA remain. Only the
-hero changed; other landing sections are left for the next update. The video
+The original coast/lighthouse art, centered headline and CTA remain. This refresh
+only changes the recordings and posters; the landing-page layout is untouched. The video
 has no visible controls or buttons underneath. Both 11-second variants hold the
 result before looping directly to the beginning, without an ending fade.
 
@@ -23,7 +30,7 @@ composition and its existing Calculator tab. Curved cursor paths use restrained
 easing, and the pointer stays the same screen size during camera movement.
 
 Fresh native 3× captures (3600×2250 desktop and 1260×2340 phone) keep the text and
-equations sharp during zooms. The files are approximately 6.8 MiB and 4.2 MiB;
+equations sharp during zooms. The files remain under 7 MiB per variant;
 only the matching viewport variant loads. The desktop poster shows the complete
 workspace, while the phone poster shows the graph and 143. Reduced-motion users
 receive a static poster without a video request. Playback pauses outside the
@@ -31,7 +38,7 @@ viewport or when the page is hidden.
 
 ## Validation
 
-- `checks.json`: actual calculator expressions and result 143, one intercepted
+- `checks.json`: requested appearance, actual calculator expressions and result 143, one intercepted
   request per recording, zero live model calls or browser errors
 - `hero-checks.json`: complete uninterrupted desktop/phone loop, centered frame,
   no overflow/controls/buttons, decoded/dropped frame counts, no ending fade,

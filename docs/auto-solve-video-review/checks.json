@@ -4,6 +4,12 @@
     "width": 3600,
     "height": 2250,
     "fps": 24,
+    "appearance": {
+      "palette": "candy",
+      "colorAmount": "colorful",
+      "typography": "modern",
+      "mode": "light"
+    },
     "camera": "problem close-up → full workspace → result close-up",
     "dragFrom": "left",
     "ending": "hold then direct loop",
@@ -45,6 +51,12 @@
     "width": 1260,
     "height": 2340,
     "fps": 24,
+    "appearance": {
+      "palette": "candy",
+      "colorAmount": "colorful",
+      "typography": "modern",
+      "mode": "light"
+    },
     "camera": "problem close-up → full workspace → result close-up",
     "dragFrom": "left",
     "ending": "hold then direct loop",

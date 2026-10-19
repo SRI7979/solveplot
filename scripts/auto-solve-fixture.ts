@@ -4,7 +4,7 @@ import { writeFileSync } from "node:fs";
 import { candidatesResponseSchema, selectMethods } from "../src/lib/strategy-selection";
 import { solutionSchema } from "../src/lib/solver-schema";
 
-const question = "A quadratic function f has the following values:\nx: 1, 2, 4\nf(x): 8, 15, 35\nWhat is f(10)?";
+const question = "A quadratic function f has values f(1) = 8, f(2) = 15, and f(4) = 35. What is f(10)?";
 const solution = solutionSchema.parse({
   status: "solved", question, choices: null,
   structure: "Three points of a quadratic function; find its value at another input",

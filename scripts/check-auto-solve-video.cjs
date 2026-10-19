@@ -40,7 +40,7 @@ const output = "docs/auto-solve-video-review";
       assert.equal(before.loop, true);
       assert.equal(before.controls, false);
       assert.ok(before.src.includes(`auto-solve-${variant}.webm`));
-      assert.equal(new URL(before.src).searchParams.get("v"), "4", "Player must request the new recording rather than a cached old video");
+      assert.equal(new URL(before.src).searchParams.get("v"), "5", "Player must request the new recording rather than a cached old video");
       const expectedPixels = variant === "desktop" ? [3600, 2250] : [1260, 2340];
       assert.ok(before.nativeWidth >= expectedPixels[0] && before.nativeHeight >= expectedPixels[1], "Recording must retain native triple-density resolution");
       assert.equal(await film.locator("button").count(), 0, "No buttons on/below film");
@@ -67,7 +67,7 @@ const output = "docs/auto-solve-video-review";
         return { wraps: state.wraps, samples: state.samples.length, last: state.previous, decodedFrames: frames, droppedFrames: dropped, droppedFrameRatio: frames ? dropped / frames : null };
       });
       const finalSamples = [];
-      for (const time of [0, 1.5, 2.6, 3.6, 5.2, 9.4, 10.85]) {
+      for (const time of [0, 1.5, 2.6, 3.6, 5.2, 6.85, 9.4, 10.85]) {
         await video.evaluate(async (v, seconds) => {
           v.pause();
           await new Promise(resolve => { v.addEventListener("seeked", resolve, { once: true }); v.currentTime = seconds; });
@@ -93,10 +93,10 @@ const output = "docs/auto-solve-video-review";
       await page.evaluate(() => scrollTo(0, 0));
       // Re-entering the viewport resumes normal playback. Freeze only this
       // review frame after the uninterrupted-loop check above has completed.
-      await video.evaluate(async v => {
+      await video.evaluate(async (v, time) => {
         window.__heroScreenshotPause = setInterval(() => v.pause(), 30);
         v.pause();
-        await new Promise(resolve => { v.addEventListener("seeked", resolve, { once: true }); v.currentTime = 9.4; });
+        await new Promise(resolve => { v.addEventListener("seeked", resolve, { once: true }); v.currentTime = time; });
         // Freeze the decoded frame while Playwright expands its screenshot
         // clip to include the full hero. Browser video compositing otherwise
         // occasionally paints the first frame during that large capture.
@@ -109,7 +109,7 @@ const output = "docs/auto-solve-video-review";
         frame.style.cssText = "position:absolute;inset:0;width:100%;height:100%;object-fit:cover";
         v.parentElement.append(frame);
         await frame.decode();
-      });
+      }, variant === "desktop" ? 6.85 : 9.4);
       await page.locator(".auto-solve-hero").screenshot({ path: path.join(output, `hero-${variant}.png`) });
       assert.deepEqual(errors, []);
       assert.deepEqual(paid, []);

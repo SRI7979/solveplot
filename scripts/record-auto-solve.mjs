@@ -25,7 +25,14 @@ try {
     // Native 3× capture leaves resolution for the camera close-ups. The app
     // and its graph are re-rendered; the previous recording is never upscaled.
     const page = await browser.newPage({viewport:{width,height},deviceScaleFactor:3});
-    await page.addInitScript(() => {localStorage.setItem("desmo-sidebar-collapsed","true");localStorage.setItem("desmo-theme","light");});
+    await page.addInitScript(() => {
+      localStorage.setItem("desmo-sidebar-collapsed", "true");
+      localStorage.setItem("desmo-theme", "light");
+      sessionStorage.setItem("desmo-appearance", JSON.stringify({
+        palette: "candy", colorAmount: "colorful", text: "Modern",
+        button: "Raised", corners: "Round",
+      }));
+    });
     let pending = null;
     let requests = 0;
     const errors = [];
@@ -46,7 +53,12 @@ try {
     await page.goto(origin+"/demo-recording");
     await page.waitForFunction(()=>window.demoCalculator);
     await page.evaluate(()=>document.fonts.ready);
-    await page.addStyleTag({content:'nextjs-portal{display:none!important}html{scroll-behavior:auto!important}html,body{overflow:hidden!important;background:#eef5f6!important}'});
+    await page.addStyleTag({content:'nextjs-portal{display:none!important}html{scroll-behavior:auto!important}html,body{overflow:hidden!important;background:#fff!important}'});
+    const appearance = await page.locator('.desmo-shell').evaluate(el => ({
+      palette: el.dataset.palette, colorAmount: el.dataset.colorAmount,
+      typography: el.dataset.typography, mode: el.dataset.colorMode,
+    }));
+    assert.deepEqual(appearance, { palette: 'candy', colorAmount: 'colorful', typography: 'modern', mode: 'light' });
     const zone = page.locator('#question-panel [class*="uploadZone"]');
     const z = await zone.boundingBox();
     const drop = {x:z.x+z.width*.5,y:z.y+z.height*.42};
@@ -63,7 +75,7 @@ try {
     const fps=24, duration=11;
     const encoder=spawn(process.env.FFMPEG,["-y","-f","image2pipe","-c:v","mjpeg","-r",String(fps),"-i","pipe:0","-c:v","libvpx","-b:v","10000k","-crf","4","-deadline","good","-cpu-used","0","-screen-content-mode","1","-sharpness","4","-threads","4","-g","48","-pix_fmt","yuv420p",`${staging}/auto-solve-${variant}.webm`],{stdio:["pipe","ignore","pipe"]});
     let log='';encoder.stderr.on('data',chunk=>{log+=chunk});const finished=once(encoder,'close');
-    let solvePoint=drop, graphPoint=null;
+    let solvePoint=drop, graphPoint=null, expressionPoint=null;
     for(let index=0;index<fps*duration;index++){
       currentFrame=index;
       if(index%48===0)console.log(variant, "frame", index);
@@ -74,45 +86,57 @@ try {
         await zone.dispatchEvent('drop',{dataTransfer:transfer});
         const button=await page.getByRole('button',{name:'Solve',exact:true}).boundingBox();solvePoint={x:button.x+button.width*.5,y:button.y+button.height*.5};
       }
-      if(index===80)await page.getByRole('button',{name:'Solve',exact:true}).click();
+      if(index===80){
+        await page.getByRole('button',{name:'Solve',exact:true}).click();
+        await page.locator('#question-panel').evaluate(el => { el.scrollTop = 0; });
+      }
       if(index===95){
         if(!pending)throw Error('The real Solve handler did not issue a request');
         const events=[{type:'methods',...fixture.payload},{type:'solution',methodId:fixture.payload.selectedMethodId,solution:fixture.solution},{type:'done'}];
         await pending.fulfill({contentType:'application/x-ndjson',body:events.map(event=>JSON.stringify(event)).join('\n')+'\n'});
         await page.getByTestId('explanation-line').first().waitFor();
         await page.waitForFunction(()=>window.demoCalculator.expressionAnalysis.desmo_6?.evaluation?.value===143);
-        graphPoint=await page.evaluate(()=>{const host=document.querySelector('#calculator-panel [class*="graph"]');return host?{x:host.getBoundingClientRect().right-100,y:host.getBoundingClientRect().top+220}:null;});
+        if(width>=700){
+          const button = await page.getByRole('button',{name:'Expressions',exact:true}).boundingBox();
+          expressionPoint = {x:button.x+button.width/2,y:button.y+button.height/2};
+        }
+        graphPoint={x:width-110,y:height*.45};
       }
-      if(index===148 && width<700)await page.getByRole('tab',{name:'Calculator',exact:true}).click();
-      if(index>=152 && index<176)await page.evaluate(step=>{const panel=document.querySelector('#calculator-panel .dcg-exppanel');if(panel)panel.scrollTop+=step;},width<700?20:7);
-      const park=width<700?{x:360,y:585}:{x:832,y:674};
-      await page.evaluate(({t,source,drop,solvePoint,park,graphPoint,tabPoint,mobile,width,height})=>{
+      if(index===148 && width<700){
+        await page.getByRole('tab',{name:'Calculator',exact:true}).click();
+        const button = await page.getByRole('button',{name:'Expressions',exact:true}).boundingBox();
+        expressionPoint = {x:button.x+button.width/2,y:button.y+button.height/2};
+      }
+      if(index===(width<700?162:136))await page.getByRole('button',{name:'Expressions',exact:true}).click();
+      if(index>=176 && index<200)await page.evaluate(step=>{const panel=document.querySelector('#calculator-panel .dcg-exppanel');if(panel)panel.scrollTop+=step;},width<700?24:9);
+      const park=width<700?{x:350,y:670}:{x:815,y:640};
+      await page.evaluate(({t,source,drop,solvePoint,park,graphPoint,tabPoint,expressionPoint,mobile,width,height})=>{
         const ease=p=>{p=Math.max(0,Math.min(1,p));return p*p*p*(p*(6*p-15)+10)};
         const blend=(a,b,k)=>a+(b-a)*k;
         const initialScale=mobile?1.08:1.85;
         const pullback=ease((t-1.05)/.95), pushin=ease((t-7.35)/1.35);
-        const scale=t<2?blend(initialScale,1,pullback):blend(1,mobile?1.16:1.4,pushin);
+        const scale=t<2?blend(initialScale,1,pullback):blend(1,mobile?1.06:1.4,pushin);
         const inputX=width/2-source.x*initialScale, inputY=height/2-source.y*initialScale;
-        const focus=mobile?{x:width/2+25,y:440}:{x:850,y:440};
-        const targetScale=mobile?1.16:1.4;
+        const focus=mobile?{x:width/2,y:420}:{x:850,y:405};
+        const targetScale=mobile?1.06:1.4;
         const tx=t<2?blend(inputX,0,pullback):(width/2-focus.x*targetScale)*pushin;
         const ty=t<2?blend(inputY,0,pullback):(height/2-focus.y*targetScale)*pushin;
         document.querySelector('#demo-camera-stage').style.transform=`translate3d(${tx}px,${ty}px,0) scale(${scale})`;
         const start={x:source.x+80,y:source.y+70};
         const rest=mobile?{x:350,y:650}:{x:1100,y:620};
         const scrollPoint=mobile?{x:260,y:560}:{x:715,y:450};
-        const poses=[[0,start],[.5,start],[1.2,source],[1.95,source],[2.85,drop],[3,drop],[3.25,solvePoint],[3.45,solvePoint],[4.6,rest],[5.8,rest],[6.12,mobile?tabPoint:scrollPoint],[6.35,scrollPoint],[7.35,scrollPoint],[8.15,mobile?park:graphPoint||park],[8.95,park],[11,park]];
+        const poses=[[0,start],[.5,start],[1.2,source],[1.95,source],[2.85,drop],[3,drop],[3.25,solvePoint],[3.45,solvePoint],[4.6,rest],[5.1,rest],[5.65,mobile?rest:expressionPoint||rest],[5.85,mobile?rest:expressionPoint||rest],[6.12,mobile?tabPoint:scrollPoint],[6.3,mobile?tabPoint:scrollPoint],[6.72,mobile?expressionPoint||tabPoint:scrollPoint],[6.85,mobile?expressionPoint||tabPoint:scrollPoint],[7.35,scrollPoint],[8.35,scrollPoint],[8.7,mobile?park:graphPoint||park],[9.2,park],[11,park]];
         let i=0;while(i<poses.length-2&&t>poses[i+1][0])i++;
         const [a,p]=poses[i],[b,q]=poses[i+1],k=ease((t-a)/(b-a));const x=p.x+(q.x-p.x)*k,y=p.y+(q.y-p.y)*k;
         // A small bowed path and a quiet press feel like a deliberate mouse
         // movement. The cursor stays one size while the camera moves beneath it.
         const length=Math.hypot(q.x-p.x,q.y-p.y), bow=Math.min(18,length*.075)*Math.sin(Math.PI*k);
         const px=x+(length?(q.y-p.y)/length*bow:0),py=y-(length?(q.x-p.x)/length*bow:0);
-        const pressed=t>=3.3&&t<3.42?.9:1;
+        const pressed=(t>=3.3&&t<3.42)||(mobile?(t>=6.14&&t<6.25)||(t>=6.73&&t<6.86):(t>=5.64&&t<5.78))?.9:1;
         document.querySelector('#demo-cursor').style.transform=`translate(${tx+px*scale}px,${ty+py*scale}px) scale(${pressed})`;
         const card=document.querySelector('#demo-drag-card');if(t>=1.95&&t<2.9){card.style.left=px+'px';card.style.top=py+'px';card.style.transform='translate(-50%,-50%) rotate(-.7deg)';card.style.boxShadow='0 12px 28px #17323d20';}
         card.style.opacity=t<2.85?'1':String(1-ease((t-2.85)/.16));
-      },{t,source,drop,solvePoint,park,graphPoint,tabPoint,mobile:width<700,width,height});
+      },{t,source,drop,solvePoint,park,graphPoint,tabPoint,expressionPoint,mobile:width<700,width,height});
       const image=await page.screenshot({type:'png',caret:'initial'});
       // The available recorder FFmpeg accepts MJPEG input. Start from a
       // lossless screenshot and use 4:4:4/Q100 input to avoid smearing text.
@@ -121,8 +145,8 @@ try {
       if([0,36,64,88,96,125,230,263].includes(index))await sharp(image).png().toFile(`${staging}/${variant}-${index}.png`);
       // A complete workspace makes the clearest desktop still; on phones the
       // final graph/result is more readable than the preceding explanation tab.
-      if(index===(variant==='desktop'?125:230))await sharp(image).webp({lossless:true}).toFile(`${staging}/auto-solve-${variant}.webp`);
-      if(index===230){const result=await page.evaluate(()=>({rows:window.demoCalculator.getExpressions().map(({id,latex})=>({id,latex})),answer:window.demoCalculator.expressionAnalysis.desmo_6.evaluation.value}));assert.equal(result.answer,143);assert.equal(result.rows.filter(row=>row.latex).length,6);evidence.push({variant,width:width*3,height:height*3,fps,camera:'problem close-up → full workspace → result close-up',dragFrom:'left',ending:'hold then direct loop',requests,liveModelCalls:0,result,errors});}
+      if(index===(variant==='desktop'?164:230))await sharp(image).webp({lossless:true}).toFile(`${staging}/auto-solve-${variant}.webp`);
+      if(index===230){const result=await page.evaluate(()=>({rows:window.demoCalculator.getExpressions().map(({id,latex})=>({id,latex})),answer:window.demoCalculator.expressionAnalysis.desmo_6.evaluation.value}));assert.equal(result.answer,143);assert.equal(result.rows.filter(row=>row.latex).length,6);evidence.push({variant,width:width*3,height:height*3,fps,appearance,camera:'problem close-up → full workspace → result close-up',dragFrom:'left',ending:'hold then direct loop',requests,liveModelCalls:0,result,errors});}
     }
     encoder.stdin.end();const [code]=await finished;if(code!==0)throw Error(log);
     assert.deepEqual(errors,[]);assert.equal(requests,1);
