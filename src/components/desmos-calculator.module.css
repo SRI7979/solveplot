@@ -64,7 +64,8 @@
 .graphControls {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 8px;
+  flex-shrink: 0;
   margin-left: auto;
 }
 .graphIconButton {
@@ -231,8 +232,9 @@
 
 .graphHeader {
   border: 0;
-  height: 44px;
-  padding: 0 0 12px;
+  height: auto;
+  min-height: 56px;
+  padding: 6px 0 12px;
 }
 .graphHeader h2 {
   margin: 0;
@@ -252,6 +254,8 @@
   background: transparent;
   font: 750 12px var(--font-sans);
   cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .expressionToggle:hover,
 .expressionToggle[aria-pressed="true"] {

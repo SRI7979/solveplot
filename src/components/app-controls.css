@@ -70,6 +70,10 @@
     font-size: 12px;
     line-height: 1.3;
   }
+  .copyButton {
+    min-inline-size: 88px;
+    white-space: nowrap;
+  }
   /* Keep action labels clear of the face's edge, including compact resets. */
   :is(button, a, summary):is(
     .primaryButton,

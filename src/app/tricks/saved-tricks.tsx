@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import MathExpression from "@/components/math-expression";
 import {
   Copy,
@@ -36,6 +36,13 @@ export default function SavedTricks({
   const [tricks, setTricks] = useState(initial);
   const [copied, setCopied] = useState<string | null>(null);
   const [copyError, setCopyError] = useState(false);
+  const copyTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(
+    () => () => {
+      if (copyTimeout.current) clearTimeout(copyTimeout.current);
+    },
+    [],
+  );
   const [removing, setRemoving] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
@@ -135,9 +142,12 @@ export default function SavedTricks({
             </div>
             <details className={styles.details}>
               <summary className="disclosureControl">
-                <Calculator size={15} /> Review trick
-                {trick.expressions.length > 0 &&
-                  ` · ${trick.expressions.length} ${trick.expressions.length === 1 ? "line" : "lines"}`}
+                <Calculator size={15} />
+                <span className={styles.detailsLabel}>
+                  Review trick
+                  {trick.expressions.length > 0 &&
+                    ` · ${trick.expressions.length} ${trick.expressions.length === 1 ? "line" : "lines"}`}
+                </span>
                 <ChevronDown size={15} />
               </summary>
               <p>
@@ -159,7 +169,15 @@ export default function SavedTricks({
                           setCopied(`${trick.id}:${index}`);
                           setCopyError(false);
                         } catch {
+                          setCopied(null);
                           setCopyError(true);
+                        } finally {
+                          if (copyTimeout.current)
+                            clearTimeout(copyTimeout.current);
+                          copyTimeout.current = setTimeout(() => {
+                            setCopied(null);
+                            setCopyError(false);
+                          }, 2500);
                         }
                       }}
                     >
