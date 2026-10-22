@@ -388,7 +388,7 @@ export function routeSolveCache(client: { from(table: string): unknown }): Solve
     createSupabaseSolveCache(client),
     (operation, error) =>
       console.warn(
-        `[desmo:cache] ${operation} failed; using this server's in-memory cache. ${error instanceof Error ? error.message : ""}`.trim(),
+        `[solveplot:cache] ${operation} failed; using this server's in-memory cache. ${error instanceof Error ? error.message : ""}`.trim(),
       ),
     processSolveCache,
   );

@@ -5,7 +5,7 @@ import path from "node:path";
 import { test } from "node:test";
 
 import { goldCase, loadGoldCases } from "../evals/benchmark/load-cases";
-import gold from "../src/content/gold-solutions/desmo_gold_solutions.json" with { type: "json" };
+import gold from "../src/content/gold-solutions/solveplot_gold_solutions.json" with { type: "json" };
 import { findUndefinedVariables, normalizeDesmosExpressions } from "../src/lib/desmos-latex";
 import { GoldSolutionError, loadGoldSolutions, type GoldSolution } from "../src/lib/gold-solutions";
 import { findRegressionDeterminacyViolations } from "../src/lib/solver-rules";
@@ -25,7 +25,7 @@ const solution: GoldSolution = {
 
 test("the gold solutions load from their own folder: the original 14, the quadratic root, and the system combination", async () => {
   const loaded = await loadGoldSolutions();
-  assert.deepEqual(loaded.files, ["desmo_gold_solutions.json"]);
+  assert.deepEqual(loaded.files, ["solveplot_gold_solutions.json"]);
   assert.equal(loaded.solutionCount, 16);
   assert.equal(loaded.skippedReviewCount, 0);
   assert.equal(loaded.solutions.length, 16);
@@ -39,7 +39,7 @@ test("the gold solutions load from their own folder: the original 14, the quadra
 });
 
 test("a gold solution with a free-form technique name fails the schema", async () => {
-  const directory = await mkdtemp(path.join(os.tmpdir(), "desmo-gold-"));
+  const directory = await mkdtemp(path.join(os.tmpdir(), "solveplot-gold-"));
   try {
     await writeFile(path.join(directory, "gold.json"), JSON.stringify([{ ...solution, techniqueId: "My clever trick" }]));
     await assert.rejects(loadGoldSolutions(directory), GoldSolutionError);
@@ -49,7 +49,7 @@ test("a gold solution with a free-form technique name fails the schema", async (
 });
 
 test("files are read in order; a draft marked needs_review stays out of the prompt and the benchmark", async () => {
-  const directory = await mkdtemp(path.join(os.tmpdir(), "desmo-gold-"));
+  const directory = await mkdtemp(path.join(os.tmpdir(), "solveplot-gold-"));
   try {
     await Promise.all([
       writeFile(path.join(directory, "b.json"), JSON.stringify([{ ...solution, id: "draft", needs_review: true }])),
@@ -68,7 +68,7 @@ test("files are read in order; a draft marked needs_review stays out of the prom
 });
 
 test("rejects duplicate ids across gold files", async () => {
-  const directory = await mkdtemp(path.join(os.tmpdir(), "desmo-gold-"));
+  const directory = await mkdtemp(path.join(os.tmpdir(), "solveplot-gold-"));
   try {
     await Promise.all([
       writeFile(path.join(directory, "one.json"), JSON.stringify([solution])),

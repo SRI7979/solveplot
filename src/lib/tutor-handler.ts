@@ -126,10 +126,10 @@ function tutorErrorFor(error: unknown): Response {
     );
   }
   if (error instanceof SpendCeilingError) {
-    return errorResponse("Desmo is at capacity today. The tutor opens again after midnight UTC. Your solutions stay available.", 503, { kind: "at_capacity" });
+    return errorResponse("SolvePlot is at capacity today. The tutor opens again after midnight UTC. Your solutions stay available.", 503, { kind: "at_capacity" });
   }
   if (error instanceof UsageUnavailableError) {
-    console.error("[desmo:ALERT] usage limits unavailable; refusing tutor model work", error.cause instanceof Error ? error.cause.message : error.cause);
+    console.error("[solveplot:ALERT] usage limits unavailable; refusing tutor model work", error.cause instanceof Error ? error.cause.message : error.cause);
     if (tutorSetupMissing(error)) return setupRequired();
     return unavailable();
   }
@@ -183,7 +183,7 @@ export function createTutorHandler(dependencies: TutorDependencies) {
     let userId: string | null = null;
     let techniqueId: string | null = null;
     try {
-      if (crossSite(request)) return errorResponse("Send requests from the Desmo website.", 403);
+      if (crossSite(request)) return errorResponse("Send requests from the SolvePlot website.", 403);
       const auth = await signedIn(dependencies.getCurrentUser);
       if (!auth.user) return auth.failure!;
       userId = auth.user.id;
@@ -289,7 +289,7 @@ export function createTricksHandler(dependencies: TricksDependencies) {
       }
     },
     async POST(request: Request) {
-      if (crossSite(request)) return errorResponse("Send requests from the Desmo website.", 403);
+      if (crossSite(request)) return errorResponse("Send requests from the SolvePlot website.", 403);
       const auth = await signedIn(dependencies.getCurrentUser);
       if (!auth.user) return auth.failure!;
       const body = saveRequestSchema.safeParse(await request.json().catch(() => null));
@@ -307,7 +307,7 @@ export function createTricksHandler(dependencies: TricksDependencies) {
       }
     },
     async DELETE(request: Request) {
-      if (crossSite(request)) return errorResponse("Send requests from the Desmo website.", 403);
+      if (crossSite(request)) return errorResponse("Send requests from the SolvePlot website.", 403);
       const auth = await signedIn(dependencies.getCurrentUser);
       if (!auth.user) return auth.failure!;
       const body = removeRequestSchema.safeParse(await request.json().catch(() => null));

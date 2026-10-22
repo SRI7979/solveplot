@@ -16,13 +16,14 @@ import {
   X,
 } from "lucide-react";
 import { NEW_PROBLEM_EVENT } from "@/lib/workspace-events";
-import DesmoLogo from "./desmo-logo";
+import SolvePlotLogo from "./solveplot-logo";
 import WorkspacePlaceholder from "./workspace-placeholder";
 import styles from "./account-nav.module.css";
+import { useWorkspaceAccount } from "./workspace-account-provider";
 
 type View = "solve" | "history" | "tricks" | "settings" | "profile";
-const STORAGE_KEY = "desmo-sidebar-collapsed";
-const CHANGE_EVENT = "desmo-sidebar-change";
+const STORAGE_KEY = "solveplot-sidebar-collapsed";
+const CHANGE_EVENT = "solveplot-sidebar-change";
 let memoryCollapsed = false;
 function subscribe(callback: () => void) {
   window.addEventListener(CHANGE_EVENT, callback);
@@ -55,7 +56,7 @@ function NavigationPending({ onSettled }: { onSettled: () => void }) {
   }, [pending, onSettled]);
   return (
     <span
-      className={styles.pending}
+      hidden
       data-pending={pending || undefined}
       aria-hidden="true"
     />
@@ -67,12 +68,21 @@ export default function AccountNav({
   avatarUrl,
   name,
   active,
+  loading = false,
 }: {
   email?: string;
   avatarUrl?: string;
   name?: string;
   active: View;
+  loading?: boolean;
 }) {
+  const { account, rememberAccount } = useWorkspaceAccount();
+  useEffect(() => {
+    if (!loading) rememberAccount({ email, name, avatarUrl });
+  }, [loading, email, name, avatarUrl, rememberAccount]);
+  const displayAccount = loading ? account : { email, name, avatarUrl };
+  const displayEmail = displayAccount?.email;
+  const displayAvatar = displayAccount?.avatarUrl;
   const collapsed = useSyncExternalStore(subscribe, snapshot, () => false);
   const [open, setOpen] = useState(false);
   const [photoFailed, setPhotoFailed] = useState(false);
@@ -84,7 +94,7 @@ export default function AccountNav({
   const router = useRouter();
   const dialog = useRef<HTMLDialogElement>(null);
   const opener = useRef<HTMLButtonElement>(null);
-  const displayName = name || email?.split("@")[0] || "Your profile";
+  const displayName = displayAccount?.name || displayEmail?.split("@")[0] || "Your profile";
   useEffect(() => {
     if (open && !dialog.current?.open) dialog.current?.showModal();
     else if (!open && dialog.current?.open) dialog.current.close();
@@ -108,7 +118,7 @@ export default function AccountNav({
     return (
       <>
         <div className={styles.brandRow}>
-          <DesmoLogo variant="workspace" />
+          <SolvePlotLogo variant="workspace" />
           {mobile ? (
             <button
               type="button"
@@ -194,10 +204,10 @@ export default function AccountNav({
           title={collapsed && !mobile ? displayName : undefined}
         >
           <span className={styles.avatar}>
-            {avatarUrl && !photoFailed ? (
+            {displayAvatar && !photoFailed ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={avatarUrl}
+                src={displayAvatar}
                 alt=""
                 referrerPolicy="no-referrer"
                 onError={() => setPhotoFailed(true)}
@@ -206,9 +216,9 @@ export default function AccountNav({
               <UserRound size={21} strokeWidth={1.6} />
             )}
           </span>
-          <span className={styles.navText}>
-            <strong>{displayName}</strong>
-            <small>{email || "Account settings"}</small>
+          <span className={`${styles.navText}${loading && !account ? ` ${styles.profileSkeleton}` : ""}`}>
+            <strong>{loading && !account ? "\u00a0" : displayName}</strong>
+            <small>{loading && !account ? "\u00a0" : displayEmail || "Account settings"}</small>
           </span>
         </Link>
       </>

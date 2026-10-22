@@ -2,7 +2,7 @@
 
 The hero uses recordings of the localhost:3000 checkout's real `SolverWorkspace`,
 upload handler, loading state, explanation and native Desmos calculator. The
-cursor drops the image and clicks Solve. Desmo inserts all six expressions
+cursor drops the image and clicks Solve. SolvePlot inserts all six expressions
 automatically. The desktop composition shows question/explanation and calculator
 together; the phone composition uses the app's existing Calculator tab.
 

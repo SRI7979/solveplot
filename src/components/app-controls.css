@@ -1,6 +1,6 @@
 /* Shared app controls. Marketing pages and Desmos's native controls are outside
    this system; every interactive app component opts into a named treatment. */
-.desmo-shell[data-palette] {
+.solveplot-shell[data-palette] {
   :is(
     .primaryButton,
     .secondaryButton,
@@ -133,6 +133,84 @@
     background: transparent;
     border-color: transparent;
     box-shadow: none;
+  }
+  /* One moving, palette-colored selection surface for multi-option switches. */
+  .segmentedControl:not(.themeControlGroup) {
+    --segment-count: 2;
+    --segment-index: 0;
+    position: relative;
+    isolation: isolate;
+    display: inline-grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    gap: 4px;
+    max-width: 100%;
+    padding: 4px;
+    border-color: color-mix(in srgb, var(--selection-border) 35%, var(--border));
+    border-radius: var(--radius-lg);
+    background: color-mix(in srgb, var(--selection-soft) 20%, var(--canvas));
+  }
+  .segmentedControl:not(.themeControlGroup):has(> :last-child:nth-child(3)) {
+    --segment-count: 3;
+  }
+  .segmentedControl:not(.themeControlGroup):has(> :last-child:nth-child(4)) {
+    --segment-count: 4;
+  }
+  .segmentedControl:not(.themeControlGroup):has(> :nth-child(2):is([aria-pressed="true"], [aria-selected="true"], [data-selected="true"])) {
+    --segment-index: 1;
+  }
+  .segmentedControl:not(.themeControlGroup):has(> :nth-child(3):is([aria-pressed="true"], [aria-selected="true"], [data-selected="true"])) {
+    --segment-index: 2;
+  }
+  .segmentedControl:not(.themeControlGroup):has(> :nth-child(4):is([aria-pressed="true"], [aria-selected="true"], [data-selected="true"])) {
+    --segment-index: 3;
+  }
+  .segmentedControl:not(.themeControlGroup)::before {
+    content: "";
+    box-sizing: border-box;
+    position: absolute;
+    z-index: 0;
+    inset: 4px auto 4px 4px;
+    width: calc((100% - 8px - 4px * (var(--segment-count) - 1)) / var(--segment-count));
+    border: 1px solid var(--selection-border);
+    border-radius: var(--radius-md);
+    background: var(--selection-soft);
+    box-shadow: 0 1px 2px color-mix(in srgb, var(--selection-accent) 10%, transparent);
+    transform: translateX(calc(var(--segment-index) * (100% + 4px)));
+    pointer-events: none;
+    transition: transform 220ms cubic-bezier(0.22, 0.8, 0.25, 1), background 160ms, border-color 160ms;
+  }
+  .segmentedControl:not(.themeControlGroup) > .choiceControl {
+    --press-ring: none;
+    z-index: 1;
+    min-width: 0;
+    min-height: 38px;
+    padding-inline: 14px;
+    border-radius: var(--radius-md);
+    white-space: nowrap;
+  }
+  .segmentedControl:not(.themeControlGroup) > .choiceControl:is(
+    :hover, [aria-pressed="true"], [aria-selected="true"], [data-selected="true"]
+  ) {
+    --press-face: transparent;
+    --press-outline: transparent;
+    --press-base: transparent;
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+    color: var(--selection-accent);
+  }
+  .segmentedControl:not(.themeControlGroup) > .choiceControl > svg {
+    transition: transform 170ms ease, color 170ms ease;
+  }
+  .segmentedControl:not(.themeControlGroup) > .choiceControl:hover > svg {
+    transform: translateY(-1px) rotate(-4deg);
+  }
+  .segmentedControl:not(.themeControlGroup) > .choiceControl:is([aria-pressed="true"], [aria-selected="true"]) > svg {
+    animation: option-icon-select 200ms ease-out;
+  }
+  .segmentedControl.workspacePanelSwitch {
+    width: 100%;
   }
   .segmentedControl.themeControlGroup {
     gap: 4px;
@@ -291,7 +369,7 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .desmo-shell[data-palette] {
+  .solveplot-shell[data-palette] {
     :is(.iconControl, .textControl, .choiceControl) > svg {
       transition: transform 160ms ease;
     }
@@ -323,7 +401,12 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .desmo-shell[data-palette]
+  .solveplot-shell[data-palette] .segmentedControl::before,
+  .solveplot-shell[data-palette] .segmentedControl > .choiceControl > svg {
+    animation: none;
+    transition: none;
+  }
+  .solveplot-shell[data-palette]
     :is(
       .iconControl,
       .choiceControl,
@@ -332,9 +415,225 @@
       .disclosureControl,
       .appField
     ),
-  .desmo-shell[data-palette]
+  .solveplot-shell[data-palette]
     :is(.iconControl, .textControl, .choiceControl)
     > svg {
     transition: none;
+  }
+}
+
+@keyframes option-icon-select {
+  from { scale: 0.88; }
+  to { scale: 1; }
+}
+
+.solveplot-shell[data-palette] {
+  summary.disclosureControl {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
+    min-height: 44px;
+    padding: 11px 14px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    list-style: none;
+    line-height: 1.5;
+    transition: background 180ms ease, border-color 180ms ease, color 180ms ease;
+  }
+  summary.disclosureControl::-webkit-details-marker {
+    display: none;
+  }
+  summary.disclosureControl::marker {
+    content: "";
+  }
+  summary.disclosureControl > svg {
+    flex: 0 0 auto;
+    margin-left: auto;
+    color: var(--selection-accent);
+    transform: rotate(-90deg);
+    transition: transform 200ms cubic-bezier(0.22, 0.8, 0.25, 1);
+  }
+  details[open] > summary.disclosureControl > svg {
+    transform: rotate(0deg);
+  }
+  summary.disclosureControl:hover,
+  details[open] > summary.disclosureControl {
+    border-color: var(--selection-border);
+    background: color-mix(in srgb, var(--selection-soft) 65%, var(--paper));
+    color: var(--selection-accent);
+  }
+  [data-motion] {
+    gap: 8px;
+  }
+  .iconControl[data-motion] {
+    width: 38px;
+    min-width: 38px;
+    height: 38px;
+    border-radius: var(--radius-md);
+  }
+  [data-motion="restore"] {
+    min-height: 38px;
+    padding: 8px 11px;
+    white-space: nowrap;
+  }
+  [data-motion="expressions"] {
+    min-height: 38px;
+    padding-inline: 12px;
+  }
+  [data-motion] > svg {
+    flex-shrink: 0;
+    transform-origin: center;
+    transition: transform 200ms cubic-bezier(0.22, 0.8, 0.25, 1), filter 180ms ease;
+  }
+  [data-motion]:is(:hover, :focus-visible):not(:disabled) {
+    --press-ring: 0 0 0 3px color-mix(in srgb, var(--selection-border) 28%, transparent);
+    color: var(--selection-accent);
+  }
+  .textControl[data-motion]:is(:hover, :focus-visible):not(:disabled) {
+    box-shadow: var(--press-ring);
+    background: var(--selection-soft);
+  }
+  [data-motion]:hover:not(:disabled) > svg {
+    filter: drop-shadow(0 1px 3px color-mix(in srgb, var(--selection-accent) 22%, transparent));
+  }
+  :is([data-motion="restore"], [data-motion="reset"]):hover:not(:disabled) > svg {
+    transform: rotate(-38deg);
+  }
+  :is([data-motion="restore"], [data-motion="reset"]):active:not(:disabled) > svg {
+    transform: rotate(-100deg);
+  }
+  [data-motion="fullscreen"]:hover:not(:disabled) > svg {
+    transform: scale(1.16);
+  }
+  [data-motion="expressions"]:hover:not(:disabled) > svg {
+    transform: translateX(2px);
+  }
+  [data-motion="copy"]:hover:not(:disabled) > svg {
+    transform: translate(1px, -1px);
+  }
+  [data-motion="tutor"]:hover:not(:disabled) > svg {
+    transform: rotate(-6deg) scale(1.08);
+  }
+  [data-copied="true"] {
+    --press-face: var(--soft);
+    --press-outline: var(--accent-border);
+    color: var(--brand);
+  }
+  [data-copied="true"] > svg {
+    animation: option-icon-select 200ms ease-out;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .solveplot-shell[data-palette] [data-motion] > svg {
+    transform: none !important;
+    animation: none;
+    transition: none;
+  }
+}
+
+/* The glow lives on the moving face; the tactile base and hit area stay fixed. */
+.solveplot-shell[data-palette] {
+  --ui-control-glow: var(--selection-accent);
+  :is(
+    .primaryButton,
+    .secondaryButton,
+    .outlinedControl,
+    .copyButton,
+    .pointButton,
+    .iconControl,
+    .choiceControl,
+    .wsNewProblem,
+    .appearanceAmountChoice,
+    .appearancePaletteChoice,
+    .textControl,
+    .menuChoice,
+    .disclosureControl
+  ):is(:hover, :focus-visible):not(:disabled):not([aria-disabled="true"]) {
+    --press-ring:
+      0 0 0 2px color-mix(in srgb, var(--ui-control-glow) 10%, transparent),
+      0 0 20px color-mix(in srgb, var(--ui-control-glow) 17%, transparent);
+  }
+  :is(
+    .primaryButton,
+    .secondaryButton,
+    .outlinedControl,
+    .copyButton,
+    .pointButton,
+    .iconControl,
+    .choiceControl,
+    .wsNewProblem,
+    .appearanceAmountChoice,
+    .appearancePaletteChoice
+  )::after {
+    transition-property: transform, background, border-color, box-shadow;
+  }
+  :is(.textControl, .menuChoice, .disclosureControl) {
+    transition: color 180ms, background 180ms, border-color 180ms, box-shadow 180ms;
+  }
+  :is(.textControl, .menuChoice, .disclosureControl):is(:hover, :focus-visible):not(:disabled):not([aria-disabled="true"]) {
+    box-shadow: var(--press-ring);
+  }
+  .dangerControl { --ui-control-glow: var(--danger); }
+}
+/* Light surfaces need a clearer outer ring for the same glow to read. */
+html[data-theme="light"] .solveplot-shell[data-palette][data-color-mode="light"] {
+  :is(
+    .primaryButton,
+    .secondaryButton,
+    .outlinedControl,
+    .copyButton,
+    .pointButton,
+    .iconControl,
+    .choiceControl,
+    .wsNewProblem,
+    .appearanceAmountChoice,
+    .appearancePaletteChoice,
+    .textControl,
+    .menuChoice,
+    .disclosureControl
+  ):is(:hover, :focus-visible):not(:disabled):not([aria-disabled="true"]) {
+    --press-ring:
+      0 0 0 2px color-mix(in srgb, var(--ui-control-glow) 26%, transparent),
+      0 0 0 5px color-mix(in srgb, var(--ui-control-glow) 9%, transparent),
+      0 8px 24px color-mix(in srgb, var(--ui-control-glow) 25%, transparent);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .solveplot-shell[data-palette] :is(
+    .primaryButton, .secondaryButton, .outlinedControl, .copyButton,
+    .pointButton, .choiceControl, .appearanceAmountChoice, .appearancePaletteChoice
+  ) > svg {
+    transition: transform 180ms cubic-bezier(.2,.8,.2,1), scale 180ms, filter 180ms;
+  }
+  .solveplot-shell[data-palette] :is(
+    .primaryButton, .secondaryButton, .outlinedControl, .copyButton,
+    .pointButton, .choiceControl, .appearanceAmountChoice, .appearancePaletteChoice
+  ):hover:not(:disabled):not([aria-disabled="true"]) > svg {
+    scale: 1.06;
+    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--ui-control-glow) 24%, transparent));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .solveplot-shell[data-palette] :is(
+    .primaryButton, .secondaryButton, .outlinedControl, .copyButton,
+    .pointButton, .iconControl, .choiceControl, .wsNewProblem,
+    .appearanceAmountChoice, .appearancePaletteChoice, .textControl,
+    .menuChoice, .disclosureControl
+  ),
+  .solveplot-shell[data-palette] :is(
+    .primaryButton, .secondaryButton, .outlinedControl, .copyButton,
+    .pointButton, .iconControl, .choiceControl, .wsNewProblem,
+    .appearanceAmountChoice, .appearancePaletteChoice
+  )::after,
+  .solveplot-shell[data-palette] :is(
+    .primaryButton, .secondaryButton, .outlinedControl, .copyButton,
+    .pointButton, .iconControl, .choiceControl, .textControl
+  ) > svg {
+    animation: none;
+    transition: none;
+    scale: 1;
   }
 }

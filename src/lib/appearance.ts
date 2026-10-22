@@ -4,7 +4,7 @@ export { PALETTES } from "./workspace-palettes";
 export type AppearancePreferences = {
   palette: string;
   colorAmount: "soft" | "colorful";
-  text: "Modern" | "Editorial" | "Technical";
+  text: "Modern" | "Geist" | "Editorial" | "Technical";
   button: "Solid" | "Outline" | "Raised";
   corners: "Crisp" | "Soft" | "Round";
 };
@@ -15,7 +15,7 @@ export const DEFAULT_APPEARANCE: AppearancePreferences = {
   button: "Raised",
   corners: "Round",
 };
-export const APPEARANCE_STORAGE_KEY = "desmo-appearance";
+export const APPEARANCE_STORAGE_KEY = "solveplot-appearance";
 const LEGACY_PALETTES = [
   "botanical",
   "espresso",
@@ -40,7 +40,7 @@ export function parseAppearance(value: string | null): AppearancePreferences {
         ? palette
         : DEFAULT_APPEARANCE.palette,
       colorAmount: input.colorAmount === "soft" ? "soft" : "colorful",
-      text: ["Modern", "Editorial", "Technical"].includes(input.text)
+      text: ["Modern", "Geist", "Editorial", "Technical"].includes(input.text)
         ? input.text
         : DEFAULT_APPEARANCE.text,
       button: ["Solid", "Outline", "Raised"].includes(input.button)
@@ -151,8 +151,8 @@ export function appearanceTokens(
     input: border,
     ring: p["--secondary"],
     radius,
-    "radius-sm": `calc(${radius} - 6px)`,
-    "radius-md": `calc(${radius} - 4px)`,
+    "radius-sm": `max(2px, calc(${radius} - 6px))`,
+    "radius-md": `max(3px, calc(${radius} - 4px))`,
     "radius-lg": radius,
     "radius-xl": `calc(${radius} + 4px)`,
     "radius-2xl": `calc(${radius} + 8px)`,
@@ -179,10 +179,12 @@ export function appearanceTokens(
     "shadow-float": dark ? "0 18px 48px #0008" : "0 12px 32px #18232e14",
     "font-sans":
       preferences.text === "Editorial"
-        ? 'Georgia, "Times New Roman", serif'
+        ? "var(--font-stix), Georgia, serif"
         : preferences.text === "Technical"
           ? "var(--font-geist-mono), ui-monospace, monospace"
-          : "var(--font-nunito), ui-sans-serif, system-ui, sans-serif",
+          : preferences.text === "Geist"
+            ? "var(--font-geist), ui-sans-serif, system-ui, sans-serif"
+            : "var(--font-nunito), ui-sans-serif, system-ui, sans-serif",
     "font-mono": "var(--font-geist-mono), ui-monospace, monospace",
   };
 }

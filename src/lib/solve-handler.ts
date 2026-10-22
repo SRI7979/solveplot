@@ -108,7 +108,7 @@ function meterFor(dependencies: MethodDependencies, userId: string, solveId: str
     limits: (dependencies.limits ?? limitsFromEnv)(),
     onRecordError: (error) => telemetry.error(error, { userId, solveId, stage: "usage_record" }),
     onCeiling: (error) => {
-      console.error(`[desmo:ALERT] ceiling_hit: ${error.message} New solves are refused until midnight UTC. Raise DAILY_SPEND_CEILING_USD to reopen.`);
+      console.error(`[solveplot:ALERT] ceiling_hit: ${error.message} New solves are refused until midnight UTC. Raise DAILY_SPEND_CEILING_USD to reopen.`);
       telemetry.event("ceiling_hit", { userId, solveId, spentUsd: error.spentUsd, ceilingUsd: error.ceilingUsd });
     },
     onCap: (error) => telemetry.event("cap_hit", { userId, solveId, limit: error.limit, resetsAt: error.resetsAt }),
@@ -311,13 +311,13 @@ function errorFor(error: unknown, diagnosticId: string, inputKind: "image" | "te
     return Response.json(
       {
         kind: "at_capacity",
-        error: "Desmo is at capacity today. New solves open again after midnight UTC. Your history and the problems you've already solved stay available.",
+        error: "SolvePlot is at capacity today. New solves open again after midnight UTC. Your history and the problems you've already solved stay available.",
       },
       { status: 503, headers: { "Cache-Control": "no-store" } },
     );
   }
   if (error instanceof UsageUnavailableError) {
-    console.error("[desmo:ALERT] usage limits unavailable; refusing new model work", error.cause instanceof Error ? error.cause.message : error.cause);
+    console.error("[solveplot:ALERT] usage limits unavailable; refusing new model work", error.cause instanceof Error ? error.cause.message : error.cause);
     return Response.json(
       { kind: "unavailable", error: "The solver is temporarily unavailable. Please try again shortly." },
       { status: 503, headers: { "Cache-Control": "no-store" } },
@@ -493,7 +493,7 @@ export function createSolveHandler(dependencies: SolveDependencies) {
       telemetry.event("solve_failed", context({ stage, reason: failureKind(error), durationMs: Math.round(performance.now() - startedAt) }));
     };
     try {
-      if (crossSite(request)) return errorResponse("Send uploads from the Desmo website.", 403);
+      if (crossSite(request)) return errorResponse("Send uploads from the SolvePlot website.", 403);
       let user: { id: string } | null;
       try {
         user = await step(route, "auth", () => dependencies.getCurrentUser());
@@ -690,7 +690,7 @@ export function createMethodHandler(dependencies: MethodDependencies) {
     const diagnosticId = randomUUID();
     const telemetry = telemetryFor(dependencies);
     try {
-      if (crossSite(request)) return errorResponse("Send requests from the Desmo website.", 403);
+      if (crossSite(request)) return errorResponse("Send requests from the SolvePlot website.", 403);
       let user: { id: string } | null;
       try {
         user = await dependencies.getCurrentUser();
@@ -792,7 +792,7 @@ export function createPreflightHandler(dependencies: MethodDependencies) {
     const diagnosticId = randomUUID();
     const telemetry = telemetryFor(dependencies);
     try {
-      if (crossSite(request)) return errorResponse("Send requests from the Desmo website.", 403);
+      if (crossSite(request)) return errorResponse("Send requests from the SolvePlot website.", 403);
       let user: { id: string } | null;
       try {
         user = await dependencies.getCurrentUser();

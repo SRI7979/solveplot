@@ -228,8 +228,22 @@
   border-radius: 22px;
   background: var(--raised);
   transition:
-    border-color 0.18s,
-    background 0.18s;
+    border-color 200ms ease,
+    background 200ms ease,
+    box-shadow 240ms ease;
+}
+.uploadZone:not(.uploadDisabled):is(:hover, :focus-within, .dragging) {
+  border-color: var(--selection-accent);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--selection-accent) 8%, transparent),
+    0 0 28px color-mix(in srgb, var(--selection-accent) 16%, transparent),
+    inset 0 0 24px color-mix(in srgb, var(--selection-accent) 4%, transparent);
+}
+.uploadZone:not(.uploadDisabled):is(:hover, :focus-within, .dragging) .uploadIcon {
+  transform: translateY(-3px);
+  border-color: var(--selection-border);
+  background: var(--selection-soft);
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--selection-accent) 12%, transparent);
 }
 .uploadZone:focus-visible {
   outline: 3px solid var(--secondary-accent);
@@ -265,6 +279,16 @@
   background: var(--paper);
   color: var(--secondary-accent);
   margin-bottom: 4px;
+  transition:
+    transform 220ms cubic-bezier(0.22, 0.8, 0.25, 1),
+    background 200ms ease,
+    border-color 200ms ease,
+    box-shadow 220ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .uploadZone:not(.uploadDisabled):is(:hover, :focus-within, .dragging) .uploadIcon {
+    transform: none;
+  }
 }
 .hasImage {
   padding: 18px;

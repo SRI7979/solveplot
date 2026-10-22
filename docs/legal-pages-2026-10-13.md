@@ -25,7 +25,7 @@ outside the app. A legal/privacy review can determine additional requirements
 for the jurisdictions in which the service operates. This is not a claim that
 these pages by themselves establish legal compliance or Google approval.
 
-The user supplied `desmomathsupport@gmail.com` as the public support email.
+The user supplied `support@solveplot.com` as the public support email.
 `BRAND.contact` in `src/lib/brand.ts` provides the address and mailto link for
 both policy pages and the footer's Contact support link.
 
@@ -44,17 +44,17 @@ errors. Both pages also return HTTP 200 and complete policy text with JavaScript
 disabled and no signed-in session. Lint, TypeScript, and the production build
 passed. No AI requests were made.
 
-Local screenshots: `/tmp/desmo-privacy-{1242,390}.png` and
-`/tmp/desmo-terms-{1242,390}.png`.
+Local screenshots: `/tmp/solveplot-privacy-{1242,390}.png` and
+`/tmp/solveplot-terms-{1242,390}.png`.
 
 Deployed at the user's request on October 13, 2026:
 
-- Website: `https://desmomath.com`
+- Website: `https://solveplot.com`
 - Source commit: `33ff5a2125d445b76122f5a0404aaaabfbe26535`
 - Deployment: `dpl_5HDnDEyLPCkL4Uapa5sq5ctUEdf4`, production, Ready
-- Inspector: `https://vercel.com/sri7979/desmo/5HDnDEyLPCkL4Uapa5sq5ctUEdf4`
+- Inspector: `https://vercel.com/sri7979/solveplot/5HDnDEyLPCkL4Uapa5sq5ctUEdf4`
 
-Both `https://desmomath.com/privacy` and `https://desmomath.com/terms` are now
+Both `https://solveplot.com/privacy` and `https://solveplot.com/terms` are now
 publicly readable without a session or JavaScript, with the approved support
 email and working footer links. Production checks at both viewports above
 passed with no horizontal overflow or browser errors. All 395 tests, lint,

@@ -9,7 +9,7 @@ import styles from "@/components/library-ui.module.css";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
-  title: "Saved problem | Desmo",
+  title: "Saved problem | SolvePlot",
   robots: { index: false, follow: false },
 };
 

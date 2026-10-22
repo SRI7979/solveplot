@@ -14,7 +14,7 @@ import type { AnswerState } from "./solver-schema";
  * promotion rule. desmos-engine.ts runs it against a real calculator.
  */
 
-export const ROW_ID_PREFIX = "desmo_";
+export const ROW_ID_PREFIX = "solveplot_";
 const EXPRESSION_COLORS = ["#169ed5", "#8a5ce6", "#e78a29", "#229b6b"];
 
 type SliderBounds = { min: number; max: number; step: number };

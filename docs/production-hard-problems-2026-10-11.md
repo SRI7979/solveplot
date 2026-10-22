@@ -1,7 +1,7 @@
-# Desmo production hard-problem audit — October 11, 2026
+# SolvePlot production hard-problem audit — October 11, 2026
 
 Tested 12 actual questions from Bedrock Prep's **Hard** section through the
-image-upload solver at https://desmomath.com. This is a targeted sample of
+image-upload solver at https://solveplot.com. This is a targeted sample of
 the Bedrock 125, not an exhaustive assessment of its Hard or Expert questions.
 Expected answers were calculated independently: this account could read the
 questions, but Bedrock's explanations required Pro.
@@ -36,7 +36,7 @@ calls were requested by this audit.
 
 ## Cost
 
-Desmo's `model_usage` ledger recorded **$0.314800** for the run, using
+SolvePlot's `model_usage` ledger recorded **$0.314800** for the run, using
 `gpt-5-mini-2025-08-07`: 586,688 input tokens (550,528 cached) and 76,042 output
 tokens. All 28 calls completed. These are the app's recorded costs, rather
 than an independently reconciled OpenAI invoice. Account credit balance was
@@ -74,10 +74,10 @@ correct paper alternative.
 
 ## Domain findings
 
-- `https://desmomath.com` served the deployment successfully.
-- `https://www.desmomath.com` had a TLS certificate hostname mismatch.
-- Google OAuth from `desmomath.com` still requested a callback at
-  `https://desmo-one.vercel.app/auth/callback`. Consequently the user signed in
+- `https://solveplot.com` served the deployment successfully.
+- `https://www.solveplot.com` had a TLS certificate hostname mismatch.
+- Google OAuth from `solveplot.com` still requested a callback at
+  `https://solveplot.com/auth/callback`. Consequently the user signed in
   on the old domain. For solver testing, the same authenticated Supabase
   session was copied to the custom domain inside the controlled test browser.
   This did not verify the custom domain's complete Google sign-in round trip.
@@ -87,7 +87,7 @@ audit directory; they are not included in repository commits.
 
 ## Production repairs and live retest
 
-Deployed to https://desmomath.com on October 11, 2026. Vercel deployment
+Deployed to https://solveplot.com on October 11, 2026. Vercel deployment
 `dpl_CqeMXjiHEHs797vzc8rh9nUeqvHo` completed successfully. The local production
 build, type checking, ESLint, and all **394 offline tests** passed.
 
@@ -127,17 +127,17 @@ points were independently checked against both equations.
 ### Authentication and domains
 
 - Vercel's production `NEXT_PUBLIC_SITE_URL` and Supabase's saved Site URL now
-  use `https://desmomath.com`. Supabase allows `https://desmomath.com/**` while
+  use `https://solveplot.com`. Supabase allows `https://solveplot.com/**` while
   preserving the existing localhost and Vercel redirects.
-- `www.desmomath.com` now has valid TLS and returns a permanent redirect to
-  the apex domain. The old `desmo-one.vercel.app` and
-  `desmo-sri7979.vercel.app` production addresses also redirect there, avoiding
+- `www.solveplot.com` now has valid TLS and returns a permanent redirect to
+  the apex domain. The old `solveplot.com` and
+  `solveplot-sri7979.vercel.app` production addresses also redirect there, avoiding
   a cross-domain PKCE verifier problem when sign-in starts on an old address.
 - A fresh Google OAuth flow was tested in an isolated browser context without
-  an existing Desmo session. It requested the custom-domain callback, reached
-  that callback with a new code, ended at `https://desmomath.com/solve`, and
+  an existing SolvePlot session. It requested the custom-domain callback, reached
+  that callback with a new code, ended at `https://solveplot.com/solve`, and
   produced a new session verified through Supabase's `getUser`. No copying of
-  an existing Desmo session was used for this sign-in verification.
+  an existing SolvePlot session was used for this sign-in verification.
 
 ### Retest cost and timing
 

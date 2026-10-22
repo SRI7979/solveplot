@@ -1,41 +1,41 @@
 /* Hero-only composition. The workspace and remaining landing sections keep their existing UI. */
-.desmo-landing .auto-solve-hero {
+.solveplot-landing .auto-solve-hero {
   height: auto;
   min-height: 0;
   max-height: none;
   padding-bottom: 72px;
   background: #fff;
 }
-.desmo-landing .auto-solve-hero .horizon-art {
+.solveplot-landing .auto-solve-hero .horizon-art {
   height: 770px !important;
   object-fit: cover;
   object-position: center bottom;
   animation: none;
 }
-.desmo-landing .auto-solve-hero::after {
+.solveplot-landing .auto-solve-hero::after {
   background: linear-gradient(180deg, #071a3830 0%, transparent 44%);
 }
-.desmo-landing .auto-solve-hero .landing-nav { padding: 22px 40px; }
-.desmo-landing .auto-solve-hero .landing-hero {
+.solveplot-landing .auto-solve-hero .landing-nav { padding: 22px 40px; }
+.solveplot-landing .auto-solve-hero .landing-hero {
   max-width: 840px;
   margin: 28px auto 0;
   padding: 0 24px;
 }
-.desmo-landing .auto-solve-hero .landing-hero h1 {
+.solveplot-landing .auto-solve-hero .landing-hero h1 {
   font-size: clamp(48px, 5.3vw, 74px);
   line-height: 1.05;
   letter-spacing: -.035em;
   margin: 0 0 20px;
 }
-.desmo-landing .auto-solve-hero .landing-hero p {
+.solveplot-landing .auto-solve-hero .landing-hero p {
   max-width: 530px;
   font-size: 15px;
   line-height: 1.65;
   color: #e1ebf6;
 }
-.desmo-landing .auto-solve-hero .hero-actions { margin-top: 24px; }
-.desmo-landing .auto-solve-hero .hero-footnote { margin-top: 14px; color: #d1e0ee; }
-.desmo-landing .auto-solve-hero .landing-cta {
+.solveplot-landing .auto-solve-hero .hero-actions { margin-top: 24px; }
+.solveplot-landing .auto-solve-hero .hero-footnote { margin-top: 14px; color: #d1e0ee; }
+.solveplot-landing .auto-solve-hero .landing-cta {
   min-height: 46px;
   border-radius: 12px;
   padding: 12px 23px;
@@ -44,7 +44,7 @@
   box-shadow: 0 2px 0 #aac5ce;
   color: #1e4757;
 }
-.desmo-landing .auto-solve-film {
+.solveplot-landing .auto-solve-film {
   position: relative;
   width: min(1020px, calc(100% - 96px));
   margin: 50px auto 0;
@@ -60,32 +60,32 @@
 .auto-solve-media video { position: relative; }
 .auto-solve-description { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 @media (min-width: 1600px) {
-  .desmo-landing .auto-solve-hero .horizon-art { height: 850px !important; }
-  .desmo-landing .auto-solve-hero .landing-hero { margin-top: 42px; }
-  .desmo-landing .auto-solve-film { width: min(1120px, calc(100% - 160px)); margin-top: 58px; }
+  .solveplot-landing .auto-solve-hero .horizon-art { height: 850px !important; }
+  .solveplot-landing .auto-solve-hero .landing-hero { margin-top: 42px; }
+  .solveplot-landing .auto-solve-film { width: min(1120px, calc(100% - 160px)); margin-top: 58px; }
 }
 @media (max-width: 900px) and (min-width: 601px) {
-  .desmo-landing .auto-solve-hero .landing-nav { padding: 20px 28px; }
-  .desmo-landing .auto-solve-hero .landing-nav nav { gap: 20px; }
-  .desmo-landing .auto-solve-hero .landing-nav nav a { font-size: 12px; }
-  .desmo-landing .auto-solve-hero .landing-hero { margin-top: 32px; }
-  .desmo-landing .auto-solve-film { width: calc(100% - 48px); margin-top: 44px; border-radius: 20px; }
-  .desmo-landing .auto-solve-hero .horizon-art { height: 690px !important; object-position: 61% bottom; }
+  .solveplot-landing .auto-solve-hero .landing-nav { padding: 20px 28px; }
+  .solveplot-landing .auto-solve-hero .landing-nav nav { gap: 20px; }
+  .solveplot-landing .auto-solve-hero .landing-nav nav a { font-size: 12px; }
+  .solveplot-landing .auto-solve-hero .landing-hero { margin-top: 32px; }
+  .solveplot-landing .auto-solve-film { width: calc(100% - 48px); margin-top: 44px; border-radius: 20px; }
+  .solveplot-landing .auto-solve-hero .horizon-art { height: 690px !important; object-position: 61% bottom; }
 }
 @media (max-width: 600px) {
-  .desmo-landing .auto-solve-hero { padding-bottom: 40px; }
-  .desmo-landing .auto-solve-hero .landing-nav { padding: 18px 20px; flex-wrap: nowrap; gap: 16px; }
-  .desmo-landing .auto-solve-hero .landing-nav nav { display: none; }
-  .desmo-landing .auto-solve-hero .landing-hero { margin-top: 24px; padding: 0 24px; }
-  .desmo-landing .auto-solve-hero .landing-hero h1 { font-size: clamp(42px, 11.1vw, 58px); margin-bottom: 18px; }
-  .desmo-landing .auto-solve-hero .landing-hero p { font-size: 14px; max-width: 340px; }
-  .desmo-landing .auto-solve-hero .hero-actions { margin-top: 22px; }
-  .desmo-landing .auto-solve-hero .hero-footnote { font-size: 10px; }
-  .desmo-landing .auto-solve-hero .horizon-art { height: 620px !important; object-position: 66% bottom; }
-  .desmo-landing .auto-solve-film { width: calc(100% - 32px); margin-top: 54px; border-radius: 21px; box-shadow: 0 16px 38px #061b3430; }
+  .solveplot-landing .auto-solve-hero { padding-bottom: 40px; }
+  .solveplot-landing .auto-solve-hero .landing-nav { padding: 18px 20px; flex-wrap: nowrap; gap: 16px; }
+  .solveplot-landing .auto-solve-hero .landing-nav nav { display: none; }
+  .solveplot-landing .auto-solve-hero .landing-hero { margin-top: 24px; padding: 0 24px; }
+  .solveplot-landing .auto-solve-hero .landing-hero h1 { font-size: clamp(42px, 11.1vw, 58px); margin-bottom: 18px; }
+  .solveplot-landing .auto-solve-hero .landing-hero p { font-size: 14px; max-width: 340px; }
+  .solveplot-landing .auto-solve-hero .hero-actions { margin-top: 22px; }
+  .solveplot-landing .auto-solve-hero .hero-footnote { font-size: 10px; }
+  .solveplot-landing .auto-solve-hero .horizon-art { height: 620px !important; object-position: 66% bottom; }
+  .solveplot-landing .auto-solve-film { width: calc(100% - 32px); margin-top: 54px; border-radius: 21px; box-shadow: 0 16px 38px #061b3430; }
   .auto-solve-media { aspect-ratio: 420 / 780; }
 }
 @media (prefers-reduced-motion: reduce) {
   .auto-solve-media video { display: none; }
-  .desmo-landing .auto-solve-hero .landing-hero > * { animation: none; }
+  .solveplot-landing .auto-solve-hero .landing-hero > * { animation: none; }
 }

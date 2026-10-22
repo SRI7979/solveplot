@@ -85,7 +85,7 @@ window.fetch = async (input, init) => {
   return realFetch(input, init);
 };
 // The theme is chosen the way RootLayout's pre-paint script does it: from localStorage.
-const theme = localStorage.getItem("desmo-theme");
+const theme = localStorage.getItem("solveplot-theme");
 document.documentElement.dataset.theme = theme === "dark" ? "dark" : "light";
 // A realistic page: account navigation for a signed-in student, inside the theme provider.
 createRoot(document.getElementById("app")).render(<ThemeProvider><SolverWorkspace accountNav={<AccountNav email="student.name@example.com" active="solve" />} /></ThemeProvider>);
@@ -123,7 +123,7 @@ const server = http.createServer((_request, response) => {
 });
 await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
 
-const chrome = spawn(chromePath, ["--headless=new", "--remote-debugging-port=0", "--window-size=1440,1000", `--user-data-dir=${mkdtempSync(path.join(os.tmpdir(), "desmo-chrome-"))}`, "--no-first-run", "--no-default-browser-check", "about:blank"], { stdio: ["ignore", "ignore", "pipe"] });
+const chrome = spawn(chromePath, ["--headless=new", "--remote-debugging-port=0", "--window-size=1440,1000", `--user-data-dir=${mkdtempSync(path.join(os.tmpdir(), "solveplot-chrome-"))}`, "--no-first-run", "--no-default-browser-check", "about:blank"], { stdio: ["ignore", "ignore", "pipe"] });
 const wsUrl = await new Promise<string>((resolve, reject) => {
   let buffer = "";
   chrome.stderr!.on("data", (chunk) => {
@@ -320,7 +320,7 @@ async function load(theme: "light" | "dark", width: number, height: number) {
   await send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: theme }] });
   await send("Page.navigate", { url });
   for (let attempt = 0; attempt < 150 && !(await evaluate<boolean>("Boolean(window.Desmos)")); attempt++) await pause(200);
-  await evaluate(`localStorage.setItem("desmo-theme", ${JSON.stringify(theme)}); true`);
+  await evaluate(`localStorage.setItem("solveplot-theme", ${JSON.stringify(theme)}); true`);
   await evaluate(`${script}\ntrue`);
   await pause(700);
 }

@@ -4,7 +4,7 @@ import SolverWorkspace from "../solve/solver-workspace";
 import styles from "./recording.module.css";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Product recording | Desmo", robots: { index: false, follow: false } };
+export const metadata = { title: "Product recording | SolvePlot", robots: { index: false, follow: false } };
 
 /** Development-only recording surface. The browser recorder fixtures the
  * network; the upload, loading state, explanation and calculator are the app. */

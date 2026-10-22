@@ -5,9 +5,9 @@ import { createContext, useContext, useEffect, useSyncExternalStore, type ReactN
 export type ThemePreference = "light" | "dark" | "system";
 export type ResolvedTheme = "light" | "dark";
 
-const STORAGE_KEY = "desmo-theme";
+const STORAGE_KEY = "solveplot-theme";
 const MEDIA_QUERY = "(prefers-color-scheme: dark)";
-const CHANGE_EVENT = "desmo-theme-change";
+const CHANGE_EVENT = "solveplot-theme-change";
 const SERVER_SNAPSHOT = "light:light";
 let memoryPreference: ThemePreference | null = null;
 

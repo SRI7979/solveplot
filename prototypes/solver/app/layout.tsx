@@ -9,7 +9,7 @@ import AppearanceProvider from './appearance';
 import RaisedButtonFeedback from './raised-buttons';
 
 const nunito = Nunito({subsets: ['latin'], display: 'swap'});
-export const metadata: Metadata = { title: 'Desmo · Solver preview', robots: { index: false, follow: false } };
+export const metadata: Metadata = { title: 'SolvePlot · Solver preview', robots: { index: false, follow: false } };
 
 export default function Layout({children}: {children: React.ReactNode}) {
   return <html lang="en"><body className={nunito.className}><RaisedButtonFeedback /><AppearanceProvider><Workspace>{children}</Workspace></AppearanceProvider></body></html>;

@@ -96,11 +96,11 @@ export class ModelTimeoutError extends Error {
     this.name = "ModelTimeoutError";
   }
 }
-export const CANDIDATE_CACHE_KEY = "desmo-candidates-v1";
-export const EXPLANATION_CACHE_KEY = "desmo-explanation-v1";
+export const CANDIDATE_CACHE_KEY = "solveplot-candidates-v1";
+export const EXPLANATION_CACHE_KEY = "solveplot-explanation-v1";
 
-const candidateFormat = zodTextFormat(candidatesResponseSchema, "desmo_candidates");
-const explanationFormat = zodTextFormat(explanationSchema, "desmo_explanation");
+const candidateFormat = zodTextFormat(candidatesResponseSchema, "solveplot_candidates");
+const explanationFormat = zodTextFormat(explanationSchema, "solveplot_explanation");
 
 const reasoningEfforts = ["minimal", "low", "medium", "high"] as const;
 export type ReasoningEffort = (typeof reasoningEfforts)[number];
@@ -488,7 +488,7 @@ async function callModel(
     }
   } catch (error) {
     if (controller.signal.aborted && !deps.signal?.aborted) {
-      console.warn("[desmo:call-timeout]", JSON.stringify({
+      console.warn("[solveplot:call-timeout]", JSON.stringify({
         id: deps.diagnosticId,
         call,
         elapsedMs: Math.round(performance.now() - started),
@@ -510,7 +510,7 @@ async function callModel(
     // Out of credit or locked out: every later call fails too, and students
     // only see "temporarily unavailable", so the real cause is logged loudly here.
     if (classifyOpenAIError(error).kind === "quota" || (error instanceof OpenAI.APIError && (error.status === 401 || error.status === 403))) {
-      console.error(`[desmo:ALERT] OpenAI refused the ${call} call; new solves will fail until this is fixed: ${describeOpenAIError(error)}`);
+      console.error(`[solveplot:ALERT] OpenAI refused the ${call} call; new solves will fail until this is fixed: ${describeOpenAIError(error)}`);
     }
     throw error;
   } finally {
@@ -521,10 +521,10 @@ async function callModel(
   if (stage) stage.usage = usageOf(response);
   // The tier OpenAI reports actually applied is what it bills.
   await deps.meter?.record(call, { status: "completed", model: response.model || model, serviceTier: response.service_tier ?? tier, usage: response.usage });
-  if (process.env.NODE_ENV === "development" || process.env.DESMO_DIAGNOSTICS === "1") {
+  if (process.env.NODE_ENV === "development" || process.env.SOLVEPLOT_DIAGNOSTICS === "1") {
     const usage = response.usage;
     console.info(
-      "[desmo:call]",
+      "[solveplot:call]",
       JSON.stringify({
         id: deps.diagnosticId,
         format: (body.text as { format?: { name?: string } } | undefined)?.format?.name,
@@ -717,9 +717,9 @@ export async function explainMethod(
   };
 }
 
-/** DESMO_DESMOS_RESCUE=off disables the rescue (for A/B benchmarking); it is on by default. */
+/** SOLVEPLOT_DESMOS_RESCUE=off disables the rescue (for A/B benchmarking); it is on by default. */
 export function rescueEnabled(env: Record<string, string | undefined> = process.env): boolean {
-  return env.DESMO_DESMOS_RESCUE?.trim().toLowerCase() !== "off";
+  return env.SOLVEPLOT_DESMOS_RESCUE?.trim().toLowerCase() !== "off";
 }
 
 /** "strategies 61, 78 teach parameter-regression": the library tricks the question's wording points to. */
@@ -763,7 +763,7 @@ async function rescueDesmosCandidate(
   } catch (error) {
     // Out of budget, a timeout, or a provider error: the original selection stands.
     if (deps.signal?.aborted) throw error;
-    console.warn("[desmo:rescue]", JSON.stringify({ id: deps.diagnosticId, outcome: "failed", error: error instanceof Error ? error.name : String(error) }));
+    console.warn("[solveplot:rescue]", JSON.stringify({ id: deps.diagnosticId, outcome: "failed", error: error instanceof Error ? error.name : String(error) }));
     return { selection, outcome: "failed" };
   }
   try {
@@ -773,7 +773,7 @@ async function rescueDesmosCandidate(
     recordCandidateOutput(deps, "candidates", 2, retried, null);
     const merged = mergeSelections(selection, corrected);
     const outcome = merged.winnerId !== selection.winnerId ? "applied" : "kept";
-    console.info("[desmo:rescue]", JSON.stringify({ id: deps.diagnosticId, outcome, from: target.winner.techniqueId, to: merged.winnerId }));
+    console.info("[solveplot:rescue]", JSON.stringify({ id: deps.diagnosticId, outcome, from: target.winner.techniqueId, to: merged.winnerId }));
     return { selection: merged, outcome };
   } catch (error) {
     const failure = error instanceof StrategySelectionError ? new SolveValidationError(error.stage, error.message) : error;
@@ -839,7 +839,7 @@ export async function solveProblem(
         if (!(error instanceof ModelTimeoutError) || timeoutRetryUsed || deps.signal?.aborted || remaining < candidatesMs + explanationMs) throw error;
         timeoutRetryUsed = true;
         await deps.meter?.authorizeRetry();
-        console.warn("[desmo:timeout-retry]", JSON.stringify({ id: deps.diagnosticId, remainingMs: Number.isFinite(remaining) ? Math.round(remaining) : null }));
+        console.warn("[solveplot:timeout-retry]", JSON.stringify({ id: deps.diagnosticId, remainingMs: Number.isFinite(remaining) ? Math.round(remaining) : null }));
         response = await send();
       }
       try {

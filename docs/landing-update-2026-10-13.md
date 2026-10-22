@@ -15,7 +15,7 @@ hierarchy and straightforward question rows seen in these references, especially
 Cluely's explicitly titled Frequently asked questions. These are design
 inferences, not a claim to use those companies' proprietary components or fonts.
 The illustration, Geist body typography, and STIX hero remain from the existing
-Desmo/source implementation. No competitor assets or claims are copied.
+SolvePlot/source implementation. No competitor assets or claims are copied.
 
 ## Changes
 
@@ -24,7 +24,7 @@ Desmo/source implementation. No competitor assets or claims are copied.
 - Those navigation links also remain visible on mobile.
 - Replaced slogans, uppercase decorative section labels, and numbered FAQ
   labels with descriptive headings and ordinary sentences.
-- The showcase heading is “How Desmo solves a problem”, followed by the
+- The showcase heading is “How SolvePlot solves a problem”, followed by the
   philosophy of minimizing hand work and letting Desmos handle the problem.
 - Replaced the large FAQ slogan with four common questions and a link to
   `/faq`, a public page containing twelve questions grouped by topic.
@@ -49,13 +49,13 @@ Desmo/source implementation. No competitor assets or claims are copied.
 - The real Desmos engine evaluated the showcase's rounded sum to exactly 248
   with no expression errors; both roots are fitted and no fixed a slider exists.
 - Browser requests made no solve/tutor calls, so testing incurred no model cost.
-- Screenshot captures: `/tmp/desmo-landing-review.d6YhwE/` (local review artifacts).
+- Screenshot captures: `/tmp/solveplot-landing-review.d6YhwE/` (local review artifacts).
 
 The landing stays light independently of a user's workspace theme, matching the
 existing source's marketing page behavior. The solver's Tidal tokens, Appearance
 studio, authentication, API routes, and storage behavior are unchanged.
 
-Deployed to `https://desmomath.com` on October 13, 2026 at the user's request,
+Deployed to the production site on October 13, 2026 at the user's request,
 with the policy pages and support email from source commit `33ff5a2`. Production
 checks repeated the navigation, FAQ, real Desmos, and mobile checks above and
 passed without browser errors or model requests. No branch was merged.

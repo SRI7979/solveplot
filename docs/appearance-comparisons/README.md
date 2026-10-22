@@ -41,7 +41,7 @@ The real method picker/explanation/calculator components were additionally rende
 
 ## Intentional differences
 
-- The app keeps real route navigation, profile/settings/sign-out behavior, its mobile navigation, and its original Desmo glyph. The wordmark size, lower-case treatment, and palette follow the source.
+- The app keeps real route navigation, profile/settings/sign-out behavior, its mobile navigation, and its original SolvePlot glyph. The wordmark size, lower-case treatment, and palette follow the source.
 - Source's fake weekly goal, SAT date, and simulated solving-mode menu are omitted. The app retains real method statistics, verification/error states, tutor and saved-trick functionality.
 - The real upload limit remains 8 MB; the prototype advertises 10 MB. Upload/sample handlers remain real.
 - The graph retains the configured Desmos API key and existing default bounds. The source's trial-key warning and sample viewport are not imported. Appearance changes keep calculator expression colors independent and preserve entered rows/bounds.

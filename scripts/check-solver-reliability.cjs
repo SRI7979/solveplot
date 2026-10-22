@@ -7,10 +7,10 @@ const sharp = require("sharp");
 const origin = process.env.DEMO_ORIGIN || "http://localhost:3000";
 
 (async () => {
-  const fixture = JSON.parse(await fs.readFile("/tmp/desmo-reliability-fixture.json", "utf8"));
+  const fixture = JSON.parse(await fs.readFile("/tmp/solveplot-reliability-fixture.json", "utf8"));
   const image = await sharp(Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="900" height="240"><rect width="900" height="240" fill="white"/><g font-family="Arial" font-size="23" fill="#172d35"><text x="24" y="42">g(x)=f(x)/(x+2), where f is quadratic and f(0)=10</text><text x="24" y="90">x: 1, 4</text><text x="24" y="132">g(x): 5, 7</text><text x="24" y="190">What is g(3)?</text></g></svg>')).png().toBuffer();
   const browser = await chromium.launch({ executablePath: process.env.BROWSER_PATH || "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge", headless: true });
-  const output = "/tmp/desmo-solver-reliability";
+  const output = "/tmp/solveplot-solver-reliability";
   await fs.mkdir(output, { recursive: true });
   const results = [];
   try {
@@ -23,7 +23,7 @@ const origin = process.env.DEMO_ORIGIN || "http://localhost:3000";
         scripts++;
         if (blocked || (scenario === "first-request-fails" && scripts === 1) || (scenario === "preflight-reconnects" && scripts <= 2)) return route.abort();
         const response = await route.fetch();
-        await route.fulfill({ response, body: (await response.text()) + ';{const original=Desmos.GraphingCalculator;Desmos.GraphingCalculator=(...args)=>{const c=original(...args);if(!args[0].hasAttribute("data-desmo-preflight"))window.reliabilityCalculator=c;return c;}}' });
+        await route.fulfill({ response, body: (await response.text()) + ';{const original=Desmos.GraphingCalculator;Desmos.GraphingCalculator=(...args)=>{const c=original(...args);if(!args[0].hasAttribute("data-solveplot-preflight"))window.reliabilityCalculator=c;return c;}}' });
       });
       await page.route("**/api/solve", route => {
         solves++;
@@ -53,8 +53,8 @@ const origin = process.env.DEMO_ORIGIN || "http://localhost:3000";
       }
       await page.getByTestId("answer").waitFor();
       if (scenario === "phone") await page.getByRole("tab", { name: "Calculator", exact: true }).click();
-      await page.waitForFunction(() => Math.abs(window.reliabilityCalculator?.expressionAnalysis.desmo_3?.evaluation?.value - 6.2) < 1e-9);
-      const result = await page.evaluate(() => ({ answer: reliabilityCalculator.expressionAnalysis.desmo_3.evaluation.value, rows: reliabilityCalculator.getExpressions().filter(row => row.latex).map(row => row.latex) }));
+      await page.waitForFunction(() => Math.abs(window.reliabilityCalculator?.expressionAnalysis.solveplot_3?.evaluation?.value - 6.2) < 1e-9);
+      const result = await page.evaluate(() => ({ answer: reliabilityCalculator.expressionAnalysis.solveplot_3.evaluation.value, rows: reliabilityCalculator.getExpressions().filter(row => row.latex).map(row => row.latex) }));
       assert.equal(result.rows.length, 3);
       assert.equal(solves, 1, "Reconnect must never repeat the paid solve");
       assert.equal(explanations, 0, "Keep the explanation that already arrived");

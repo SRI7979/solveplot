@@ -1,21 +1,21 @@
 /*
  * The landing page was designed in v0 on top of Tailwind's preflight. This is
  * that reset (Tailwind v4 preflight, plus v0's base body styles), scoped to the
- * landing so the rest of Desmo keeps its own base styles. It sits in a cascade
+ * landing so the rest of SolvePlot keeps its own base styles. It sits in a cascade
  * layer, so every landing rule wins over it whatever its specificity, exactly
  * as Tailwind's base layer does.
  */
 @layer landing-reset {
-  .desmo-landing,
-  .desmo-landing *,
-  .desmo-landing ::after,
-  .desmo-landing ::before {
+  .solveplot-landing,
+  .solveplot-landing *,
+  .solveplot-landing ::after,
+  .solveplot-landing ::before {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
     border: 0 solid;
   }
-  .desmo-landing {
+  .solveplot-landing {
     tab-size: 4;
     -webkit-text-size-adjust: 100%;
     -webkit-tap-highlight-color: transparent;
@@ -23,15 +23,15 @@
     -moz-osx-font-smoothing: grayscale;
     font-feature-settings: "ss01", "cv11";
   }
-  .desmo-landing :is(h1, h2, h3, h4, h5, h6) { font-size: inherit; font-weight: inherit; }
-  .desmo-landing a { color: inherit; text-decoration: inherit; }
-  .desmo-landing :is(b, strong) { font-weight: bolder; }
-  .desmo-landing small { font-size: 80%; }
-  .desmo-landing :is(ol, ul, menu) { list-style: none; }
-  .desmo-landing summary { display: list-item; }
-  .desmo-landing :is(img, svg, video, canvas, audio, iframe, embed, object) { display: block; vertical-align: middle; }
-  .desmo-landing :is(img, video) { max-width: 100%; height: auto; }
-  .desmo-landing :is(button, input, select, optgroup, textarea) {
+  .solveplot-landing :is(h1, h2, h3, h4, h5, h6) { font-size: inherit; font-weight: inherit; }
+  .solveplot-landing a { color: inherit; text-decoration: inherit; }
+  .solveplot-landing :is(b, strong) { font-weight: bolder; }
+  .solveplot-landing small { font-size: 80%; }
+  .solveplot-landing :is(ol, ul, menu) { list-style: none; }
+  .solveplot-landing summary { display: list-item; }
+  .solveplot-landing :is(img, svg, video, canvas, audio, iframe, embed, object) { display: block; vertical-align: middle; }
+  .solveplot-landing :is(img, video) { max-width: 100%; height: auto; }
+  .solveplot-landing :is(button, input, select, optgroup, textarea) {
     font: inherit;
     font-feature-settings: inherit;
     font-variation-settings: inherit;
@@ -41,6 +41,6 @@
     background-color: transparent;
     opacity: 1;
   }
-  .desmo-landing button { appearance: button; cursor: pointer; }
-  .desmo-landing [hidden]:where(:not([hidden="until-found"])) { display: none !important; }
+  .solveplot-landing button { appearance: button; cursor: pointer; }
+  .solveplot-landing [hidden]:where(:not([hidden="until-found"])) { display: none !important; }
 }

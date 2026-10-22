@@ -6,7 +6,7 @@ import ProfileNameForm from "./profile-name-form";
 import styles from "@/app/settings/page.module.css";
 export const dynamic = "force-dynamic";
 export const metadata = {
-  title: "Your profile | Desmo",
+  title: "Your profile | SolvePlot",
   robots: { index: false, follow: false },
 };
 export default async function ProfilePage() {

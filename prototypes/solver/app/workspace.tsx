@@ -7,7 +7,7 @@ import { Bookmark, History, Menu, PanelLeftClose, PanelLeftOpen, Plus, ScanLine,
 import { useAppearance } from './appearance';
 import type { Method } from './preview-data';
 
-const STORAGE_EVENT = 'desmo-preview-preference';
+const STORAGE_EVENT = 'solveplot-preview-preference';
 const memoryPreferences = new Map<string, string>();
 const unavailablePreferences = new Set<string>();
 function subscribePreferences(listener: () => void) {
@@ -41,8 +41,8 @@ export type HistoryEntry = {
   calculatorState?: unknown;
 };
 type UploadDraft = { name: string; url: string };
-const HISTORY_KEY = 'desmo-preview-history';
-const CURRENT_KEY = 'desmo-preview-current-problem';
+const HISTORY_KEY = 'solveplot-preview-history';
+const CURRENT_KEY = 'solveplot-preview-current-problem';
 type CurrentProblem = { id: string; method: Method; hasCurrentSolution: boolean };
 const INITIAL_CURRENT: CurrentProblem = { id: 'sample-initial', method: 'difference', hasCurrentSolution: true };
 const CURRENT_FALLBACK = JSON.stringify(INITIAL_CURRENT);
@@ -121,9 +121,9 @@ export default function Workspace({ children }: { children: ReactNode }) {
   const [sampleRevision, setSampleRevision] = useState(0);
   const [historyPreference] = useSessionPreference(HISTORY_KEY, HISTORY_FALLBACK);
   const historyEntries = parseHistory(historyPreference);
-  const [savedPreference, setSavedPreference] = useSessionPreference('desmo-preview-saved', '[]');
-  const [collapsedPreference, setCollapsedPreference] = useSessionPreference('desmo-preview-sidebar', 'expanded');
-  const [profileName, updateProfileName] = useSessionPreference('desmo-preview-profile-name', '');
+  const [savedPreference, setSavedPreference] = useSessionPreference('solveplot-preview-saved', '[]');
+  const [collapsedPreference, setCollapsedPreference] = useSessionPreference('solveplot-preview-sidebar', 'expanded');
+  const [profileName, updateProfileName] = useSessionPreference('solveplot-preview-profile-name', '');
   const [mobileNavigation, setMobileNavigation] = useState(false);
   const [uploadDraft, setUploadDraft] = useState<UploadDraft | null>(null);
   const [notice, setNotice] = useState('');
@@ -222,7 +222,7 @@ export default function Workspace({ children }: { children: ReactNode }) {
   }
   function sidebar(mobile = false) {
     return <>
-      <div className="wsBrandRow"><Link href="/" className="wsBrand" aria-label="Desmo solver" onClick={navigateAway}><span className="wsMark"><Mark /></span><span className="wsSidebarText">desmo</span></Link>{mobile ? <button type="button" className="wsIconButton" aria-label="Close navigation" onClick={closeNavigation}><X size={19} /></button> : <button type="button" className="wsIconButton wsCollapse" aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} onClick={() => setCollapsedPreference(collapsed ? 'expanded' : 'collapsed')}><PanelLeftClose size={18} /></button>}</div>
+      <div className="wsBrandRow"><Link href="/" className="wsBrand" aria-label="SolvePlot solver" onClick={navigateAway}><span className="wsMark"><Mark /></span><span className="wsSidebarText">SolvePlot</span></Link>{mobile ? <button type="button" className="wsIconButton" aria-label="Close navigation" onClick={closeNavigation}><X size={19} /></button> : <button type="button" className="wsIconButton wsCollapse" aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} onClick={() => setCollapsedPreference(collapsed ? 'expanded' : 'collapsed')}><PanelLeftClose size={18} /></button>}</div>
       {!mobile && collapsed && <button type="button" className="wsExpand" aria-label="Expand sidebar" title="Expand sidebar" onClick={() => setCollapsedPreference('expanded')}><PanelLeftOpen size={19} /></button>}
       <button type="button" className="wsNewProblem" onClick={openUpload} aria-label="New problem" aria-current={pathname === '/new' || (pathname === '/' && !hasCurrentSolution) ? 'page' : undefined} title="New problem"><Plus size={19} /><span className="wsSidebarText">New problem</span></button>
       <nav className="wsNavigation" aria-label={mobile ? 'Mobile workspace' : 'Workspace'}>{navigation.map(item => <Link href={item.href} key={item.href} className="wsNavLink" data-section={item.href.slice(1) || 'solver'} aria-current={pathname === item.href && (item.href !== '/' || hasCurrentSolution) ? 'page' : undefined} title={item.name} onClick={navigateAway}><item.icon size={20} strokeWidth={1.8} /><span className="wsSidebarText">{item.name}</span></Link>)}</nav>

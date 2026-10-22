@@ -67,7 +67,7 @@ function solve(candidates: Candidate[], overrides: Partial<CandidatesResponseInp
 
 afterEach(() => {
   mock.restoreAll();
-  delete process.env.DESMO_DIAGNOSTICS;
+  delete process.env.SOLVEPLOT_DIAGNOSTICS;
 });
 
 test("the library index finds every numbered strategy and the techniques each one teaches", async () => {
@@ -82,11 +82,11 @@ test("the library index finds every numbered strategy and the techniques each on
   for (const strategy of index) assert.ok(strategy.techniques.length > 0, `strategy ${strategy.number} teaches a technique`);
 });
 
-test("every candidates prompt carries the Desmo standard, the gold solutions, then the whole library, in the library-first order", async () => {
+test("every candidates prompt carries the SolvePlot standard, the gold solutions, then the whole library, in the library-first order", async () => {
   const context = await loadSolveContext();
   const instructions = context.candidateInstructions;
   assert.match(instructions, /<strategy_library>[\s\S]*78\. Root in a given radical form[\s\S]*<\/strategy_library>/);
-  assert.match(instructions, /THE DESMO STANDARD/);
+  assert.match(instructions, /THE SOLVEPLOT STANDARD/);
   assert.match(instructions, /"Is this what a general chatbot would do,\s+with Desmos as a calculator\?"/);
   assert.match(instructions, /DESMOS WAYS AND ONE MATH WAY/);
   assert.ok(instructions.indexOf("\n<gold_solutions>\n") < instructions.indexOf("\n<strategy_library>\n"), "the standard comes before the catalog");
@@ -228,17 +228,17 @@ test("a fresh solve records the library trace for evals and logs it only when di
   assert.equal(result.kind, "solved");
   assert.equal(quiet.trace?.library?.winner?.strategy, 78);
   assert.equal(quiet.trace?.library?.fellBackToGenericMath, false);
-  assert.equal(info.mock.calls.some((call) => call.arguments[0] === "[desmo:library]"), false, "not logged for normal users");
+  assert.equal(info.mock.calls.some((call) => call.arguments[0] === "[solveplot:library]"), false, "not logged for normal users");
   if (result.kind === "solved") {
     assert.doesNotMatch(JSON.stringify(methodSummaries(result.resolved)), /"strategy"|"library"/, "the client never sees the trace");
   }
 
   mock.restoreAll();
   const logged = mock.method(console, "info", () => {});
-  process.env.DESMO_DIAGNOSTICS = "1";
+  process.env.SOLVEPLOT_DIAGNOSTICS = "1";
   mockModel({ candidates: reply, explanation: explanation(3) });
   await solveProblem(deps(), { kind: "text", problem: RADICAL_QUESTION, choices: null });
-  const line = logged.mock.calls.find((call) => call.arguments[0] === "[desmo:library]");
+  const line = logged.mock.calls.find((call) => call.arguments[0] === "[solveplot:library]");
   assert.ok(line, "logged in development and eval diagnostics");
   const payload = JSON.parse(String(line.arguments[1]));
   assert.deepEqual(payload.matched, [{ number: 78, title: index[77].title }]);

@@ -21,7 +21,7 @@ const solution = solutionSchema.parse({
   conditionType: null, distinguishes: null,
   graphBounds: { left: -1, right: 6, bottom: 0, top: 12 }, clarification: null,
 });
-writeFileSync("/tmp/desmo-reliability-fixture.json", JSON.stringify({
+writeFileSync("/tmp/solveplot-reliability-fixture.json", JSON.stringify({
   payload: { cacheKey: "reliability-rational-table", selectedMethodId: winner.id, question, choices: null, structure: selection.structure, methods },
   solution,
 }, null, 2));

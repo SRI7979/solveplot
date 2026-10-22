@@ -53,7 +53,7 @@ export function AuthForm({
           ? "We’ll email you a link to choose a new password."
           : mode === "reset"
             ? "Use at least 8 characters."
-            : "Your problems and explanations, saved in one place."}
+            : "Sign in to solve a question or open your history."}
       </p>
       {notice && (
         <p className={styles.notice} role="status">

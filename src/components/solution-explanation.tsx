@@ -24,6 +24,7 @@ import {
   TutorPanel,
   TutorIcon,
   useTutor,
+  type Tutor,
   type TutorSource,
 } from "./tutor-panel";
 import styles from "./solution-explanation.module.css";
@@ -40,6 +41,8 @@ export default function SolutionExplanation({
   explanationStatus = "ready",
   onRetryExplanation,
   tutorSource,
+  tutorController,
+  saveControl,
 }: {
   solution: Solution;
   /** The live solver's selectable, preflight-verified routes. */
@@ -53,6 +56,10 @@ export default function SolutionExplanation({
   onRetryExplanation?: () => void;
   /** Which solve or saved problem this is, for "Ask AI Tutor" and "Save this trick"; without it neither appears. */
   tutorSource?: TutorSource;
+  /** Optional local controller for an interactive example of this same UI. */
+  tutorController?: Tutor;
+  /** Optional local save interaction; omitted callers use their real source. */
+  saveControl?: React.ReactNode;
 }) {
   const pending = explanationStatus === "pending";
   const failed = explanationStatus === "failed";
@@ -66,7 +73,14 @@ export default function SolutionExplanation({
   // The copyable lines are calculator rows too: they are shown only for a
   // batch the hidden Desmos instance reported clean, like the calculator.
   const { gate } = usePreflightGate(solution.expressions, solution.answerState);
-  const tutor = useTutor(tutorSource ?? null);
+  const liveTutor = useTutor(tutorSource ?? null);
+  const tutor = tutorController ?? liveTutor;
+  const renderedSaveControl =
+    saveControl !== undefined
+      ? saveControl
+      : tutorSource
+        ? <SaveTrickButton source={tutorSource} />
+        : null;
   const card = useRef<HTMLDivElement>(null);
   const [copyStatus, setCopyStatus] = useState<{
     row: number;
@@ -120,7 +134,7 @@ export default function SolutionExplanation({
         </p>
         {solution.question && (
           <details>
-            <summary className="disclosureControl">What we could read</summary>
+            <summary className="disclosureControl">What we could read <ChevronDown size={16} /></summary>
             <p>
               <MathText>{solution.question}</MathText>
             </p>
@@ -240,7 +254,7 @@ export default function SolutionExplanation({
               Try again
             </button>
           )}
-          {tutorSource && <SaveTrickButton source={tutorSource} />}
+          {renderedSaveControl}
         </div>
       ) : solution.why ? (
         <section
@@ -277,9 +291,9 @@ export default function SolutionExplanation({
             </div>
           )}
         </section>
-      ) : tutorSource ? (
+      ) : renderedSaveControl ? (
         <div className={`${styles.ideaHeading} ${styles.saveRow}`}>
-          <SaveTrickButton source={tutorSource} />
+          {renderedSaveControl}
         </div>
       ) : null}
       {solution.expressions.length > 0 && gate.status === "pending" ? (
@@ -366,6 +380,7 @@ export default function SolutionExplanation({
                           )
                         }
                         aria-label={`Ask AI about line ${index + 1}`}
+                        data-motion="tutor"
                       >
                         <TutorIcon /> Ask AI
                       </button>
@@ -375,8 +390,10 @@ export default function SolutionExplanation({
                       className={`${styles.copyButton} copyButton`}
                       onClick={() => copyLine(expression.latex, index)}
                       aria-label={`Copy line ${index + 1}`}
+                      data-motion="copy"
+                      data-copied={copyStatus?.row === index && copyStatus.ok || undefined}
                     >
-                      <svg
+                      {copyStatus?.row === index && copyStatus.ok ? <Check size={15} /> : <svg
                         viewBox="0 0 20 20"
                         width="15"
                         height="15"
@@ -398,7 +415,7 @@ export default function SolutionExplanation({
                           strokeWidth="1.5"
                           strokeLinecap="round"
                         />
-                      </svg>
+                      </svg>}
                       {copyStatus?.row === index
                         ? copyStatus.ok
                           ? "Copied"
@@ -513,15 +530,15 @@ export default function SolutionExplanation({
           </div>
         </>
       ) : null}
-      {tutorSource && (
+      {renderedSaveControl && (
         <div className={styles.saveRow}>
-          <SaveTrickButton source={tutorSource} />
+          {renderedSaveControl}
           <span>Return to this method later</span>
         </div>
       )}
       {solution.choices && solution.choices.length > 0 && (
         <details className={styles.transcription}>
-          <summary className="disclosureControl">Answer choices</summary>
+          <summary className="disclosureControl">Answer choices <ChevronDown size={16} /></summary>
           <ul className={styles.choiceList}>
             {solution.choices.map((choice) => (
               <li
@@ -544,7 +561,7 @@ export default function SolutionExplanation({
         </details>
       )}
       <details className={styles.transcription}>
-        <summary className="disclosureControl">Question text</summary>
+        <summary className="disclosureControl">Question text <ChevronDown size={16} /></summary>
         <p>
           <MathText>{solution.question}</MathText>
         </p>
@@ -556,7 +573,7 @@ export default function SolutionExplanation({
             : "Clipboard is unavailable. Select the equation to copy it."
           : ""}
       </span>
-      {tutorSource && <SelectionAskTutor tutor={tutor} containerRef={card} />}
+      {tutor.enabled && <SelectionAskTutor tutor={tutor} containerRef={card} />}
     </div>
   );
 }

@@ -363,11 +363,11 @@ test("the candidates call is terse, strict, cached by prefix, and sees the image
     assert.equal(text.format.type, "json_schema");
     assert.equal(text.verbosity, "low");
   }
-  assert.equal(call1.prompt_cache_key, "desmo-candidates-v1");
-  assert.equal(call2.prompt_cache_key, "desmo-explanation-v1");
+  assert.equal(call1.prompt_cache_key, "solveplot-candidates-v1");
+  assert.equal(call2.prompt_cache_key, "solveplot-explanation-v1");
   const instructions = String(call1.instructions);
   for (const pattern of [
-    /DESMO SAT MATH STRATEGY LIBRARY/,
+    /SOLVEPLOT SAT MATH STRATEGY LIBRARY/,
     /\[technique: three-point-regression \| Three-point regression\]/,
     /<gold_solutions>/,
     /"techniqueId": "identity-regression"/,
@@ -487,7 +487,7 @@ test("service tier can be disabled and falls back permanently when the project l
     if (body.service_tier === "priority") {
       return Response.json({ error: { code: "invalid_value", message: "Invalid value: 'priority' for service_tier." } }, { status: 400 });
     }
-    return Response.json(providerBody(body.text.format.name === "desmo_explanation" ? explanation() : candidatesResponse()));
+    return Response.json(providerBody(body.text.format.name === "solveplot_explanation" ? explanation() : candidatesResponse()));
   });
   cache = createMemorySolveCache();
   assert.equal((await handler(upload())).status, 200);
@@ -818,7 +818,7 @@ test("a rational table row missing twice fails without a guessed answer or raw v
   assert.doesNotMatch(data.error, /semantic_inputs|validation failed|paired x|transcribed|31\/5|6\.2/i);
   assert.equal(data.validation.stage, "semantic_inputs", "developers retain the precise rejection separately");
   assert.ok(data.diagnosticId);
-  for (const attempt of [1, 2]) t.after(() => unlink(`.desmo-debug/${data.diagnosticId}-${attempt}.json`));
+  for (const attempt of [1, 2]) t.after(() => unlink(`.solveplot-debug/${data.diagnosticId}-${attempt}.json`));
 });
 
 test("conflicting rational table cells are retried once and then explained without exposing transcription internals", async () => {
@@ -1079,7 +1079,7 @@ test("development rejection keeps a student-facing message and stores exact diag
   assert.match(rejected.error, /could not verify a reliable solution/);
   assert.doesNotMatch(rejected.error, /result_contract|numeric requires|validation failed/i);
   for (const attempt of [1, 2]) {
-    const file = `.desmo-debug/${rejected.diagnosticId}-${attempt}.json`;
+    const file = `.solveplot-debug/${rejected.diagnosticId}-${attempt}.json`;
     t.after(() => unlink(file));
     const logged = await readFile(file, "utf8");
     const diagnostic = JSON.parse(logged);
@@ -1483,7 +1483,7 @@ test("regression test 2: over the daily spend ceiling new solves stop, loudly, w
   assert.match(body.error, /at capacity today/);
   assert.equal(blocked.headers.get("retry-after"), null);
   assert.equal(requests.candidates.length, callsBefore, "zero model calls");
-  assert.ok(alerts.some((line) => /\[desmo:ALERT\] ceiling_hit/.test(line)), "the trip is logged loudly");
+  assert.ok(alerts.some((line) => /\[solveplot:ALERT\] ceiling_hit/.test(line)), "the trip is logged loudly");
   assert.equal(usage.solves.length, 1, "a refused solve does not count against the user");
 
   assert.equal((await POST(upload())).status, 200, "a cached solve is unaffected");
@@ -1622,7 +1622,7 @@ test("regression tests 8 + 9: a rate limit gets a countdown, being out of credit
     assert.equal(retryCountdown(response.status, body, response.headers.get("retry-after")), expected.retryAfter ? Number(expected.retryAfter) : null, `${variant}: the client's countdown`);
     if (expected.kind === "unavailable") {
       assert.equal(body.error, "Service temporarily unavailable. Please try again later.", "no billing details for students");
-      assert.ok(alerts.some((line) => /\[desmo:ALERT\].*candidates call/.test(line) && /no credits remaining|current quota/.test(line)), `${variant}: the real cause is logged loudly`);
+      assert.ok(alerts.some((line) => /\[solveplot:ALERT\].*candidates call/.test(line) && /no credits remaining|current quota/.test(line)), `${variant}: the real cause is logged loudly`);
     }
     assert.equal(fetchMock.mock.callCount(), 1, `${variant}: one request, no automatic retry`);
   }

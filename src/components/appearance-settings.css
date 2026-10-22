@@ -1,4 +1,8 @@
-.desmo-shell {
+@keyframes appearance-spin {
+  to { transform: rotate(360deg); }
+}
+
+.solveplot-shell {
   .appearancePage {
     padding-top: 40px;
   }
@@ -6,6 +10,10 @@
     max-width: 1100px;
   }
   .appearancePage .wsPageHeading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
     margin-bottom: 35px;
   }
   .appearanceLayout {
@@ -50,6 +58,12 @@
     margin-top: 24px;
     border-bottom: 1px solid var(--border);
   }
+  .appearanceOptions .appearanceTreatmentField {
+    margin-top: 22px;
+  }
+  .appearanceOptions .appearanceTreatmentField:last-of-type {
+    padding-bottom: 24px;
+  }
   .appearanceAmount > p {
     font-size: 12px;
     line-height: 1.6;
@@ -60,6 +74,7 @@
   .appearanceAmountChoices {
     display: flex;
     gap: 10px;
+    align-items: stretch;
   }
   .appearanceAmountChoice {
     position: relative;
@@ -76,6 +91,10 @@
     font-weight: 750;
     cursor: pointer;
     background: var(--paper);
+    transition:
+      color 150ms ease,
+      border-color 150ms ease,
+      background 150ms ease;
   }
   .appearanceAmountChoice input,
   .appearancePaletteChoice input {
@@ -105,6 +124,32 @@
   }
   .appearanceAmountChoice > svg {
     visibility: hidden;
+  }
+  .appearanceAmountChoice:has(.appearanceChoiceText) {
+    min-width: min(0, 100%);
+    min-height: 66px;
+    flex: 1 1 calc(50% - 8px);
+    justify-content: flex-start;
+    text-align: left;
+  }
+  .appearanceChoiceText {
+    display: grid;
+    gap: 3px;
+    min-width: 0;
+  }
+  .appearanceChoiceText strong {
+    font-size: 13px;
+    line-height: 1.2;
+  }
+  .appearanceChoiceText small {
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 550;
+    line-height: 1.35;
+  }
+  .appearanceAmountChoice[data-selected="true"] .appearanceChoiceText small {
+    color: var(--selection-accent);
+    opacity: 0.82;
   }
   .appearanceAmountChoice[data-selected="true"] > svg {
     visibility: visible;
@@ -159,6 +204,24 @@
     background: var(--paper);
     color: var(--ink);
     box-shadow: 0 1px 3px var(--shadow);
+  }
+  .appearanceAccountLink {
+    --press-depth: 2px;
+    flex: 0 0 auto;
+    min-height: 42px;
+    gap: 9px;
+    margin-left: auto;
+    padding-inline: 16px;
+    white-space: nowrap;
+    font-size: 13px;
+    border-radius: var(--radius-md);
+    color: var(--foreground);
+  }
+  .appearanceAccountLink[aria-busy="true"] {
+    cursor: progress;
+  }
+  .appearanceAccountSpinner {
+    animation: appearance-spin 850ms linear infinite;
   }
   .appearancePaletteGrid {
     display: grid;
@@ -291,7 +354,7 @@
     overflow: hidden;
     border: 1px solid var(--control-border);
     border-bottom-width: 3px;
-    border-radius: 16px;
+    border-radius: var(--radius-xl);
     background: var(--canvas);
   }
   .appearanceMiniHeader {
@@ -335,7 +398,7 @@
     padding: 10px 8px;
     margin: 15px 0 12px;
     border: 1px solid var(--accent-border);
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     background: var(--paper);
   }
   .appearanceMiniInput > span {
@@ -360,7 +423,7 @@
     height: 142px;
     background: var(--paper);
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: var(--radius-md);
   }
   .appearanceMiniGraph svg {
     display: block;
@@ -402,7 +465,7 @@
     margin: 12px 0;
     padding: 10px 12px;
     border: 1px solid var(--accent-border);
-    border-radius: 9px;
+    border-radius: var(--radius-md);
     background: var(--answer-fill);
   }
   .appearanceMiniAnswer > span {
@@ -416,6 +479,12 @@
   .appearanceMiniAnswer strong {
     font-size: 23px;
     line-height: 1;
+  }
+  .appearancePreviewButton {
+    width: 100%;
+    min-height: 40px;
+    font-size: 12px;
+    border-radius: var(--radius-lg);
   }
   .appearancePreviewNote {
     font-size: 11px;
@@ -457,7 +526,13 @@
       padding: 29px 20px 35px;
     }
     .appearancePage .wsPageHeading {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 15px;
       margin-bottom: 29px;
+    }
+    .appearanceAccountLink {
+      margin-left: 0;
     }
     .appearancePaletteGrid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -477,6 +552,10 @@
     }
     .appearanceAmountChoices {
       gap: 10px;
+    }
+    .appearanceAmountChoice:has(.appearanceChoiceText) {
+      flex-basis: calc(50% - 6px);
+      padding-inline: 11px;
     }
     .appearanceAmountChoice {
       min-height: 44px;
@@ -515,7 +594,10 @@
     }
   }
   @media (prefers-reduced-motion: reduce) {
-    .appearancePaletteChoice {
+    .appearancePaletteChoice,
+    .appearanceAmountChoice,
+    .appearanceAccountSpinner {
+      animation: none;
       transition: none;
     }
   }
@@ -549,17 +631,18 @@
   .appearancePage h1 {
     margin: 0;
   }
+  @media (max-width: 860px) {
+    .appearancePage .wsPageHeading h1 {
+      padding-left: 32px;
+    }
+  }
   .appearancePage .wsPageHeading p {
     font-size: 14px;
     line-height: 1.7;
     color: var(--muted);
   }
-  .appearancePage .wsPageHeading a {
-    color: var(--secondary-accent);
-    text-decoration: none;
-  }
 }
-.desmo-shell {
+.solveplot-shell {
   .appearanceAmountChoices {
     flex-wrap: wrap;
   }

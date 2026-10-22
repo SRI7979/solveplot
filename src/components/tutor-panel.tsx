@@ -333,7 +333,7 @@ function readOffer(container: HTMLElement | null): Offer | null {
     }
   }
   if (rect.bottom < top || rect.top > bottom) return null;
-  const portal = container.closest(".desmo-shell");
+  const portal = container.closest(".solveplot-shell");
   if (!portal) return null;
   return {
     portal,
@@ -413,6 +413,7 @@ export function SelectionAskTutor({
       }}
       aria-label={`Ask AI Tutor about the selected text: ${shorten(offer.display, 80)}`}
       data-testid="ask-ai-tutor-selection"
+      data-motion="tutor"
     >
       <TutorIcon />
       Ask AI Tutor
@@ -495,7 +496,7 @@ function TutorComposer({
       />
       <div className={styles.composerActions}>
         <span>Leave blank for an explanation of the highlighted text</span>
-        <button type="submit" className={`${styles.askButton} primaryButton`}>
+        <button type="submit" className={`${styles.askButton} primaryButton`} data-motion="tutor">
           <TutorIcon /> Ask AI Tutor
         </button>
       </div>

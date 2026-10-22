@@ -1,5 +1,5 @@
 /* The shell and hit area stay fixed. Only the face and its contents compress. */
-.desmo-shell[data-palette]
+.solveplot-shell[data-palette]
   :is(
     .outlinedControl,
     .secondaryButton,
@@ -29,7 +29,7 @@
     color 0.15s;
 }
 
-.desmo-shell[data-palette]
+.solveplot-shell[data-palette]
   :is(
     .outlinedControl,
     .secondaryButton,
@@ -43,7 +43,7 @@
     .iconControl,
     .choiceControl
   )::before,
-.desmo-shell[data-palette]
+.solveplot-shell[data-palette]
   :is(
     .outlinedControl,
     .secondaryButton,
@@ -66,7 +66,7 @@
 }
 
 /* The base never moves, including during a held press. */
-.desmo-shell[data-palette]
+.solveplot-shell[data-palette]
   :is(
     .outlinedControl,
     .secondaryButton,
@@ -85,7 +85,7 @@
   background: var(--press-base, var(--control-edge));
 }
 
-.desmo-shell[data-palette]
+.solveplot-shell[data-palette]
   :is(
     .outlinedControl,
     .secondaryButton,
@@ -110,7 +110,7 @@
     border-color 0.15s;
 }
 
-.desmo-shell[data-palette]
+.solveplot-shell[data-palette]
   :is(
     .outlinedControl,
     .secondaryButton,
@@ -131,7 +131,7 @@
   --press-travel: var(--press-depth, 3px);
   transition-duration: 65ms;
 }
-.desmo-shell[data-palette]
+.solveplot-shell[data-palette]
   :is(
     .outlinedControl,
     .secondaryButton,
@@ -180,7 +180,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .desmo-shell[data-palette]
+  .solveplot-shell[data-palette]
     :is(
       .outlinedControl,
       .secondaryButton,
@@ -194,7 +194,7 @@
       .iconControl,
       .choiceControl
     ),
-  .desmo-shell[data-palette]
+  .solveplot-shell[data-palette]
     :is(
       .outlinedControl,
       .secondaryButton,

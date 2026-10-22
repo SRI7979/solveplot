@@ -201,33 +201,33 @@ export function validateExplanationResponse(response: unknown): Explanation {
 }
 
 function diagnosticsEnabled(): boolean {
-  return process.env.NODE_ENV === "development" || process.env.DESMO_DIAGNOSTICS === "1";
+  return process.env.NODE_ENV === "development" || process.env.SOLVEPLOT_DIAGNOSTICS === "1";
 }
 
 export async function logSolveRejection(id: string, attempt: number, raw: unknown, error: SolveValidationError) {
   if (!diagnosticsEnabled()) return;
   const rejection = { id, attempt, stage: error.stage, message: error.message, issues: error.issues };
-  console.error("[desmo:solve]", JSON.stringify(rejection));
+  console.error("[solveplot:solve]", JSON.stringify(rejection));
   try {
-    const directory = path.join(process.cwd(), ".desmo-debug");
+    const directory = path.join(process.cwd(), ".solveplot-debug");
     await mkdir(directory, { recursive: true });
     // No request headers, credentials, image bytes, or auth session are logged.
     await writeFile(path.join(directory, `${id}-${attempt}.json`), JSON.stringify({ rejection, response: raw }, null, 2), {
       mode: 0o600,
     });
   } catch {
-    console.error("[desmo:solve] Could not write local diagnostic file.");
+    console.error("[solveplot:solve] Could not write local diagnostic file.");
   }
 }
 
 /** The server's argmin always wins; a differing model preference is only logged. */
 export function logSelectionDisagreement(id: string, preferred: string, winner: string) {
   if (!diagnosticsEnabled()) return;
-  console.info("[desmo:selection]", JSON.stringify({ id, modelPreferred: preferred, serverSelected: winner }));
+  console.info("[solveplot:selection]", JSON.stringify({ id, modelPreferred: preferred, serverSelected: winner }));
 }
 
 /** Which library strategies the solve matched and used, and whether it fell back to generic math. */
 export function logLibraryTrace(id: string, trace: LibraryTrace) {
   if (!diagnosticsEnabled()) return;
-  console.info("[desmo:library]", JSON.stringify({ id, ...trace }));
+  console.info("[solveplot:library]", JSON.stringify({ id, ...trace }));
 }

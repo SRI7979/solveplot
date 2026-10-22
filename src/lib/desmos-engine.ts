@@ -41,7 +41,7 @@ export type DesmosCalculatorInstance = {
 
 /**
  * Desmos's dark mode (invertedColors) inverts every color it draws, which
- * turns the Desmo cyan orange. The visible calculator pre-inverts its row
+ * turns the SolvePlot cyan orange. The visible calculator pre-inverts its row
  * colors in dark mode so they render as the colors the light theme shows.
  */
 export function displayColor(color: string, dark: boolean): string {
@@ -104,7 +104,7 @@ export function createPreflightEngine(
 ): PreflightEngine {
   const host = doc.createElement("div");
   host.setAttribute("aria-hidden", "true");
-  host.setAttribute("data-desmo-preflight", "");
+  host.setAttribute("data-solveplot-preflight", "");
   host.inert = true;
   // Off-screen rather than display:none, so the calculator lays out normally.
   host.style.cssText =

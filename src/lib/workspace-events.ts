@@ -2,8 +2,8 @@
  * "New problem" while already on the solver: the sidebar asks the workspace to
  * start over in place, so the page and its Desmos calculator do not reload.
  */
-export const SHOW_CALCULATOR_EVENT = "desmo:show-calculator";
-export const NEW_PROBLEM_EVENT = "desmo:new-problem";
+export const SHOW_CALCULATOR_EVENT = "solveplot:show-calculator";
+export const NEW_PROBLEM_EVENT = "solveplot:new-problem";
 
 type ShortcutEvent = Pick<
   KeyboardEvent,

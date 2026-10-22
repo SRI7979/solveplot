@@ -1,4 +1,4 @@
-# Benchmark: current-cleanup-rescue-off (final A/B, DESMO_DESMOS_RESCUE=off, 2 runs per case, commit dbc190d)
+# Benchmark: current-cleanup-rescue-off (final A/B, SOLVEPLOT_DESMOS_RESCUE=off, 2 runs per case, commit dbc190d)
 
 Configuration: `{"model":"gpt-5-mini","reasoningEffort":"low","serviceTier":"priority","promptConfigVersion":"be5900447d7781e4a2676c05"}`. 47 cases × 2 runs.
 Compared with `current-cleanup` (prompt be5900447d7781e4a2676c05).

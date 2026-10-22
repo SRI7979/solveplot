@@ -13,7 +13,7 @@ export default function WorkspaceLoading({
   return (
     <WorkspaceAppearance className={workspace.shell}>
       <header className={workspace.header}>
-        <AccountNav active={active} />
+        <AccountNav active={active} loading />
       </header>
       <main
         className={`${workspace.main} ${workspace.historyMain}`}

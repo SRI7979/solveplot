@@ -2530,8 +2530,8 @@
   "pageErrors": [],
   "blocked": [],
   "screenshots": [
-    "/tmp/desmo-palette-calc/desktop-two-color-graph.png",
-    "/tmp/desmo-palette-calc/mobile-two-color-graph.png"
+    "/tmp/solveplot-palette-calc/desktop-two-color-graph.png",
+    "/tmp/solveplot-palette-calc/mobile-two-color-graph.png"
   ],
   "initial": {
     "count": 1,

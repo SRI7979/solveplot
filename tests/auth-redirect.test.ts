@@ -22,8 +22,8 @@ test("email callback origins reject credential-bearing and insecure remote URLs"
     }
     process.env.NEXT_PUBLIC_SITE_URL = "http://localhost:3000/path";
     assert.equal(getSiteOrigin(), "http://localhost:3000");
-    process.env.NEXT_PUBLIC_SITE_URL = "https://desmo.example.com/path";
-    assert.equal(getSiteOrigin(), "https://desmo.example.com");
+    process.env.NEXT_PUBLIC_SITE_URL = "https://solveplot.example.com/path";
+    assert.equal(getSiteOrigin(), "https://solveplot.example.com");
   } finally {
     if (original === undefined) delete process.env.NEXT_PUBLIC_SITE_URL;
     else process.env.NEXT_PUBLIC_SITE_URL = original;
@@ -39,7 +39,7 @@ test("Vercel production auth callbacks use the public origin when configured for
     process.env.VERCEL_ENV = "production";
     for (const url of ["http://localhost:3000", "http://127.0.0.1:3000", "http://[::1]:3000"]) {
       process.env.NEXT_PUBLIC_SITE_URL = url;
-      assert.equal(getSiteOrigin(), "https://desmomath.com");
+      assert.equal(getSiteOrigin(), "https://solveplot.com");
     }
 
     process.env.NEXT_PUBLIC_SITE_URL = "https://custom.example.com/path";

@@ -20,13 +20,8 @@ export default function HistoryList({
   problems: ProblemSummary[];
 }) {
   const [query, setQuery] = useState("");
-  const [filter, setFilter] = useState<"all" | "solved" | "attention">("all");
   const matching = problems.filter(
     (problem) =>
-      (filter === "all" ||
-        (filter === "solved"
-          ? problem.status === "solved"
-          : problem.status !== "solved")) &&
       `${problem.question} ${problem.trick ?? ""} ${problem.answer}`
         .toLowerCase()
         .includes(query.toLowerCase().trim()),
@@ -34,38 +29,10 @@ export default function HistoryList({
   return (
     <>
       <div className={styles.toolbar}>
-        <div
-          className={`${styles.filters} segmentedControl`}
-          role="group"
-          aria-label="Filter history"
-        >
-          <button
-            type="button"
-            className="choiceControl"
-            aria-pressed={filter === "all"}
-            onClick={() => setFilter("all")}
-          >
-            All problems <span>{problems.length}</span>
-          </button>
-          <button
-            type="button"
-            className="choiceControl"
-            aria-pressed={filter === "solved"}
-            onClick={() => setFilter("solved")}
-          >
-            Solved
-          </button>
-          {problems.some((p) => p.status !== "solved") && (
-            <button
-              type="button"
-              className="choiceControl"
-              aria-pressed={filter === "attention"}
-              onClick={() => setFilter("attention")}
-            >
-              Needs attention
-            </button>
-          )}
-        </div>
+        <p className={styles.count} role="status">
+          {query.trim() ? `${matching.length} of ${problems.length}` : problems.length}{" "}
+          {problems.length === 1 ? "problem" : "problems"}
+        </p>
         <label className={styles.search}>
           <Search size={17} />
           <input
@@ -137,16 +104,15 @@ export default function HistoryList({
         <div className={styles.empty} role="status">
           <History size={28} />
           <h2>No matching problems</h2>
-          <p>Try a different search or filter.</p>
+          <p>Try a different search.</p>
           <button
             type="button"
             className="secondaryButton"
             onClick={() => {
               setQuery("");
-              setFilter("all");
             }}
           >
-            Clear filters
+            Clear search
           </button>
         </div>
       )}

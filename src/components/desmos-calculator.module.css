@@ -64,7 +64,7 @@
 .graphControls {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   flex-shrink: 0;
   margin-left: auto;
 }
@@ -278,9 +278,33 @@
   border-inline: 1px solid var(--border);
 }
 .toolbar {
-  min-height: 36px;
-  padding: 6px 0 0;
+  flex-wrap: wrap;
+  min-height: 52px;
+  gap: 8px 12px;
+  padding: 9px 9px 11px;
   font-size: 11px;
+}
+.toolbar .status {
+  flex: 1 1 84px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.shell .toolbar button.replay {
+  flex: 0 1 auto;
+  max-width: 100%;
+  min-height: 38px;
+  margin-left: auto;
+  padding-inline: 12px;
+  border: 1px solid var(--control-border);
+  border-radius: 11px;
+  font-size: 12px;
+  line-height: 1.5;
+  background: var(--paper);
+}
+.shell .toolbar button.replay:hover:not(:disabled) {
+  border-color: var(--selection-border);
+  background: var(--selection-soft);
+  color: var(--selection-accent);
 }
 .expanded {
   padding: 18px;

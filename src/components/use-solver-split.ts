@@ -13,7 +13,7 @@ const DEFAULT_SPLIT = 40;
 const DIVIDER_WIDTH = 12;
 const MIN_SOLUTION_WIDTH = 320;
 const MIN_CALCULATOR_WIDTH = 340;
-const STORAGE_KEY = "desmo-solver:split";
+const STORAGE_KEY = "solveplot-solver:split";
 
 type SplitState = { split: number; min: number; max: number };
 type DragState = { pointerId: number; target: HTMLDivElement; offset: number };

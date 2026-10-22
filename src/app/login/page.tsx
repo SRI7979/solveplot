@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import DesmoLogo from "@/components/desmo-logo";
+import SolvePlotLogo from "@/components/solveplot-logo";
 import { WorkspaceAppearance } from "@/components/appearance-provider";
 import { getCurrentUser } from "@/lib/auth";
 import { safeAuthRedirect } from "@/lib/auth-redirect";
@@ -8,7 +8,7 @@ import { getSupabaseConfig } from "@/lib/supabase/config";
 import { AuthForm } from "./auth-form";
 import styles from "./page.module.css";
 
-export const metadata = { title: "Sign in · Desmo" };
+export const metadata = { title: "Sign in · SolvePlot" };
 export const dynamic = "force-dynamic";
 
 export default async function LoginPage({
@@ -45,7 +45,7 @@ export default async function LoginPage({
   return (
     <WorkspaceAppearance className={styles.entry}>
       <main className={styles.page}>
-        <DesmoLogo centered variant="workspace" />
+        <SolvePlotLogo centered variant="workspace" />
         <section className={`${styles.card} appPageEnter`}>
           {configured ? (
             <AuthForm mode={mode} next={next} notice={notice} key={mode} />
@@ -61,7 +61,7 @@ export default async function LoginPage({
                 README has the setup steps.
               </p>
               <Link href="/" className={`${styles.button} secondaryButton`}>
-                Back to Desmo
+                Back to SolvePlot
               </Link>
             </>
           )}

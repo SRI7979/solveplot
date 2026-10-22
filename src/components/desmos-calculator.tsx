@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { List } from "lucide-react";
+import { List, RotateCcw } from "lucide-react";
 import type { RowEvaluation } from "@/lib/answer-consistency";
 import {
   MATH_OPTIONS,
@@ -43,6 +43,7 @@ type Props = {
   /** Moves this parameter's slider to this value before the student sees it. */
   answerState?: AnswerState | null;
   stateKey?: string;
+  initialExpressionsOpen?: boolean;
 };
 
 const graphDrafts = new Map<string, unknown>();
@@ -102,6 +103,7 @@ export default function DesmosCalculator({
   revision,
   answerState = null,
   stateKey,
+  initialExpressionsOpen = false,
 }: Props) {
   const graphKey = useRef(stateKey);
   useEffect(() => {
@@ -117,7 +119,7 @@ export default function DesmosCalculator({
   const [replay, setReplay] = useState(0);
   const [lineCount, setLineCount] = useState(0);
   const [expanded, setExpanded] = useState(false);
-  const [expressionsOpen, setExpressionsOpen] = useState(false);
+  const [expressionsOpen, setExpressionsOpen] = useState(initialExpressionsOpen);
   const expressionsOpenRef = useRef(expressionsOpen);
   useEffect(() => {
     expressionsOpenRef.current = expressionsOpen;
@@ -264,7 +266,7 @@ export default function DesmosCalculator({
       });
       // Editing a valid expression may leave its computed result unchanged, so
       // expressionAnalysis alone does not report every student edit.
-      instance.observeEvent("change.desmo", () => {
+      instance.observeEvent("change.solveplot", () => {
         if (!active || !instance) return;
         const batch = loaded.current;
         if (!batch) return;
@@ -295,7 +297,7 @@ export default function DesmosCalculator({
       calculatorRef.current = null;
       instance?.unobserve("expressionAnalysis");
       instance?.unobserve("selectedExpressionId.trace");
-      instance?.unobserveEvent("change.desmo");
+      instance?.unobserveEvent("change.solveplot");
       if (instance?.getState && graphKey.current && loaded.current)
         retainGraph(graphKey.current, instance.getState());
       instance?.destroy();
@@ -479,6 +481,7 @@ export default function DesmosCalculator({
               className={`${styles.expressionToggle} choiceControl`}
               aria-pressed={expressionsOpen}
               title="Show or hide Desmos expressions"
+              data-motion="expressions"
               onClick={() => setExpressionsOpen((value) => !value)}
             >
               <List size={17} />
@@ -489,6 +492,7 @@ export default function DesmosCalculator({
               className={`${styles.graphIconButton} iconControl`}
               title="Reset graph view"
               aria-label="Reset graph view"
+              data-motion="reset"
               disabled={!scriptReady || !!unavailableMessage}
               onClick={() =>
                 calculatorRef.current?.setMathBounds(validBounds(bounds))
@@ -516,6 +520,7 @@ export default function DesmosCalculator({
               className={`${styles.graphIconButton} iconControl`}
               title={expanded ? "Exit full screen" : "Full screen"}
               aria-label={expanded ? "Exit full screen" : "Full screen"}
+              data-motion="fullscreen"
               aria-pressed={expanded}
               onClick={() => setExpanded((value) => !value)}
             >
@@ -629,13 +634,14 @@ export default function DesmosCalculator({
               type="button"
               className={`${styles.replay} textControl`}
               title="Restore the original loaded equations"
+              data-motion="restore"
               disabled={!scriptReady || !!unavailableMessage || !insertable}
               onClick={() => {
                 if (stateKey) graphDrafts.delete(stateKey);
                 setReplay((value) => value + 1);
               }}
             >
-              <span aria-hidden="true">↻</span> Restore entries
+              <RotateCcw size={15} aria-hidden="true" /> Restore entries
             </button>
           </div>
         )}

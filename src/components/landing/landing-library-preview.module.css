@@ -1,0 +1,143 @@
+.stage {
+  position: relative;
+  width: 100%;
+  padding: 30px 0 40px;
+  text-align: left;
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: 184px minmax(0, 1fr);
+  min-height: 540px;
+  overflow: hidden;
+  font-family: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
+  color: var(--foreground);
+  text-align: left;
+}
+
+.workspace button, .workspace input { font: inherit; }
+.workspace button { cursor: pointer; }
+.workspace button:focus-visible, .workspace input:focus-visible {
+  outline: 2px solid var(--selection-border);
+  outline-offset: 4px;
+}
+
+.sidebar {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 24px 13px 20px;
+  border-right: 1px solid var(--border);
+  border-radius: 19px 0 0 19px;
+  background: var(--sidebar);
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px 27px;
+  font-size: 21px;
+  font-weight: 900;
+  letter-spacing: -1px;
+}
+.brand svg { width: 31px; height: 31px; }
+.brand rect { fill: var(--primary-button); }
+.brand path { fill: none; stroke: var(--primary-foreground); stroke-width: 1.9; stroke-linecap: round; }
+.sidebar button, .newProblem, .solver {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 44px;
+  padding: 10px 11px;
+  border: 2px solid transparent;
+  border-radius: 16px;
+  color: var(--muted);
+  background: transparent;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.3;
+  text-align: left;
+  transition: background 180ms, color 180ms, border-color 180ms, box-shadow 180ms;
+}
+.sidebar button:hover { background: var(--hover); color: var(--foreground); }
+.sidebar button[aria-pressed="true"] {
+  color: var(--selection-accent);
+  background: var(--selection-soft);
+  border-color: var(--selection-border);
+  box-shadow: 0 1px 0 var(--selection-border), inset 0 1px 0 #ffffff08;
+}
+.sidebar button svg { flex-shrink: 0; transition: transform 220ms cubic-bezier(.2,.8,.2,1); }
+.sidebar button:hover svg { transform: rotate(-8deg) translateY(-1px); }
+.sidebar button:active svg { transform: scale(.9); }
+.newProblem {
+  justify-content: center;
+  margin-bottom: 14px;
+  border: 1px solid var(--control-border);
+  border-bottom-width: 3px;
+  border-radius: 13px;
+  background: var(--raised);
+  color: var(--foreground);
+  white-space: nowrap;
+}
+.sample {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: auto;
+  padding: 18px 3px 0;
+  border-top: 1px solid var(--control-border);
+  color: var(--foreground);
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+.avatar {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--control-border);
+  border-radius: 50%;
+  background: var(--raised);
+  color: var(--muted);
+}
+.sample small { display: block; margin-top: 3px; color: var(--subtle); font-size: 10px; font-weight: 600; }
+
+.library { min-width: 0; padding: 32px; max-height: 720px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--control-border) transparent; }
+.libraryHeading { margin-bottom: 26px; }
+.libraryHeading h3 { margin: 0; font-size: 29px; font-weight: 850; line-height: 1.2; letter-spacing: -.04em; }
+.library :global(.katex) { font-size: 1.05em; }
+.expressionList :global(.katex) { white-space: nowrap; }
+.library :global(.outlinedControl) { flex-shrink: 0; }
+
+@media (max-width: 850px) {
+  .workspace { grid-template-columns: 1fr; }
+  .sidebar { flex-direction: row; align-items: center; padding: 16px 19px; border-right: 0; border-bottom: 1px solid var(--border); gap: 8px; }
+  .brand { padding: 0; margin-right: auto; font-size: 23px; }
+  .brand svg { width: 28px; height: 28px; }
+  .sidebar button { min-height: 41px; padding: 8px 11px; border-radius: 14px; }
+  .newProblem, .solver, .sample { display: none; }
+  .library { padding: 26px; max-height: 680px; }
+  .libraryHeading > div { padding-left: 0; }
+  .libraryHeading h3 { font-size: 27px; }
+}
+@media (max-width: 560px) {
+  .stage { padding: 18px 0 26px; }
+  .workspace { min-height: 0; border-radius: 17px; }
+  .sidebar { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 16px 12px 13px; gap: 13px 8px; }
+  .brand { grid-column: 1 / -1; margin-right: 0; font-size: 21px; gap: 6px; padding-inline: 3px; }
+  .brand svg { width: 26px; height: 26px; }
+  .sidebar button { justify-content: center; gap: 7px; min-height: 42px; padding: 8px; font-size: 12px; white-space: nowrap; }
+  .sidebar button svg { width: 15px; height: 15px; }
+  .library { padding: 23px 12px; max-height: 690px; }
+  .libraryHeading { margin-bottom: 20px; }
+  .library :global(.outlinedControl) { min-height: 34px; gap: 5px; padding-inline: 10px; font-size: 11px; }
+  .expressionList > li { flex-wrap: wrap; gap: 8px; }
+  .expressionList > li > div { flex-basis: 100%; }
+  .expressionList > li > button { margin-left: auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .workspace *, .workspace *::before, .workspace *::after { animation: none !important; transition: none !important; }
+}

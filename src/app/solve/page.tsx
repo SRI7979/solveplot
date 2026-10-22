@@ -5,7 +5,7 @@ import SolverWorkspace from "./solver-workspace";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
-  title: "Solver | Desmo",
+  title: "Solver | SolvePlot",
   robots: { index: false, follow: false },
 };
 

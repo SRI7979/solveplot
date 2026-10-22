@@ -511,7 +511,7 @@
         "sequence": [
           {
             "tag": "A",
-            "label": "Desmo solver",
+            "label": "SolvePlot solver",
             "hasFocus": true,
             "inside": true
           },
@@ -565,7 +565,7 @@
           },
           {
             "tag": "A",
-            "label": "Desmo solver",
+            "label": "SolvePlot solver",
             "hasFocus": true,
             "inside": true
           },

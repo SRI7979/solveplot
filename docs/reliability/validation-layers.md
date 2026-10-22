@@ -3,11 +3,11 @@
 Every solve passes through these layers in order. When a student sees a
 generic failure, the layer is always recoverable from the `diagnosticId` the
 API returns: the `solve_failed` event in `app_events` (and the
-`[desmo:event]` log line) carries `reason`, which is `validation_<stage>`,
+`[solveplot:event]` log line) carries `reason`, which is `validation_<stage>`,
 `timeout_<call>`, `desmos_preflight`, `refusal`, or `openai_<kind>_<status>`.
 In development the API response itself includes `validation.stage` and the
 message, and the rejected model output is written to
-`.desmo-debug/<id>-<attempt>.json`.
+`.solveplot-debug/<id>-<attempt>.json`.
 
 There is no message "AI returned incomplete solution" in the code. The
 closest are:
@@ -34,7 +34,7 @@ closest are:
 | 4 | `zod` | Schema violation (wrong types, unknown technique id) | One correction |
 | 5 | per candidate, rule → stage | `row-fails-to-insert` (empty, prose, undefined letters) → `desmos_syntax`; `list-shape` (one-element or nested list) → `desmos_syntax`; `answers-different-question` (calculator rows on a representation question); `unproven-extremum`; `coefficient-lists`; `disposable-scalar-list`; `unproven-invariance`; `hidden-derivation` (numbers not in the question, formula in a fitted parameter); `integer-not-encoded`; `underdetermined-regression`; `discrete-sampling`; `answer-state`; `answer-consistency` → `answer_consistency` or `result_contract`; `condition-incomplete`; `prose-latex` → `prose_text`; `duplicate-technique`; `duplicate-rows` (same rows as a cheaper method) | The candidate is dropped and kept as a rejected record; the solve fails only when **every** candidate is rejected (stage of the first rejection), then one correction |
 | 5b | (definitional floors) | Not a failure: costs the model under-reports. A paper method for a solution-count condition ("no solution", "exactly one solution", "infinitely many") carries one memorized fact; a row typing the two-point slope formula carries one; `calculator-arithmetic` carries its setup step, and so does an answer-choice list that computes the value it looks up from the question's numbers. `condition-incomplete` accepts a `slider_condition` readout whose slider opens at the answer (`answerState`) with both equations as `relatedRows` (the slider row listed among them is ignored) | Applied before ranking |
-| 6 | `desmos_rescue` (new) | Not a failure: the default would be math-heavy (math score ≥ 2) only because a cheaper Desmos candidate hit a rule above | One guided correction; the result is merged, so the original selection stands if it fails. `DESMO_DESMOS_RESCUE=off` disables it |
+| 6 | `desmos_rescue` (new) | Not a failure: the default would be math-heavy (math score ≥ 2) only because a cheaper Desmos candidate hit a rule above | One guided correction; the result is merged, so the original selection stands if it fails. `SOLVEPLOT_DESMOS_RESCUE=off` disables it |
 
 ## Browser pre-flight (`src/components/preflight-gate.ts`, `src/lib/desmos-preflight.ts`)
 

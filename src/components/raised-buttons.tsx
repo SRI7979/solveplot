@@ -23,7 +23,7 @@ export default function RaisedButtonFeedback() {
           : null;
       if (
         !control ||
-        !control.closest(".desmo-shell") ||
+        !control.closest(".solveplot-shell") ||
         control.matches(":disabled, [aria-disabled=true], :has(input:disabled)")
       )
         return;
@@ -51,7 +51,7 @@ export default function RaisedButtonFeedback() {
           : null;
       if (
         !control ||
-        !control.closest(".desmo-shell") ||
+        !control.closest(".solveplot-shell") ||
         control.matches(":disabled, [aria-disabled=true], :has(input:disabled)")
       )
         return;

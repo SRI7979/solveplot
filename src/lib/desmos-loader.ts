@@ -1,6 +1,6 @@
 import type { DesmosApi } from "./desmos-engine";
 
-export const DESMOS_READY_EVENT = "desmo:calculator-ready";
+export const DESMOS_READY_EVENT = "solveplot:calculator-ready";
 
 export function desmosScriptUrl(apiKey: string): string {
   return `https://www.desmos.com/api/v1.11/calculator.js?apiKey=${encodeURIComponent(apiKey.trim())}`;
@@ -87,7 +87,7 @@ export function loadDesmos(): Promise<DesmosApi> {
       const script = document.createElement("script");
       script.src = src;
       script.async = true;
-      script.dataset.desmoCalculator = "true";
+      script.dataset.solveplotCalculator = "true";
       script.addEventListener("load", onLoad, { once: true });
       script.addEventListener("error", onError, { once: true });
       document.head.append(script);

@@ -1,6 +1,6 @@
-# Desmo's Product Philosophy
+# SolvePlot's Product Philosophy
 
-This is the north star for what Desmo is and how it must think. If a future
+This is the north star for what SolvePlot is and how it must think. If a future
 change (prompt, library, scoring, or UI) conflicts with this document, the
 change is wrong, not this document. Read this before editing
 `src/lib/solver-instructions.ts`, `src/content/desmos-tricks.md`, or
@@ -8,13 +8,13 @@ change is wrong, not this document. Read this before editing
 
 ## The core idea
 
-Desmo teaches **Desmos-first problem solving**, not traditional math with
+SolvePlot teaches **Desmos-first problem solving**, not traditional math with
 Desmos bolted on afterward. The product is an SAT Math tool whose job is to
 give students a large arsenal of reusable Desmos techniques so they can solve
 problems with as little manual math, algebra, arithmetic, formula
 memorization, and conceptual derivation as reasonably possible.
 
-The ideal Desmo user may be weak or average at traditional math but extremely
+The ideal SolvePlot user may be weak or average at traditional math but extremely
 good at recognizing Desmos patterns. Their thought process should become:
 
 > "This is an intersection trick." "This is a list-filter trick." "This is a
@@ -69,7 +69,7 @@ removes the most math wins; math itself comes last:
 
 This is the product's moat. A general chatbot solves the math first and uses
 Desmos only as a calculator for the formula it derived: the discriminant typed
-into a row, a substitution worked by hand. That is the **math way**. Desmo's
+into a row, a substitution worked by hand. That is the **math way**. SolvePlot's
 job is the **Desmos way**: come at the problem from an angle Desmos can handle,
 so Desmos removes the math and the student's skill is knowing Desmos.
 
@@ -92,7 +92,7 @@ must be found too. The human-verified **gold solutions**
 
 Avoid making students memorize specialized mathematical formulas whenever a
 clean Desmos method can replace them. Memorizing **Desmos patterns and
-tricks** is encouraged and expected — that is the skill Desmo exists to teach.
+tricks** is encouraged and expected — that is the skill SolvePlot exists to teach.
 The trade is deliberate: trade formula recall for pattern recognition.
 
 ## Generalizable methods over answer-choice-only hacks
@@ -131,7 +131,7 @@ to reach for, not a method of last resort to apologize for.
 
 ## Method choice
 
-For each problem Desmo lists every Desmos way that validly solves it and
+For each problem SolvePlot lists every Desmos way that validly solves it and
 **one** math way (up to six in all, never padded: validity is the filter), each
 named from a fixed vocabulary so the same technique always carries the same
 name, labeled "Desmos way" or "Math way", and labeled with its math load and a
@@ -220,5 +220,5 @@ Also ask:
 > "Is there a more Desmos-native, reusable, lower-math-burden way to solve
 > this?"
 
-That second question is the main standard Desmo is held to. Correctness is
+That second question is the main standard SolvePlot is held to. Correctness is
 necessary but not sufficient.

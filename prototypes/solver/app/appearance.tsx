@@ -14,8 +14,8 @@ type Appearance = Preference & {
   calculatorDraftRef: RefObject<CalculatorDraft | null>;
 };
 
-const KEY = 'desmo-preview-appearance';
-const EVENT = 'desmo-preview-appearance-change';
+const KEY = 'solveplot-preview-appearance';
+const EVENT = 'solveplot-preview-appearance-change';
 const DEFAULTS: Preference = { paletteId: DEFAULT_PALETTE_ID, colorAmount: 'colorful' };
 const DEFAULT_SNAPSHOT = JSON.stringify(DEFAULTS);
 let memorySnapshot = DEFAULT_SNAPSHOT;

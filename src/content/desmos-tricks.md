@@ -1,8 +1,8 @@
-DESMO SAT MATH STRATEGY LIBRARY
+SOLVEPLOT SAT MATH STRATEGY LIBRARY
 
 DESMOS-FIRST, LEAST-TOTAL-EFFORT POLICY
 
-Desmo teaches Desmos-first problem solving, not traditional math with Desmos
+SolvePlot teaches Desmos-first problem solving, not traditional math with Desmos
 added afterward. The student may be weak at traditional math but strong at
 recognizing Desmos patterns; their thought should become "this is an
 intersection trick", "this is a list-filter trick", "this is a midpoint

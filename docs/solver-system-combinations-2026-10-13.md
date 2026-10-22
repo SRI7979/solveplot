@@ -1,6 +1,6 @@
 # Systems in their own unknowns: the bracket regression, not arithmetic
 
-The user reported a solve where Desmo recommended a math way for
+The user reported a solve where SolvePlot recommended a math way for
 `7x + 4y + 8z = 61`, `4x + y + 5z = 37`, asking for `x + y + z`. It chose Direct
 arithmetic: scale both equations by 1/3 and subtract. The user's Desmos way,
 now gold 016, is:

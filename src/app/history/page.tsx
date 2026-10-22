@@ -8,7 +8,7 @@ import styles from "@/components/library-ui.module.css";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
-  title: "History | Desmo",
+  title: "History | SolvePlot",
   robots: { index: false, follow: false },
 };
 
@@ -48,7 +48,7 @@ export default async function HistoryPage({
             </span>
             <div>
               <h1>History</h1>
-              <p>Pick up where you left off.</p>
+              <p>Reopen your questions and solutions.</p>
             </div>
           </div>
           <Link href="/solve?new=1" className="primaryButton">

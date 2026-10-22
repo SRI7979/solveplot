@@ -18,27 +18,27 @@
     "result": {
       "rows": [
         {
-          "id": "desmo_1",
+          "id": "solveplot_1",
           "latex": "x_{1}=[1,2,4]"
         },
         {
-          "id": "desmo_2",
+          "id": "solveplot_2",
           "latex": "y_{1}=[8,15,35]"
         },
         {
-          "id": "desmo_3",
+          "id": "solveplot_3",
           "latex": "(x_{1},y_{1})"
         },
         {
-          "id": "desmo_4",
+          "id": "solveplot_4",
           "latex": "y_{1}\\sim ax_{1}^2+bx_{1}+c"
         },
         {
-          "id": "desmo_5",
+          "id": "solveplot_5",
           "latex": "f(x)=ax^2+bx+c"
         },
         {
-          "id": "desmo_6",
+          "id": "solveplot_6",
           "latex": "f(10)"
         }
       ],
@@ -65,27 +65,27 @@
     "result": {
       "rows": [
         {
-          "id": "desmo_1",
+          "id": "solveplot_1",
           "latex": "x_{1}=[1,2,4]"
         },
         {
-          "id": "desmo_2",
+          "id": "solveplot_2",
           "latex": "y_{1}=[8,15,35]"
         },
         {
-          "id": "desmo_3",
+          "id": "solveplot_3",
           "latex": "(x_{1},y_{1})"
         },
         {
-          "id": "desmo_4",
+          "id": "solveplot_4",
           "latex": "y_{1}\\sim ax_{1}^2+bx_{1}+c"
         },
         {
-          "id": "desmo_5",
+          "id": "solveplot_5",
           "latex": "f(x)=ax^2+bx+c"
         },
         {
-          "id": "desmo_6",
+          "id": "solveplot_6",
           "latex": "f(10)"
         }
       ],

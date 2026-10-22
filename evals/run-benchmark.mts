@@ -1,5 +1,5 @@
 /**
- * The Desmo benchmark: every case in evals/problems (and the gitignored
+ * The SolvePlot benchmark: every case in evals/problems (and the gitignored
  * evals/private, for licensed problems) through the SAME pipeline the app
  * uses, scored for answer accuracy, strategy quality against gold labels,
  * student burden, explanation quality, reliability, and latency. Spends real

@@ -3,7 +3,7 @@ import { costUsd, rateFor, usageFrom, type Usage } from "./model-pricing";
 /**
  * Spend protection, in three independent layers:
  *   1. every OpenAI call's actual usage is recorded with its model, tier, and
- *      USD cost (the input to the other two, and the record of what Desmo costs);
+ *      USD cost (the input to the other two, and the record of what SolvePlot costs);
  *   2. each user gets FREE_SOLVES_PER_DAY new solves per rolling 24 hours
  *      (and, separately, TUTOR_QUESTIONS_PER_DAY tutor answers);
  *   3. all users together stop at DAILY_SPEND_CEILING_USD per UTC day.

@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { WorkspaceAppearance } from "@/components/appearance-provider";
-import DesmoLogo from "@/components/desmo-logo";
+import SolvePlotLogo from "@/components/solveplot-logo";
 import styles from "@/app/login/page.module.css";
 
 export default function ProblemNotFound() {
   return (
     <WorkspaceAppearance className={styles.entry}>
       <main className={styles.page}>
-        <DesmoLogo centered variant="workspace" />
+        <SolvePlotLogo centered variant="workspace" />
         <section className={`${styles.card} appPageEnter`}>
           <h1>Problem not found</h1>
           <p className={styles.subtitle}>This problem isn’t in your history.</p>

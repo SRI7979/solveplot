@@ -18,7 +18,7 @@ export function getSupabaseConfig(): { url: string; key: string } | null {
   }
 }
 
-const VERCEL_PRODUCTION_ORIGIN = "https://desmomath.com";
+const VERCEL_PRODUCTION_ORIGIN = "https://solveplot.com";
 
 /** Email callbacks use a configured origin, never a request's Host header. */
 export function getSiteOrigin(): string | null {

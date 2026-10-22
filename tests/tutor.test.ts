@@ -272,7 +272,7 @@ test("a calculator line is explained from the server's own context, metered as o
   assert.equal(request.instructions, TUTOR_INSTRUCTIONS);
   assert.deepEqual(request.reasoning, { effort: "low" });
   assert.equal((request.text as { verbosity: string }).verbosity, "low");
-  assert.equal((request.text as { format: { name: string; strict: boolean } }).format.name, "desmo_tutor");
+  assert.equal((request.text as { format: { name: string; strict: boolean } }).format.name, "solveplot_tutor");
   assert.equal(request.max_output_tokens, 2000);
   const input = inputText(request);
   assert.match(input, /^Problem: What is the positive solution to x² = 9\?/);

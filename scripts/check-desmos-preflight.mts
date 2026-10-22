@@ -74,7 +74,7 @@ export { calculatorPayload, verdictFromAnalysis } from "./src/lib/desmos-preflig
   },
   bundle: true,
   format: "iife",
-  globalName: "DesmoPreflight",
+  globalName: "SolvePlotPreflight",
   platform: "browser",
   write: false,
   logLevel: "silent",
@@ -99,7 +99,7 @@ const server = http.createServer((request, response) => {
 await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
 const origin = `http://localhost:${(server.address() as { port: number }).port}/`;
 
-const chrome = spawn(chromePath, ["--headless=new", "--remote-debugging-port=0", `--user-data-dir=${mkdtempSync(path.join(os.tmpdir(), "desmo-chrome-"))}`, "--no-first-run", "--no-default-browser-check", ...(process.getuid?.() === 0 ? ["--no-sandbox"] : []), ...(process.env.HTTPS_PROXY ? [`--proxy-server=${process.env.HTTPS_PROXY}`] : []), "about:blank"], { stdio: ["ignore", "ignore", "pipe"] });
+const chrome = spawn(chromePath, ["--headless=new", "--remote-debugging-port=0", `--user-data-dir=${mkdtempSync(path.join(os.tmpdir(), "solveplot-chrome-"))}`, "--no-first-run", "--no-default-browser-check", ...(process.getuid?.() === 0 ? ["--no-sandbox"] : []), ...(process.env.HTTPS_PROXY ? [`--proxy-server=${process.env.HTTPS_PROXY}`] : []), "about:blank"], { stdio: ["ignore", "ignore", "pipe"] });
 const wsUrl = await new Promise<string>((resolve, reject) => {
   let buffer = "";
   chrome.stderr!.on("data", (chunk) => {
@@ -154,10 +154,10 @@ try {
     return ms;
   })()`);
   // The app's engine, exactly as bundled, as a global the checks below call.
-  await evaluate(`${engineScript}\nwindow.DesmoPreflight = DesmoPreflight; true`);
+  await evaluate(`${engineScript}\nwindow.SolvePlotPreflight = SolvePlotPreflight; true`);
   const created = await evaluate<number>(`(() => {
     const started = performance.now();
-    window.engine = DesmoPreflight.createPreflightEngine(window.Desmos, document);
+    window.engine = SolvePlotPreflight.createPreflightEngine(window.Desmos, document);
     return performance.now() - started;
   })()`);
 
@@ -165,7 +165,7 @@ try {
   const check = (plan: Plan) =>
     evaluate<Checked>(`(async () => {
       const plan = ${JSON.stringify(plan)};
-      const payload = DesmoPreflight.calculatorPayload(plan.rows, plan.answerState);
+      const payload = SolvePlotPreflight.calculatorPayload(plan.rows, plan.answerState);
       const started = performance.now();
       const verdict = await window.engine.check(payload);
       return { label: plan.label, verdict, ms: Math.round(performance.now() - started), updates: 0, rows: payload.items.map((item) => item.latex) };
@@ -177,8 +177,8 @@ try {
       const host = document.createElement("div");
       host.style.cssText = "position:fixed;left:-10000px;width:400px;height:300px";
       document.body.appendChild(host);
-      const calculator = Desmos.GraphingCalculator(host, { ...DesmoPreflight.MATH_OPTIONS, expressions: false });
-      const payload = DesmoPreflight.calculatorPayload(${JSON.stringify(rows.map((latex) => ({ latex, slider: null })))}, null);
+      const calculator = Desmos.GraphingCalculator(host, { ...SolvePlotPreflight.MATH_OPTIONS, expressions: false });
+      const payload = SolvePlotPreflight.calculatorPayload(${JSON.stringify(rows.map((latex) => ({ latex, slider: null })))}, null);
       calculator.setExpressions(payload.items.map((item, index) => ({ ...item, id: "p" + (index + 1) })));
       await new Promise((resolve) => setTimeout(resolve, 600));
       const analysis = JSON.parse(JSON.stringify(calculator.expressionAnalysis));

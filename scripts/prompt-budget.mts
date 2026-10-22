@@ -20,8 +20,8 @@ import { TECHNIQUE_ANNOTATION } from "../src/lib/technique-vocabulary";
 const tokens = (text: string) => encode(text).length;
 const library = await readFile(path.join(process.cwd(), "src/content/desmos-tricks.md"), "utf8");
 const gold = await loadGoldSolutions();
-const candidateSchema = JSON.stringify(zodTextFormat(candidatesResponseSchema, "desmo_candidates"));
-const explanationSchemaText = JSON.stringify(zodTextFormat(explanationSchema, "desmo_explanation"));
+const candidateSchema = JSON.stringify(zodTextFormat(candidatesResponseSchema, "solveplot_candidates"));
+const explanationSchemaText = JSON.stringify(zodTextFormat(explanationSchema, "solveplot_explanation"));
 
 // Library sections: the policy preamble, then one block per numbered strategy.
 const lines = library.split("\n");

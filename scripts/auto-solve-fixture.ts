@@ -36,7 +36,7 @@ const selection = selectMethods(candidatesResponseSchema.parse({
 }));
 const methods = selection.methods.filter(method => !method.rejected).map(method => ({ ...method, verified: true }));
 if (methods.length !== 1) throw new Error("Recording regression must pass production strategy validation");
-writeFileSync("/tmp/desmo-auto-solve-fixture.json", JSON.stringify({
+writeFileSync("/tmp/solveplot-auto-solve-fixture.json", JSON.stringify({
   payload: { cacheKey: "recording-quadratic-regression", selectedMethodId: selection.winnerId, question, choices: null, structure: solution.structure, methods },
   solution,
 }, null, 2));

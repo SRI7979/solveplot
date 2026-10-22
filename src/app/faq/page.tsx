@@ -17,9 +17,9 @@ export const metadata: Metadata = {
 };
 
 export default function FAQPage() {
-  return <div className="desmo-landing faq-page" id="top">
+  return <div className="solveplot-landing faq-page" id="top">
     <header className="faq-nav">
-      <Link href="/" className="landing-logo" aria-label={`${BRAND.name} home`}><span className="provided-mark" aria-hidden="true"><img src="/images/desmo-logo-source.png" alt="" /></span>{BRAND.wordmark}</Link>
+      <Link href="/" className="landing-logo" aria-label={`${BRAND.name} home`}><span className="provided-mark" aria-hidden="true"><img src="/images/solveplot-logo-source.png" alt="" /></span>{BRAND.wordmark}</Link>
       <Link className="nav-cta" href="/solve">Open solver <ArrowRight size={15} /></Link>
     </header>
     <main className="faq-content">

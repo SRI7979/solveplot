@@ -13,9 +13,9 @@ import "./legal-page.css";
 export const LEGAL_UPDATED = "October 13, 2026";
 
 export function LegalPage({ title, intro, children }: { title: string; intro: string; children: ReactNode }) {
-  return <div className="desmo-landing legal-page" id="top">
+  return <div className="solveplot-landing legal-page" id="top">
     <header className="faq-nav">
-      <Link href="/" className="landing-logo" aria-label={`${BRAND.name} home`}><span className="provided-mark" aria-hidden="true"><img src="/images/desmo-logo-source.png" alt="" /></span>{BRAND.wordmark}</Link>
+      <Link href="/" className="landing-logo" aria-label={`${BRAND.name} home`}><span className="provided-mark" aria-hidden="true"><img src="/images/solveplot-logo-source.png" alt="" /></span>{BRAND.wordmark}</Link>
       <Link href="/solve" className="nav-cta">Open solver <ArrowRight size={15} /></Link>
     </header>
     <main className="legal-content">

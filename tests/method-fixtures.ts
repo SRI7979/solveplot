@@ -139,7 +139,7 @@ export function mockModel(replies: {
   const fetchMock = mock.method(globalThis, "fetch", async (_input: unknown, options?: RequestInit) => {
     const body = JSON.parse(String(options?.body)) as Record<string, unknown>;
     const name = (body.text as { format: { name: string } }).format.name;
-    const kind = name === "desmo_explanation" ? "explanation" : "candidates";
+    const kind = name === "solveplot_explanation" ? "explanation" : "candidates";
     requests[kind].push(body);
     const reply = kind === "explanation" ? (replies.explanation ?? explanation()) : replies.candidates;
     const value = await (typeof reply === "function"

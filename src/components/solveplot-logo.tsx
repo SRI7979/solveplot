@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { BRAND } from "@/lib/brand";
-import styles from "./desmo-logo.module.css";
+import styles from "./solveplot-logo.module.css";
 
-export default function DesmoLogo({ centered = false, variant = "default" }: { centered?: boolean; variant?: "default" | "workspace" }) {
+export default function SolvePlotLogo({ centered = false, variant = "default" }: { centered?: boolean; variant?: "default" | "workspace" }) {
   return (
     <Link
       href="/"

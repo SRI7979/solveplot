@@ -100,7 +100,7 @@ export function WorkspaceAppearance({
   ) as CSSProperties;
   return (
     <div
-      className={`desmo-shell ${className}`}
+      className={`solveplot-shell ${className}`}
       style={style}
       data-palette={preferences.palette}
       data-color-amount={preferences.colorAmount}

@@ -17,7 +17,7 @@ How they are used:
 
 ## Adding a problem
 
-Add an object to `desmo_gold_solutions.json`, or start a new `*.json` file
+Add an object to `solveplot_gold_solutions.json`, or start a new `*.json` file
 holding an array. Ids must be unique across every file.
 
 ```json

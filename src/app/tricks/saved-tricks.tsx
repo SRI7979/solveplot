@@ -16,6 +16,7 @@ import {
 import type { DesmosExpression } from "@/lib/solver-schema";
 import MathText from "@/components/math-text";
 import styles from "@/components/library-ui.module.css";
+import emptyStyles from "./saved-tricks.module.css";
 
 export type SavedTrickItem = {
   id: string;
@@ -73,14 +74,22 @@ export default function SavedTricks({
 
   if (tricks.length === 0) {
     return (
-      <div className={styles.empty} data-testid="saved-tricks">
-        <h2>No saved tricks yet</h2>
-        <p>Use Save this trick on a solution to keep its technique here</p>
-        <Bookmark size={30} />
-        <Link href="/solve" className="secondaryButton">
+      <section
+        className={emptyStyles.emptyState}
+        data-testid="saved-tricks"
+        aria-labelledby="saved-tricks-empty-title"
+      >
+        <span className={emptyStyles.emptyIcon} aria-hidden="true">
+          <Bookmark size={23} />
+        </span>
+        <div className={emptyStyles.emptyCopy}>
+          <h2 id="saved-tricks-empty-title">No saved tricks yet</h2>
+          <p>Save a method from any solution and it’ll show up here.</p>
+        </div>
+        <Link href="/solve" className={`secondaryButton ${emptyStyles.emptyAction}`}>
           Solve a question
         </Link>
-      </div>
+      </section>
     );
   }
 

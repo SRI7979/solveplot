@@ -34,7 +34,7 @@
   --radius-2xl: calc(var(--radius) + 8px);
 }
 
-.desmo-shell {
+.solveplot-shell {
   --background: var(--appearance-light-background);
   --card: var(--appearance-light-card);
   --foreground: var(--appearance-light-foreground);
@@ -94,10 +94,10 @@
   background: var(--background);
   line-height: 1.5;
 }
-.desmo-shell {
+.solveplot-shell {
   color-scheme: light;
 }
-html[data-theme="dark"] .desmo-shell {
+html[data-theme="dark"] .solveplot-shell {
   --background: var(--appearance-dark-background);
   --card: var(--appearance-dark-card);
   --foreground: var(--appearance-dark-foreground);
@@ -151,43 +151,57 @@ html[data-theme="dark"] .desmo-shell {
   --font-mono: var(--appearance-dark-font-mono);
   color-scheme: dark;
 }
-.desmo-shell .font-sans {
+.solveplot-shell .font-sans {
   font-family: var(--font-sans);
 }
-.desmo-shell .font-mono {
+.solveplot-shell .font-mono {
   font-family: var(--font-mono);
 }
-.desmo-shell button {
+.solveplot-shell button {
   cursor: pointer;
 }
-.desmo-shell button:focus-visible {
+.solveplot-shell button:focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 3px;
 }
-.desmo-shell ::selection {
+.solveplot-shell ::selection {
   background: var(--brand-soft);
   color: var(--foreground);
 }
-.desmo-shell :is(button[data-primary], button.bg-primary) {
+.solveplot-shell :is(button[data-primary], button.bg-primary) {
   background: var(--primary);
   color: var(--primary-foreground);
 }
-.desmo-shell[data-button="outline"]
-  :is(button[data-primary], button.bg-primary):not(:disabled) {
+.solveplot-shell[data-button="outline"]
+  :is(.primaryButton, button[data-primary], button.bg-primary):not(:disabled) {
   background: transparent;
   color: var(--brand);
-  border: 1px solid var(--brand);
+  border-color: transparent;
+  --press-depth: 0px;
+  --press-base: transparent;
+  --press-face: var(--paper);
+  --press-outline: var(--brand);
+}
+.solveplot-shell[data-button="solid"] .primaryButton {
+  --press-depth: 0px;
+  --press-base: transparent;
+  --press-outline: transparent;
+}
+.solveplot-shell[data-button="raised"] .primaryButton {
+  --press-depth: 4px;
+  --press-base: var(--primary-edge);
+  --press-outline: var(--primary-edge);
 }
 @media (prefers-reduced-motion: reduce) {
-  .desmo-shell *,
-  .desmo-shell *::before,
-  .desmo-shell *::after {
+  .solveplot-shell *,
+  .solveplot-shell *::before,
+  .solveplot-shell *::after {
     animation: none !important;
     transition: none !important;
   }
 }
 
-.desmo-shell {
+.solveplot-shell {
   --ink: var(--appearance-light-ink);
   --teal: var(--appearance-light-teal);
   --teal-deep: var(--appearance-light-teal-deep);
@@ -213,7 +227,7 @@ html[data-theme="dark"] .desmo-shell {
   --primary-edge: var(--appearance-light-primary-edge);
 }
 
-html[data-theme="dark"] .desmo-shell {
+html[data-theme="dark"] .solveplot-shell {
   --ink: var(--appearance-dark-ink);
   --teal: var(--appearance-dark-teal);
   --teal-deep: var(--appearance-dark-teal-deep);
@@ -240,7 +254,7 @@ html[data-theme="dark"] .desmo-shell {
 }
 
 /* Shared controls are scoped to the authenticated workspace. */
-.desmo-shell {
+.solveplot-shell {
   .outlinedControl,
   .secondaryButton,
   .primaryButton,
@@ -252,7 +266,7 @@ html[data-theme="dark"] .desmo-shell {
     min-height: 41px;
     padding: 8px 15px;
     border: 1px solid var(--control-border);
-    border-radius: 12px;
+    border-radius: var(--radius-lg);
     background: var(--paper);
     color: var(--foreground);
     font: inherit;
@@ -267,7 +281,7 @@ html[data-theme="dark"] .desmo-shell {
     min-height: 38px;
     padding: 8px 12px;
     border-width: 2px;
-    border-radius: 13px;
+    border-radius: var(--radius-md);
     font-size: 12px;
     font-weight: 750;
   }
@@ -282,7 +296,7 @@ html[data-theme="dark"] .desmo-shell {
   .primaryButton {
     min-height: 46px;
     padding: 11px 20px;
-    border-radius: 999px;
+    border-radius: var(--radius-lg);
     background: var(--primary-button);
     color: var(--primary-foreground);
     font-size: 15px;
@@ -349,6 +363,6 @@ html[data-theme="dark"] .desmo-shell {
     }
   }
 }
-.desmo-shell .katex {
+.solveplot-shell .katex {
   position: relative;
 }

@@ -9,7 +9,7 @@ import sharp from "sharp";
 const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || "playwright");
 const origin = process.env.DEMO_ORIGIN || "http://localhost:3000";
-const fixture = JSON.parse(await readFile("/tmp/desmo-auto-solve-fixture.json", "utf8"));
+const fixture = JSON.parse(await readFile("/tmp/solveplot-auto-solve-fixture.json", "utf8"));
 const png = await sharp("public/demo/quadratic-question.svg", { density: 216 }).png().toBuffer();
 await writeFile("public/demo/quadratic-question.png", png);
 const evidence = [];
@@ -17,7 +17,7 @@ const out = "docs/auto-solve-video-review";
 await mkdir(out, { recursive: true });
 const variants = [["desktop", 1200, 750], ["phone", 420, 780]].filter(([variant]) => !process.env.DEMO_VARIANT || variant === process.env.DEMO_VARIANT);
 assert.ok(variants.length, "DEMO_VARIANT must be desktop or phone");
-const staging = "/tmp/desmo-auto-solve-capture";
+const staging = "/tmp/solveplot-auto-solve-capture";
 await mkdir(staging, { recursive: true });
 const browser = await chromium.launch({ executablePath: process.env.BROWSER_PATH || "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge", headless: true });
 try {
@@ -26,9 +26,9 @@ try {
     // and its graph are re-rendered; the previous recording is never upscaled.
     const page = await browser.newPage({viewport:{width,height},deviceScaleFactor:3});
     await page.addInitScript(() => {
-      localStorage.setItem("desmo-sidebar-collapsed", "true");
-      localStorage.setItem("desmo-theme", "light");
-      sessionStorage.setItem("desmo-appearance", JSON.stringify({
+      localStorage.setItem("solveplot-sidebar-collapsed", "true");
+      localStorage.setItem("solveplot-theme", "light");
+      sessionStorage.setItem("solveplot-appearance", JSON.stringify({
         palette: "candy", colorAmount: "colorful", text: "Modern",
         button: "Raised", corners: "Round",
       }));
@@ -41,7 +41,7 @@ try {
     page.on("pageerror", error => errors.push(error.message));
     await page.route("**/calculator.js?*", async route => {
       const response = await route.fetch();
-      await route.fulfill({response,body:(await response.text())+';{const original=Desmos.GraphingCalculator;Desmos.GraphingCalculator=(...args)=>{const c=original(...args);if(!args[0].hasAttribute("data-desmo-preflight"))window.demoCalculator=c;return c;}}'});
+      await route.fulfill({response,body:(await response.text())+';{const original=Desmos.GraphingCalculator;Desmos.GraphingCalculator=(...args)=>{const c=original(...args);if(!args[0].hasAttribute("data-solveplot-preflight"))window.demoCalculator=c;return c;}}'});
     });
     await page.route("**/api/solve**", route => {
       if(new URL(route.request().url()).pathname.endsWith("preflight"))return route.fulfill({json:{status:"ready",payload:fixture.payload}});
@@ -54,7 +54,7 @@ try {
     await page.waitForFunction(()=>window.demoCalculator);
     await page.evaluate(()=>document.fonts.ready);
     await page.addStyleTag({content:'nextjs-portal{display:none!important}html{scroll-behavior:auto!important}html,body{overflow:hidden!important;background:#fff!important}'});
-    const appearance = await page.locator('.desmo-shell').evaluate(el => ({
+    const appearance = await page.locator('.solveplot-shell').evaluate(el => ({
       palette: el.dataset.palette, colorAmount: el.dataset.colorAmount,
       typography: el.dataset.typography, mode: el.dataset.colorMode,
     }));
@@ -95,7 +95,7 @@ try {
         const events=[{type:'methods',...fixture.payload},{type:'solution',methodId:fixture.payload.selectedMethodId,solution:fixture.solution},{type:'done'}];
         await pending.fulfill({contentType:'application/x-ndjson',body:events.map(event=>JSON.stringify(event)).join('\n')+'\n'});
         await page.getByTestId('explanation-line').first().waitFor();
-        await page.waitForFunction(()=>window.demoCalculator.expressionAnalysis.desmo_6?.evaluation?.value===143);
+        await page.waitForFunction(()=>window.demoCalculator.expressionAnalysis.solveplot_6?.evaluation?.value===143);
         if(width>=700){
           const button = await page.getByRole('button',{name:'Expressions',exact:true}).boundingBox();
           expressionPoint = {x:button.x+button.width/2,y:button.y+button.height/2};
@@ -147,12 +147,12 @@ try {
       // final graph/result is more readable than the preceding explanation tab.
       if(index===(variant==='desktop'?164:230))await sharp(image).webp({lossless:true}).toFile(`${staging}/auto-solve-${variant}.webp`);
       if(index===230){
-        const result=await page.evaluate(()=>({rows:window.demoCalculator.getExpressions().map(({id,latex})=>({id,latex})),answer:window.demoCalculator.expressionAnalysis.desmo_6.evaluation.value}));
+        const result=await page.evaluate(()=>({rows:window.demoCalculator.getExpressions().map(({id,latex})=>({id,latex})),answer:window.demoCalculator.expressionAnalysis.solveplot_6.evaluation.value}));
         assert.equal(result.answer,143);
         assert.equal(result.rows.filter(row=>row.latex).length,6);
         const normalize = latex => latex.replace(/\\(?:left|right)/g, '').replace(/[{}\s]/g, '');
-        assert.equal(normalize(result.rows.find(row=>row.id==='desmo_5').latex), 'f(x)=ax^2+bx+c');
-        assert.equal(normalize(result.rows.find(row=>row.id==='desmo_6').latex), 'f(10)');
+        assert.equal(normalize(result.rows.find(row=>row.id==='solveplot_5').latex), 'f(x)=ax^2+bx+c');
+        assert.equal(normalize(result.rows.find(row=>row.id==='solveplot_6').latex), 'f(10)');
         evidence.push({variant,width:width*3,height:height*3,fps,appearance,camera:'problem close-up → full workspace → result close-up',dragFrom:'left',ending:'hold then direct loop',requests,liveModelCalls:0,result,errors});
       }
     }

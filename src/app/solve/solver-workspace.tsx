@@ -885,6 +885,8 @@ export default function SolverWorkspace({
       <div
         className={styles.mobilePanels}
         data-workspace-panels
+      >
+        <div className="segmentedControl workspacePanelSwitch"
         role="tablist"
         aria-label="Workspace panels"
       >
@@ -916,6 +918,7 @@ export default function SolverWorkspace({
           <ScanLine size={18} />
           Calculator
         </button>
+        </div>
       </div>
       <main className={styles.main}>
         <h1 className={styles.srOnly}>SAT Math solver</h1>

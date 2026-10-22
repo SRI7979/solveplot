@@ -8,7 +8,7 @@ import styles from "@/components/library-ui.module.css";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
-  title: "Saved tricks | Desmo",
+  title: "Saved tricks | SolvePlot",
   robots: { index: false, follow: false },
 };
 

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, type CSSProperties } from "react";
-import { Bookmark, Check, RotateCcw } from "lucide-react";
+import { useEffect, useState, type CSSProperties } from "react";
+import { ArrowUpRight, Bookmark, Check, LoaderCircle, RotateCcw } from "lucide-react";
 import { useAppearance } from "./appearance-provider";
 import { useTheme } from "./theme-provider";
 import { Monitor, Moon, Sun } from "lucide-react";
@@ -15,6 +15,16 @@ const FILTERS = [
   { id: "warm", label: "Warm" },
   { id: "neutral", label: "Neutral" },
 ] as const;
+
+const TYPOGRAPHY = [
+  { id: "Modern", sample: "Graphs, equations, and regressions." },
+  { id: "Geist", sample: "Graphs, equations, and regressions." },
+  { id: "Editorial", sample: "Graphs, equations, and regressions." },
+  { id: "Technical", sample: "Graphs, equations, and regressions." },
+] as const;
+
+const BUTTON_STYLES = ["Solid", "Outline", "Raised"] as const;
+const CORNER_STYLES = ["Crisp", "Soft", "Round"] as const;
 
 type Filter = (typeof FILTERS)[number]["id"];
 
@@ -37,6 +47,7 @@ function PaletteSwatches({ palette }: { palette: Palette }) {
 
 function WorkspacePreview() {
   const { preferences } = useAppearance();
+  const [saved, setSaved] = useState(false);
   const palette = getPalette(preferences.palette);
   const curve = Array.from({ length: 111 }, (_, index) => {
     const x = -2 + index / 10;
@@ -119,6 +130,15 @@ function WorkspacePreview() {
             </span>
             <strong>7</strong>
           </div>
+          <button
+            type="button"
+            className="primaryButton appearancePreviewButton"
+            aria-pressed={saved}
+            onClick={() => setSaved((value) => !value)}
+          >
+            {saved ? <Check size={15} /> : <Bookmark size={15} />}
+            {saved ? "Trick saved" : "Save this trick"}
+          </button>
         </div>
       </div>
       <p className="appearancePreviewNote">
@@ -144,6 +164,12 @@ export function AppearanceStudio({ settings = false }: { settings?: boolean }) {
     setPreferences({ ...preferences, colorAmount: amount });
   const [filter, setFilter] = useState<Filter>("all");
   const [resetMessage, setResetMessage] = useState("");
+  const [accountPending, setAccountPending] = useState(false);
+  useEffect(() => {
+    if (!accountPending) return;
+    const timeout = window.setTimeout(() => setAccountPending(false), 6000);
+    return () => window.clearTimeout(timeout);
+  }, [accountPending]);
   const visiblePalettes = PALETTES.filter(
     (item) => filter === "all" || item.family === filter,
   );
@@ -158,11 +184,23 @@ export function AppearanceStudio({ settings = false }: { settings?: boolean }) {
     <div className="appearancePage">
       <div className="wsPageInner appearancePageInner">
         <header className="wsPageHeading">
-          <h1>Settings</h1>
-          <p>
-            Make the workspace comfortable for you.{" "}
-            <Link href="/profile">Manage your account ↗</Link>
-          </p>
+          <div>
+            <h1>Settings</h1>
+            <p>Customize colors, typography, and controls.</p>
+          </div>
+          <Link
+            href="/profile"
+            prefetch={true}
+            className="secondaryButton appearanceAccountLink"
+            aria-busy={accountPending}
+            onNavigate={() => setAccountPending(true)}
+          >
+            {accountPending ? (
+              <LoaderCircle size={17} className="appearanceAccountSpinner" />
+            ) : null}
+            <span>{accountPending ? "Opening account…" : "Manage your account"}</span>
+            {!accountPending ? <ArrowUpRight size={17} /> : null}
+          </Link>
         </header>
         <div className="appearanceLayout">
           <section
@@ -176,11 +214,11 @@ export function AppearanceStudio({ settings = false }: { settings?: boolean }) {
             <fieldset className="appearanceAmount">
               <legend>Color amount</legend>
               <p>Choose how much color appears in backgrounds and controls.</p>
-              <div className="appearanceAmountChoices">
+              <div className="appearanceAmountChoices segmentedControl">
                 {(["soft", "colorful"] as const).map((amount) => (
                   <label
                     key={amount}
-                    className="appearanceAmountChoice"
+                    className="appearanceAmountChoice choiceControl"
                     data-selected={colorAmount === amount}
                   >
                     <input
@@ -270,8 +308,9 @@ export function AppearanceStudio({ settings = false }: { settings?: boolean }) {
             </fieldset>
             <fieldset className="appearanceAmount">
               <legend>Typography</legend>
+              <p>Choose the reading style used across your workspace.</p>
               <div className="appearanceAmountChoices">
-                {(["Modern", "Editorial", "Technical"] as const).map((text) => (
+                {TYPOGRAPHY.map(({ id: text, sample }) => (
                   <label
                     key={text}
                     className="appearanceAmountChoice"
@@ -280,10 +319,69 @@ export function AppearanceStudio({ settings = false }: { settings?: boolean }) {
                     <input
                       type="radio"
                       name="workspace-font"
+                      value={text}
                       checked={preferences.text === text}
-                      onChange={() => setPreferences({ ...preferences, text })}
+                      onChange={() => {
+                        setPreferences({ ...preferences, text });
+                        setResetMessage("");
+                      }}
                     />
-                    {text}
+                    <span className="appearanceChoiceText">
+                      <strong>{text}</strong>
+                      <small>{sample}</small>
+                    </span>
+                    <Check size={14} aria-hidden="true" />
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            <fieldset className="appearanceAmount appearanceTreatmentField">
+              <legend>Button style</legend>
+              <p>Choose solid, outlined, or raised buttons.</p>
+              <div className="appearanceAmountChoices">
+                {BUTTON_STYLES.map((button) => (
+                  <label
+                    key={button}
+                    className="appearanceAmountChoice"
+                    data-selected={preferences.button === button}
+                  >
+                    <input
+                      type="radio"
+                      name="workspace-button-style"
+                      value={button}
+                      checked={preferences.button === button}
+                      onChange={() => {
+                        setPreferences({ ...preferences, button });
+                        setResetMessage("");
+                      }}
+                    />
+                    {button}
+                    <Check size={14} aria-hidden="true" />
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            <fieldset className="appearanceAmount appearanceTreatmentField">
+              <legend>Corner style</legend>
+              <p>Set the shape of panels, fields, and buttons.</p>
+              <div className="appearanceAmountChoices">
+                {CORNER_STYLES.map((corners) => (
+                  <label
+                    key={corners}
+                    className="appearanceAmountChoice"
+                    data-selected={preferences.corners === corners}
+                  >
+                    <input
+                      type="radio"
+                      name="workspace-corner-style"
+                      value={corners}
+                      checked={preferences.corners === corners}
+                      onChange={() => {
+                        setPreferences({ ...preferences, corners });
+                        setResetMessage("");
+                      }}
+                    />
+                    {corners}
                     <Check size={14} aria-hidden="true" />
                   </label>
                 ))}
