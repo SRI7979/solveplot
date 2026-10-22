@@ -6,10 +6,10 @@ const configuredOrigin = getSiteOrigin();
 export const SITE_ORIGIN = configuredOrigin && !["localhost", "127.0.0.1", "[::1]"].includes(new URL(configuredOrigin).hostname)
   ? configuredOrigin
   : `https://${BRAND.domain}`;
-const title = `${BRAND.name} | SAT Math solver`;
+const title = `${BRAND.name} | ${BRAND.domain}`;
 const description = "Upload or type an SAT Math question. SolvePlot fills the calculator and explains each step.";
 const image = {
-  url: "/images/solveplot-share-v1.png",
+  url: "/images/solveplot-share-v2.png",
   width: 1200,
   height: 630,
   type: "image/png",

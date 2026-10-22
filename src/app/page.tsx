@@ -4,7 +4,7 @@ import { BRAND } from "@/lib/brand";
 import { SITE_METADATA } from "@/lib/site-metadata";
 
 export const metadata: Metadata = {
-  title: `${BRAND.name} | SAT Math solver`,
+  title: `${BRAND.name} | ${BRAND.domain}`,
   description: SITE_METADATA.description,
   alternates: { canonical: "/" },
   openGraph: { ...SITE_METADATA.openGraph, url: "/" },
