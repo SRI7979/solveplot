@@ -1,7 +1,7 @@
 /**
  * Seconds the solve button should count down before the student may try
  * again, or null when waiting would not help. Only a response the server
- * marked `kind: "rate_limited"` (Desmo's per-minute limit, or OpenAI's) earns
+ * marked `kind: "rate_limited"` (SolvePlot's per-minute limit, or OpenAI's) earns
  * a countdown. A daily cap, a full day's capacity, an exhausted OpenAI
  * credit, or any other failure never does, even when its status is 429.
  */

@@ -2,7 +2,7 @@
  * Error capture and product events, deliberately minimal: one module, used
  * only by the API handlers. Every record is a structured JSON log line (what
  * any host's log drain collects) and, in production, a row in app_events in
- * the Supabase project Desmo already uses. No image bytes and no problem
+ * the Supabase project SolvePlot already uses. No image bytes and no problem
  * text are ever recorded: ids, statuses, counts, and error stacks only.
  * Telemetry never fails or slows a request beyond a short flush.
  */
@@ -81,12 +81,12 @@ export function createTelemetry(sinks: TelemetrySink[]): Telemetry {
   };
 }
 
-/** One JSON line per record: `[desmo:event] {...}` or `[desmo:error] {...}` (with the stack). */
+/** One JSON line per record: `[solveplot:event] {...}` or `[solveplot:error] {...}` (with the stack). */
 export function consoleSink(): TelemetrySink {
   return (record) => {
     const line = JSON.stringify(record);
-    if (record.type === "error") console.error("[desmo:error]", line);
-    else console.info("[desmo:event]", line);
+    if (record.type === "error") console.error("[solveplot:error]", line);
+    else console.info("[solveplot:event]", line);
   };
 }
 
@@ -115,7 +115,7 @@ export function supabaseSink(client: () => unknown): TelemetrySink {
     });
     if (error && !warned) {
       warned = true;
-      console.warn("[desmo:telemetry] app_events write failed; events are still logged.", (error as { message?: string }).message ?? "");
+      console.warn("[solveplot:telemetry] app_events write failed; events are still logged.", (error as { message?: string }).message ?? "");
     }
   };
 }

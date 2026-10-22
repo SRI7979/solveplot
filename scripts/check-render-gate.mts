@@ -99,7 +99,7 @@ const server = http.createServer((_request, response) => {
 });
 await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
 
-const chrome = spawn(chromePath, ["--headless=new", "--remote-debugging-port=0", "--window-size=1100,1400", `--user-data-dir=${mkdtempSync(path.join(os.tmpdir(), "desmo-chrome-"))}`, "--no-first-run", "--no-default-browser-check", ...(process.getuid?.() === 0 ? ["--no-sandbox"] : []), ...(process.env.HTTPS_PROXY ? [`--proxy-server=${process.env.HTTPS_PROXY}`] : []), "about:blank"], { stdio: ["ignore", "ignore", "pipe"] });
+const chrome = spawn(chromePath, ["--headless=new", "--remote-debugging-port=0", "--window-size=1100,1400", `--user-data-dir=${mkdtempSync(path.join(os.tmpdir(), "solveplot-chrome-"))}`, "--no-first-run", "--no-default-browser-check", ...(process.getuid?.() === 0 ? ["--no-sandbox"] : []), ...(process.env.HTTPS_PROXY ? [`--proxy-server=${process.env.HTTPS_PROXY}`] : []), "about:blank"], { stdio: ["ignore", "ignore", "pipe"] });
 const wsUrl = await new Promise<string>((resolve, reject) => {
   let buffer = "";
   chrome.stderr!.on("data", (chunk) => {
@@ -144,7 +144,7 @@ const inspect = `(() => {
     withheld: text('[data-testid="rows-withheld"]'),
     explanationRows: document.querySelectorAll('#explanation [data-testid="explanation-line"]').length,
     explanationWithheld: text('[data-testid="rows-withheld-explanation"]'),
-    hiddenInstances: document.querySelectorAll("[data-desmo-preflight]").length,
+    hiddenInstances: document.querySelectorAll("[data-solveplot-preflight]").length,
   };
 })()`;
 

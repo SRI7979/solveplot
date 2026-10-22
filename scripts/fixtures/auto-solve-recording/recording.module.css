@@ -1,0 +1,7 @@
+/* Only define the camera stage. All solver typography, spacing and controls
+   come from the live workspace rather than recording-specific overrides. */
+.recording {
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+}

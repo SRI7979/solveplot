@@ -1,0 +1,72 @@
+.scene {
+  position: relative;
+  isolation: isolate;
+  min-width: 0;
+  padding: 38px 24px 42px;
+}
+.scene::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -50px -35px 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 28% 22%, #8cd5ff24, transparent 62%), radial-gradient(ellipse at 80% 70%, #b1df8317, transparent 55%);
+  mask-image: radial-gradient(ellipse at center, #000 35%, transparent 75%);
+}
+.scene::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 60% 12% 0;
+  border-radius: 50%;
+  background: #000;
+  filter: blur(42px);
+  opacity: .45;
+  pointer-events: none;
+}
+.surface:global(.solveplot-shell) {
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-lg: 18px;
+  --control-height: 40px;
+  --ease-ui: 140ms ease;
+  position: relative;
+  isolation: isolate;
+  min-width: 0;
+  min-height: 0;
+  border: 1px solid var(--control-border);
+  border-radius: var(--radius-2xl);
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  color-scheme: dark;
+  box-shadow: 0 2px 4px #0003, 0 24px 70px -16px #000b, 0 0 0 1px #11171d, inset 0 1px #d3eeff0d;
+}
+.surface::before {
+  content: "";
+  position: absolute;
+  z-index: 5;
+  top: 0;
+  left: 4%;
+  right: 4%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #d5edffb0 28%, #a5d9fa50 62%, transparent);
+  box-shadow: 0 1px 14px #a7dfff18;
+  pointer-events: none;
+}
+.surface::after {
+  content: "";
+  position: absolute;
+  z-index: 5;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(ellipse at 12% 0, #d3eaff0d, transparent 53%);
+  pointer-events: none;
+}
+.surface :is(button,a,input,[role="button"]):focus-visible { outline: 2px solid var(--selection-accent); outline-offset: 4px; }
+@media (max-width: 760px) {
+  .scene { padding: 20px 0 28px; }
+  .scene::before { inset: -20px -15px 0; }
+  .surface { border-radius: var(--radius-xl); box-shadow: 0 15px 40px -12px #0009, inset 0 1px #d3eeff0d; }
+}

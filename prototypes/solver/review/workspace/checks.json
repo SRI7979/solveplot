@@ -1,0 +1,1866 @@
+{
+  "started": "2026-10-16T02:51:12.726Z",
+  "checks": [
+    {
+      "name": "default solver native math and sidebar avatar",
+      "pass": true,
+      "details": {
+        "count": 1,
+        "expressions": [
+          {
+            "id": "mock_curve",
+            "type": "expression",
+            "latex": "y=x^{2}-4x+1-(2x+8)",
+            "color": "#287c73",
+            "lineStyle": "SOLID",
+            "lineWidth": "3",
+            "lineOpacity": "1",
+            "pointStyle": "POINT",
+            "pointSize": "",
+            "movablePointSize": "",
+            "pointOpacity": "",
+            "fillOpacity": "",
+            "hidden": false,
+            "secret": false,
+            "dragMode": "AUTO",
+            "label": "",
+            "showLabel": false,
+            "labelSize": "",
+            "labelOrientation": "default",
+            "interactiveLabel": false,
+            "readonly": false,
+            "parametricDomain": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Du": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dv": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dr": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dphi": {
+              "min": "",
+              "max": ""
+            },
+            "polarDomain": {
+              "min": "",
+              "max": ""
+            },
+            "domain": {
+              "min": "0",
+              "max": "1"
+            },
+            "playing": false
+          },
+          {
+            "id": "mock_negative_point",
+            "type": "expression",
+            "latex": "(-1,0)",
+            "color": "#287c73",
+            "lineStyle": "SOLID",
+            "lineWidth": "",
+            "lineOpacity": "",
+            "pointStyle": "POINT",
+            "pointSize": "7",
+            "movablePointSize": "",
+            "pointOpacity": "0.65",
+            "fillOpacity": "",
+            "hidden": false,
+            "secret": true,
+            "dragMode": "AUTO",
+            "label": "",
+            "showLabel": false,
+            "labelSize": "",
+            "labelOrientation": "default",
+            "interactiveLabel": false,
+            "readonly": false,
+            "parametricDomain": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Du": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dv": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dr": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dphi": {
+              "min": "",
+              "max": ""
+            },
+            "polarDomain": {
+              "min": "",
+              "max": ""
+            },
+            "domain": {
+              "min": "0",
+              "max": "1"
+            },
+            "playing": false
+          },
+          {
+            "id": "mock_positive_point",
+            "type": "expression",
+            "latex": "(7,0)",
+            "color": "#287c73",
+            "lineStyle": "SOLID",
+            "lineWidth": "",
+            "lineOpacity": "",
+            "pointStyle": "POINT",
+            "pointSize": "15",
+            "movablePointSize": "15",
+            "pointOpacity": "1",
+            "fillOpacity": "",
+            "hidden": false,
+            "secret": true,
+            "dragMode": "AUTO",
+            "label": "(7, 0)",
+            "showLabel": true,
+            "labelSize": "",
+            "labelOrientation": "default",
+            "interactiveLabel": false,
+            "readonly": false,
+            "parametricDomain": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Du": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dv": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dr": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dphi": {
+              "min": "",
+              "max": ""
+            },
+            "polarDomain": {
+              "min": "",
+              "max": ""
+            },
+            "domain": {
+              "min": "0",
+              "max": "1"
+            },
+            "playing": false
+          }
+        ],
+        "avatar": {
+          "x": 12,
+          "y": 930.5,
+          "width": 187,
+          "height": 55.5
+        }
+      }
+    },
+    {
+      "name": "step highlights preserve native calculator and edits",
+      "pass": true,
+      "details": [
+        {
+          "step": 1,
+          "width": "4.5",
+          "size": "8"
+        },
+        {
+          "step": 2,
+          "width": "3",
+          "size": "12"
+        },
+        {
+          "step": 3,
+          "width": "3",
+          "size": "15"
+        }
+      ]
+    },
+    {
+      "name": "copy exact difference expression",
+      "pass": true,
+      "details": "y=x^2-4x+1-(2x+8)"
+    },
+    {
+      "name": "divider drag resizes and preserves instance and edited expression",
+      "pass": true,
+      "details": {
+        "before": {
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          },
+          "document": {
+            "width": 1440,
+            "height": 1000
+          },
+          "sidebar": {
+            "x": 0,
+            "y": 0,
+            "width": 212,
+            "height": 1000,
+            "scrollWidth": 211,
+            "clientWidth": 211,
+            "scrollHeight": 1000,
+            "clientHeight": 1000
+          },
+          "learning": {
+            "x": 212,
+            "y": 64,
+            "width": 491.1875,
+            "height": 936,
+            "scrollWidth": 491,
+            "clientWidth": 491,
+            "scrollHeight": 1187,
+            "clientHeight": 936
+          },
+          "calculator": {
+            "x": 715.1875,
+            "y": 64,
+            "width": 724.8125,
+            "height": 936,
+            "scrollWidth": 725,
+            "clientWidth": 725,
+            "scrollHeight": 936,
+            "clientHeight": 936
+          },
+          "workspace": {
+            "x": 212,
+            "y": 64,
+            "width": 1228,
+            "height": 936,
+            "scrollWidth": 1228,
+            "clientWidth": 1228,
+            "scrollHeight": 936,
+            "clientHeight": 936
+          },
+          "shell": "expanded",
+          "separator": {
+            "value": 40,
+            "min": 28,
+            "max": 62,
+            "orientation": "vertical",
+            "tabIndex": 0
+          }
+        },
+        "after": {
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          },
+          "document": {
+            "width": 1440,
+            "height": 1000
+          },
+          "sidebar": {
+            "x": 0,
+            "y": 0,
+            "width": 212,
+            "height": 1000,
+            "scrollWidth": 211,
+            "clientWidth": 211,
+            "scrollHeight": 1000,
+            "clientHeight": 1000
+          },
+          "learning": {
+            "x": 212,
+            "y": 64,
+            "width": 611.1875,
+            "height": 936,
+            "scrollWidth": 611,
+            "clientWidth": 611,
+            "scrollHeight": 1137,
+            "clientHeight": 936
+          },
+          "calculator": {
+            "x": 835.1875,
+            "y": 64,
+            "width": 604.8125,
+            "height": 936,
+            "scrollWidth": 605,
+            "clientWidth": 605,
+            "scrollHeight": 936,
+            "clientHeight": 936
+          },
+          "workspace": {
+            "x": 212,
+            "y": 64,
+            "width": 1228,
+            "height": 936,
+            "scrollWidth": 1228,
+            "clientWidth": 1228,
+            "scrollHeight": 936,
+            "clientHeight": 936
+          },
+          "shell": "expanded",
+          "separator": {
+            "value": 49.8,
+            "min": 28,
+            "max": 62,
+            "orientation": "vertical",
+            "tabIndex": 0
+          }
+        },
+        "count": 1
+      }
+    },
+    {
+      "name": "divider keyboard arrows shift Home End and Enter reset",
+      "pass": true,
+      "details": {
+        "base": {
+          "value": 40,
+          "min": 28,
+          "max": 62,
+          "orientation": "vertical",
+          "tabIndex": 0
+        },
+        "right": {
+          "value": 42,
+          "min": 28,
+          "max": 62,
+          "orientation": "vertical",
+          "tabIndex": 0
+        },
+        "shift": {
+          "value": 52,
+          "min": 28,
+          "max": 62,
+          "orientation": "vertical",
+          "tabIndex": 0
+        },
+        "home": {
+          "value": 28,
+          "min": 28,
+          "max": 62,
+          "orientation": "vertical",
+          "tabIndex": 0
+        },
+        "end": {
+          "value": 62,
+          "min": 28,
+          "max": 62,
+          "orientation": "vertical",
+          "tabIndex": 0
+        },
+        "reset": {
+          "value": 40,
+          "min": 28,
+          "max": 62,
+          "orientation": "vertical",
+          "tabIndex": 0
+        }
+      }
+    },
+    {
+      "name": "sidebar collapse and expand preserve native graph edits",
+      "pass": true,
+      "details": {
+        "collapsed": {
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          },
+          "document": {
+            "width": 1440,
+            "height": 1000
+          },
+          "sidebar": {
+            "x": 0,
+            "y": 0,
+            "width": 72,
+            "height": 1000,
+            "scrollWidth": 71,
+            "clientWidth": 71,
+            "scrollHeight": 1000,
+            "clientHeight": 1000
+          },
+          "learning": {
+            "x": 72,
+            "y": 64,
+            "width": 547.1875,
+            "height": 936,
+            "scrollWidth": 547,
+            "clientWidth": 547,
+            "scrollHeight": 1162,
+            "clientHeight": 936
+          },
+          "calculator": {
+            "x": 631.1875,
+            "y": 64,
+            "width": 808.8125,
+            "height": 936,
+            "scrollWidth": 809,
+            "clientWidth": 809,
+            "scrollHeight": 936,
+            "clientHeight": 936
+          },
+          "workspace": {
+            "x": 72,
+            "y": 64,
+            "width": 1368,
+            "height": 936,
+            "scrollWidth": 1368,
+            "clientWidth": 1368,
+            "scrollHeight": 936,
+            "clientHeight": 936
+          },
+          "shell": "collapsed",
+          "separator": {
+            "value": 40,
+            "min": 28,
+            "max": 62,
+            "orientation": "vertical",
+            "tabIndex": 0
+          }
+        },
+        "count": 1
+      }
+    },
+    {
+      "name": "desktop width bounds at 1440 1242 and 900 preserve native edits",
+      "pass": true,
+      "details": [
+        {
+          "width": 1440,
+          "low": {
+            "viewport": {
+              "width": 1440,
+              "height": 892
+            },
+            "document": {
+              "width": 1440,
+              "height": 892
+            },
+            "sidebar": {
+              "x": 0,
+              "y": 0,
+              "width": 212,
+              "height": 892,
+              "scrollWidth": 211,
+              "clientWidth": 211,
+              "scrollHeight": 892,
+              "clientHeight": 892
+            },
+            "learning": {
+              "x": 212,
+              "y": 64,
+              "width": 343.828125,
+              "height": 828,
+              "scrollWidth": 344,
+              "clientWidth": 344,
+              "scrollHeight": 1321,
+              "clientHeight": 828
+            },
+            "calculator": {
+              "x": 567.828125,
+              "y": 64,
+              "width": 872.171875,
+              "height": 828,
+              "scrollWidth": 872,
+              "clientWidth": 872,
+              "scrollHeight": 828,
+              "clientHeight": 828
+            },
+            "workspace": {
+              "x": 212,
+              "y": 64,
+              "width": 1228,
+              "height": 828,
+              "scrollWidth": 1228,
+              "clientWidth": 1228,
+              "scrollHeight": 828,
+              "clientHeight": 828
+            },
+            "shell": "expanded",
+            "separator": {
+              "value": 28,
+              "min": 28,
+              "max": 62,
+              "orientation": "vertical",
+              "tabIndex": 0
+            }
+          },
+          "high": {
+            "viewport": {
+              "width": 1440,
+              "height": 892
+            },
+            "document": {
+              "width": 1440,
+              "height": 892
+            },
+            "sidebar": {
+              "x": 0,
+              "y": 0,
+              "width": 212,
+              "height": 892,
+              "scrollWidth": 211,
+              "clientWidth": 211,
+              "scrollHeight": 892,
+              "clientHeight": 892
+            },
+            "learning": {
+              "x": 212,
+              "y": 64,
+              "width": 761.359375,
+              "height": 828,
+              "scrollWidth": 761,
+              "clientWidth": 761,
+              "scrollHeight": 1137,
+              "clientHeight": 828
+            },
+            "calculator": {
+              "x": 985.359375,
+              "y": 64,
+              "width": 454.640625,
+              "height": 828,
+              "scrollWidth": 455,
+              "clientWidth": 455,
+              "scrollHeight": 828,
+              "clientHeight": 828
+            },
+            "workspace": {
+              "x": 212,
+              "y": 64,
+              "width": 1228,
+              "height": 828,
+              "scrollWidth": 1228,
+              "clientWidth": 1228,
+              "scrollHeight": 828,
+              "clientHeight": 828
+            },
+            "shell": "expanded",
+            "separator": {
+              "value": 62,
+              "min": 28,
+              "max": 62,
+              "orientation": "vertical",
+              "tabIndex": 0
+            }
+          }
+        },
+        {
+          "width": 1242,
+          "low": {
+            "viewport": {
+              "width": 1242,
+              "height": 892
+            },
+            "document": {
+              "width": 1242,
+              "height": 892
+            },
+            "sidebar": {
+              "x": 0,
+              "y": 0,
+              "width": 212,
+              "height": 892,
+              "scrollWidth": 211,
+              "clientWidth": 211,
+              "scrollHeight": 892,
+              "clientHeight": 892
+            },
+            "learning": {
+              "x": 212,
+              "y": 64,
+              "width": 320,
+              "height": 828,
+              "scrollWidth": 320,
+              "clientWidth": 320,
+              "scrollHeight": 1345,
+              "clientHeight": 828
+            },
+            "calculator": {
+              "x": 544,
+              "y": 64,
+              "width": 698,
+              "height": 828,
+              "scrollWidth": 698,
+              "clientWidth": 698,
+              "scrollHeight": 828,
+              "clientHeight": 828
+            },
+            "workspace": {
+              "x": 212,
+              "y": 64,
+              "width": 1030,
+              "height": 828,
+              "scrollWidth": 1030,
+              "clientWidth": 1030,
+              "scrollHeight": 828,
+              "clientHeight": 828
+            },
+            "shell": "expanded",
+            "separator": {
+              "value": 31.1,
+              "min": 31.1,
+              "max": 62,
+              "orientation": "vertical",
+              "tabIndex": 0
+            }
+          },
+          "high": {
+            "viewport": {
+              "width": 1242,
+              "height": 892
+            },
+            "document": {
+              "width": 1242,
+              "height": 892
+            },
+            "sidebar": {
+              "x": 0,
+              "y": 0,
+              "width": 212,
+              "height": 892,
+              "scrollWidth": 211,
+              "clientWidth": 211,
+              "scrollHeight": 892,
+              "clientHeight": 892
+            },
+            "learning": {
+              "x": 212,
+              "y": 64,
+              "width": 638.59375,
+              "height": 828,
+              "scrollWidth": 639,
+              "clientWidth": 639,
+              "scrollHeight": 1137,
+              "clientHeight": 828
+            },
+            "calculator": {
+              "x": 862.59375,
+              "y": 64,
+              "width": 379.40625,
+              "height": 828,
+              "scrollWidth": 379,
+              "clientWidth": 379,
+              "scrollHeight": 828,
+              "clientHeight": 828
+            },
+            "workspace": {
+              "x": 212,
+              "y": 64,
+              "width": 1030,
+              "height": 828,
+              "scrollWidth": 1030,
+              "clientWidth": 1030,
+              "scrollHeight": 828,
+              "clientHeight": 828
+            },
+            "shell": "expanded",
+            "separator": {
+              "value": 62,
+              "min": 31.1,
+              "max": 62,
+              "orientation": "vertical",
+              "tabIndex": 0
+            }
+          }
+        },
+        {
+          "width": 900,
+          "low": {
+            "viewport": {
+              "width": 900,
+              "height": 892
+            },
+            "document": {
+              "width": 900,
+              "height": 892
+            },
+            "sidebar": {
+              "x": 0,
+              "y": 0,
+              "width": 190,
+              "height": 892,
+              "scrollWidth": 189,
+              "clientWidth": 189,
+              "scrollHeight": 892,
+              "clientHeight": 892
+            },
+            "learning": {
+              "x": 190,
+              "y": 64,
+              "width": 320,
+              "height": 828,
+              "scrollWidth": 320,
+              "clientWidth": 320,
+              "scrollHeight": 1286,
+              "clientHeight": 828
+            },
+            "calculator": {
+              "x": 522,
+              "y": 64,
+              "width": 378,
+              "height": 828,
+              "scrollWidth": 378,
+              "clientWidth": 378,
+              "scrollHeight": 828,
+              "clientHeight": 828
+            },
+            "workspace": {
+              "x": 190,
+              "y": 64,
+              "width": 710,
+              "height": 828,
+              "scrollWidth": 710,
+              "clientWidth": 710,
+              "scrollHeight": 828,
+              "clientHeight": 828
+            },
+            "shell": "expanded",
+            "separator": {
+              "value": 45.1,
+              "min": 45.1,
+              "max": 50.4,
+              "orientation": "vertical",
+              "tabIndex": 0
+            }
+          },
+          "high": {
+            "viewport": {
+              "width": 900,
+              "height": 892
+            },
+            "document": {
+              "width": 900,
+              "height": 892
+            },
+            "sidebar": {
+              "x": 0,
+              "y": 0,
+              "width": 190,
+              "height": 892,
+              "scrollWidth": 189,
+              "clientWidth": 189,
+              "scrollHeight": 892,
+              "clientHeight": 892
+            },
+            "learning": {
+              "x": 190,
+              "y": 64,
+              "width": 358,
+              "height": 828,
+              "scrollWidth": 358,
+              "clientWidth": 358,
+              "scrollHeight": 1234,
+              "clientHeight": 828
+            },
+            "calculator": {
+              "x": 560,
+              "y": 64,
+              "width": 340,
+              "height": 828,
+              "scrollWidth": 340,
+              "clientWidth": 340,
+              "scrollHeight": 828,
+              "clientHeight": 828
+            },
+            "workspace": {
+              "x": 190,
+              "y": 64,
+              "width": 710,
+              "height": 828,
+              "scrollWidth": 710,
+              "clientWidth": 710,
+              "scrollHeight": 828,
+              "clientHeight": 828
+            },
+            "shell": "expanded",
+            "separator": {
+              "value": 50.4,
+              "min": 45.1,
+              "max": 50.4,
+              "orientation": "vertical",
+              "tabIndex": 0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "preferred split returns after temporary narrow clamp",
+      "pass": true,
+      "details": {
+        "wide": {
+          "value": 62,
+          "min": 28,
+          "max": 62,
+          "orientation": "vertical",
+          "tabIndex": 0
+        },
+        "narrow": {
+          "value": 50.4,
+          "min": 45.1,
+          "max": 50.4,
+          "orientation": "vertical",
+          "tabIndex": 0
+        },
+        "restored": {
+          "value": 62,
+          "min": 28,
+          "max": 62,
+          "orientation": "vertical",
+          "tabIndex": 0
+        }
+      }
+    },
+    {
+      "name": "Enter reset retains default preference after widening from 900",
+      "pass": true,
+      "details": {
+        "narrow": {
+          "value": 45.1,
+          "min": 45.1,
+          "max": 50.4,
+          "orientation": "vertical",
+          "tabIndex": 0
+        },
+        "wide": {
+          "value": 40,
+          "min": 28,
+          "max": 62,
+          "orientation": "vertical",
+          "tabIndex": 0
+        }
+      }
+    },
+    {
+      "name": "double click resets split and persists default",
+      "pass": true,
+      "details": {
+        "separator": {
+          "value": 40,
+          "min": 28,
+          "max": 62,
+          "orientation": "vertical",
+          "tabIndex": 0
+        },
+        "stored": "40"
+      }
+    },
+    {
+      "name": "split and collapsed sidebar restore after reload",
+      "pass": true,
+      "details": {
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "document": {
+          "width": 1440,
+          "height": 1000
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "width": 72,
+          "height": 1000,
+          "scrollWidth": 71,
+          "clientWidth": 71,
+          "scrollHeight": 1000,
+          "clientHeight": 1000
+        },
+        "learning": {
+          "x": 72,
+          "y": 64,
+          "width": 601.90625,
+          "height": 936,
+          "scrollWidth": 602,
+          "clientWidth": 602,
+          "scrollHeight": 1137,
+          "clientHeight": 936
+        },
+        "calculator": {
+          "x": 685.90625,
+          "y": 64,
+          "width": 754.09375,
+          "height": 936,
+          "scrollWidth": 754,
+          "clientWidth": 754,
+          "scrollHeight": 936,
+          "clientHeight": 936
+        },
+        "workspace": {
+          "x": 72,
+          "y": 64,
+          "width": 1368,
+          "height": 936,
+          "scrollWidth": 1368,
+          "clientWidth": 1368,
+          "scrollHeight": 936,
+          "clientHeight": 936
+        },
+        "shell": "collapsed",
+        "separator": {
+          "value": 44,
+          "min": 28,
+          "max": 62,
+          "orientation": "vertical",
+          "tabIndex": 0
+        }
+      }
+    },
+    {
+      "name": "expressions toggle and Reset view preserve student work",
+      "pass": true,
+      "details": {
+        "count": 1,
+        "bounds": {
+          "left": -3,
+          "right": 10,
+          "bottom": -20,
+          "top": 12,
+          "xmin": -3,
+          "xmax": 10,
+          "ymin": -20,
+          "ymax": 12,
+          "width": 13,
+          "height": 32
+        }
+      }
+    },
+    {
+      "name": "bookmark both methods and native alternative math plus multiline copy",
+      "pass": true,
+      "details": {
+        "copy": "y=x^2-4x+1\ny=2x+8",
+        "saved": "[\"difference\",\"intersections\"]",
+        "count": 1
+      }
+    },
+    {
+      "name": "sidebar saved route and bookmark reload persistence",
+      "pass": true,
+      "details": {
+        "url": "http://localhost:3001/saved",
+        "saved": "[\"difference\",\"intersections\"]"
+      }
+    },
+    {
+      "name": "saved search and selected method reopen",
+      "pass": true,
+      "details": {
+        "url": "http://localhost:3001/",
+        "method": "Graph both equations"
+      }
+    },
+    {
+      "name": "history route search reopen and fresh sample",
+      "pass": true,
+      "details": {
+        "url": "http://localhost:3001/",
+        "method": "Read the x-intercepts"
+      }
+    },
+    {
+      "name": "profile name editing persists across route and reload",
+      "pass": true,
+      "details": {
+        "url": "http://localhost:3001/profile",
+        "name": "QA Workspace"
+      }
+    },
+    {
+      "name": "route back forward and direct reload retain shell and active URL",
+      "pass": true,
+      "details": [
+        {
+          "url": "http://localhost:3001/history",
+          "heading": "History",
+          "shell": "expanded"
+        },
+        {
+          "url": "http://localhost:3001/saved",
+          "heading": "Saved tricks",
+          "shell": "expanded"
+        },
+        {
+          "url": "http://localhost:3001/profile",
+          "heading": "Your profile",
+          "shell": "expanded"
+        }
+      ]
+    },
+    {
+      "name": "bookmark removal persists without removing other method",
+      "pass": true,
+      "details": {
+        "remaining": "Read the x-intercepts\nFind intersections with one expression"
+      }
+    },
+    {
+      "name": "upload local file validation preview and sample reopen from another page",
+      "pass": true,
+      "details": {
+        "previewLocal": true,
+        "url": "http://localhost:3001/"
+      }
+    },
+    {
+      "name": "mobile Steps Calculator and keyboard tabs preserve native instance",
+      "pass": true,
+      "details": {
+        "count": 1,
+        "geometry": {
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "document": {
+            "width": 390,
+            "height": 844
+          },
+          "sidebar": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "scrollWidth": 0,
+            "clientWidth": 0,
+            "scrollHeight": 0,
+            "clientHeight": 0
+          },
+          "learning": {
+            "x": 0,
+            "y": 121,
+            "width": 390,
+            "height": 723,
+            "scrollWidth": 390,
+            "clientWidth": 390,
+            "scrollHeight": 1232,
+            "clientHeight": 723
+          },
+          "calculator": {
+            "x": 0,
+            "y": 121,
+            "width": 390,
+            "height": 723,
+            "scrollWidth": 390,
+            "clientWidth": 390,
+            "scrollHeight": 723,
+            "clientHeight": 723
+          },
+          "workspace": {
+            "x": 0,
+            "y": 121,
+            "width": 390,
+            "height": 723,
+            "scrollWidth": 390,
+            "clientWidth": 390,
+            "scrollHeight": 723,
+            "clientHeight": 723
+          },
+          "shell": "expanded",
+          "separator": {
+            "value": 47.6,
+            "min": 47.6,
+            "max": 47.6,
+            "orientation": "vertical",
+            "tabIndex": 0
+          }
+        }
+      }
+    },
+    {
+      "name": "mobile drawer focus trap Escape and focus restoration",
+      "pass": true,
+      "details": {
+        "focusInside": true,
+        "tabLoop": true,
+        "returnFocus": true
+      }
+    },
+    {
+      "name": "mobile drawer route links close and routes do not overflow",
+      "pass": true,
+      "details": [
+        {
+          "path": "/history",
+          "geometry": {
+            "viewport": {
+              "width": 390,
+              "height": 844
+            },
+            "document": {
+              "width": 390,
+              "height": 844
+            },
+            "sidebar": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "scrollWidth": 0,
+              "clientWidth": 0,
+              "scrollHeight": 0,
+              "clientHeight": 0
+            },
+            "learning": null,
+            "calculator": null,
+            "workspace": null,
+            "shell": "expanded",
+            "separator": null
+          }
+        },
+        {
+          "path": "/saved",
+          "geometry": {
+            "viewport": {
+              "width": 390,
+              "height": 844
+            },
+            "document": {
+              "width": 390,
+              "height": 844
+            },
+            "sidebar": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "scrollWidth": 0,
+              "clientWidth": 0,
+              "scrollHeight": 0,
+              "clientHeight": 0
+            },
+            "learning": null,
+            "calculator": null,
+            "workspace": null,
+            "shell": "expanded",
+            "separator": null
+          }
+        },
+        {
+          "path": "/profile",
+          "geometry": {
+            "viewport": {
+              "width": 390,
+              "height": 844
+            },
+            "document": {
+              "width": 390,
+              "height": 844
+            },
+            "sidebar": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "scrollWidth": 0,
+              "clientWidth": 0,
+              "scrollHeight": 0,
+              "clientHeight": 0
+            },
+            "learning": null,
+            "calculator": null,
+            "workspace": null,
+            "shell": "expanded",
+            "separator": null
+          }
+        },
+        {
+          "path": "/",
+          "geometry": {
+            "viewport": {
+              "width": 390,
+              "height": 844
+            },
+            "document": {
+              "width": 390,
+              "height": 844
+            },
+            "sidebar": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "scrollWidth": 0,
+              "clientWidth": 0,
+              "scrollHeight": 0,
+              "clientHeight": 0
+            },
+            "learning": {
+              "x": 0,
+              "y": 121,
+              "width": 390,
+              "height": 723,
+              "scrollWidth": 390,
+              "clientWidth": 390,
+              "scrollHeight": 1232,
+              "clientHeight": 723
+            },
+            "calculator": {
+              "x": 0,
+              "y": 121,
+              "width": 390,
+              "height": 723,
+              "scrollWidth": 390,
+              "clientWidth": 390,
+              "scrollHeight": 723,
+              "clientHeight": 723
+            },
+            "workspace": {
+              "x": 0,
+              "y": 121,
+              "width": 390,
+              "height": 723,
+              "scrollWidth": 390,
+              "clientWidth": 390,
+              "scrollHeight": 723,
+              "clientHeight": 723
+            },
+            "shell": "expanded",
+            "separator": {
+              "value": 47.6,
+              "min": 47.6,
+              "max": 47.6,
+              "orientation": "vertical",
+              "tabIndex": 0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "mobile browser Back closes drawer on route change",
+      "pass": true,
+      "details": {
+        "url": "http://localhost:3001/profile",
+        "open": 0
+      }
+    },
+    {
+      "name": "drawer New problem upload Escape restores visible focus",
+      "pass": true,
+      "details": {
+        "tag": "BUTTON",
+        "label": "Open navigation",
+        "visible": true,
+        "dialog": null
+      }
+    }
+  ],
+  "blocked": [],
+  "requests": [
+    {
+      "method": "GET",
+      "url": "http://localhost:3001/"
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3001/_next/static/media/ee40bb094c99a29a-s.p.woff2"
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3001/_next/static/css/app/layout.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3001/_next/static/chunks/webpack.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3001/_next/static/chunks/main-app.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3001/_next/static/chunks/app-pages-internals.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3001/_next/static/chunks/app/layout.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3001/_next/static/chunks/app/page.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3001/_next/static/media/ee40bb094c99a29a-s.p.woff2"
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3001/_next/static/media/KaTeX_Math-Italic.f28c23ac.woff2"
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3001/_next/static/media/KaTeX_Main-Regular.0462f03b.woff2"
+    },
+    {
+      "method": "GET",
+      "url": "http://localhost:3001/icon.svg"
+    }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "screenshots": [
+    "/tmp/solver-workspace-qa/desktop-default-1440x1000.png",
+    "/tmp/solver-workspace-qa/desktop-resized-1440x1000.png",
+    "/tmp/solver-workspace-qa/desktop-sidebar-collapsed.png",
+    "/tmp/solver-workspace-qa/desktop-minimum-panes-900x892.png",
+    "/tmp/solver-workspace-qa/desktop-saved.png",
+    "/tmp/solver-workspace-qa/desktop-history.png",
+    "/tmp/solver-workspace-qa/desktop-profile.png",
+    "/tmp/solver-workspace-qa/desktop-upload-local-preview.png",
+    "/tmp/solver-workspace-qa/desktop-default-1242x892.png",
+    "/tmp/solver-workspace-qa/mobile-navigation-drawer.png",
+    "/tmp/solver-workspace-qa/mobile-history.png",
+    "/tmp/solver-workspace-qa/mobile-saved.png",
+    "/tmp/solver-workspace-qa/mobile-profile.png",
+    "/tmp/solver-workspace-qa/mobile-solver-steps.png",
+    "/tmp/solver-workspace-qa/mobile-solver-calculator.png"
+  ],
+  "defaultMetrics": {
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "document": {
+      "width": 1440,
+      "height": 1000
+    },
+    "sidebar": {
+      "x": 0,
+      "y": 0,
+      "width": 212,
+      "height": 1000,
+      "scrollWidth": 211,
+      "clientWidth": 211,
+      "scrollHeight": 1000,
+      "clientHeight": 1000
+    },
+    "learning": {
+      "x": 212,
+      "y": 64,
+      "width": 491.1875,
+      "height": 936,
+      "scrollWidth": 491,
+      "clientWidth": 491,
+      "scrollHeight": 1187,
+      "clientHeight": 936
+    },
+    "calculator": {
+      "x": 715.1875,
+      "y": 64,
+      "width": 724.8125,
+      "height": 936,
+      "scrollWidth": 725,
+      "clientWidth": 725,
+      "scrollHeight": 936,
+      "clientHeight": 936
+    },
+    "workspace": {
+      "x": 212,
+      "y": 64,
+      "width": 1228,
+      "height": 936,
+      "scrollWidth": 1228,
+      "clientWidth": 1228,
+      "scrollHeight": 936,
+      "clientHeight": 936
+    },
+    "shell": "expanded",
+    "separator": {
+      "value": 40,
+      "min": 28,
+      "max": 62,
+      "orientation": "vertical",
+      "tabIndex": 0
+    }
+  },
+  "finished": "2026-10-16T02:51:17.000Z",
+  "desktop1242": {
+    "viewport": {
+      "width": 1242,
+      "height": 892
+    },
+    "document": {
+      "width": 1242,
+      "height": 892
+    },
+    "sidebar": {
+      "x": 0,
+      "y": 0,
+      "width": 212,
+      "height": 892,
+      "scrollWidth": 211,
+      "clientWidth": 211,
+      "scrollHeight": 892,
+      "clientHeight": 892
+    },
+    "learning": {
+      "x": 212,
+      "y": 64,
+      "width": 412,
+      "height": 828,
+      "scrollWidth": 412,
+      "clientWidth": 412,
+      "scrollHeight": 1244,
+      "clientHeight": 828
+    },
+    "calculator": {
+      "x": 636,
+      "y": 64,
+      "width": 606,
+      "height": 828,
+      "scrollWidth": 606,
+      "clientWidth": 606,
+      "scrollHeight": 828,
+      "clientHeight": 828
+    },
+    "workspace": {
+      "x": 212,
+      "y": 64,
+      "width": 1030,
+      "height": 828,
+      "scrollWidth": 1030,
+      "clientWidth": 1030,
+      "scrollHeight": 828,
+      "clientHeight": 828
+    },
+    "shell": "expanded",
+    "separator": {
+      "value": 40,
+      "min": 31.1,
+      "max": 62,
+      "orientation": "vertical",
+      "tabIndex": 0
+    }
+  },
+  "mobileFinal": {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "document": {
+      "width": 390,
+      "height": 844
+    },
+    "sidebar": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0,
+      "scrollWidth": 0,
+      "clientWidth": 0,
+      "scrollHeight": 0,
+      "clientHeight": 0
+    },
+    "learning": {
+      "x": 0,
+      "y": 121,
+      "width": 390,
+      "height": 723,
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "scrollHeight": 1232,
+      "clientHeight": 723
+    },
+    "calculator": {
+      "x": 0,
+      "y": 121,
+      "width": 390,
+      "height": 723,
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "scrollHeight": 723,
+      "clientHeight": 723
+    },
+    "workspace": {
+      "x": 0,
+      "y": 121,
+      "width": 390,
+      "height": 723,
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "scrollHeight": 723,
+      "clientHeight": 723
+    },
+    "shell": "expanded",
+    "separator": {
+      "value": 47.6,
+      "min": 47.6,
+      "max": 47.6,
+      "orientation": "vertical",
+      "tabIndex": 0
+    }
+  },
+  "final": {
+    "count": 1,
+    "destroyed": 0,
+    "expressions": [
+      {
+        "id": "mock_curve",
+        "type": "expression",
+        "latex": "y=x^{2}-4x+1-(2x+8)",
+        "color": "#287c73",
+        "lineStyle": "SOLID",
+        "lineWidth": "3",
+        "lineOpacity": "1",
+        "pointStyle": "POINT",
+        "pointSize": "",
+        "movablePointSize": "",
+        "pointOpacity": "",
+        "fillOpacity": "",
+        "hidden": false,
+        "secret": false,
+        "dragMode": "AUTO",
+        "label": "",
+        "showLabel": false,
+        "labelSize": "",
+        "labelOrientation": "default",
+        "interactiveLabel": false,
+        "readonly": false,
+        "parametricDomain": {
+          "min": "",
+          "max": ""
+        },
+        "parametricDomain3Du": {
+          "min": "",
+          "max": ""
+        },
+        "parametricDomain3Dv": {
+          "min": "",
+          "max": ""
+        },
+        "parametricDomain3Dr": {
+          "min": "",
+          "max": ""
+        },
+        "parametricDomain3Dphi": {
+          "min": "",
+          "max": ""
+        },
+        "polarDomain": {
+          "min": "",
+          "max": ""
+        },
+        "domain": {
+          "min": "0",
+          "max": "1"
+        },
+        "playing": false
+      },
+      {
+        "id": "mock_negative_point",
+        "type": "expression",
+        "latex": "(-1,0)",
+        "color": "#287c73",
+        "lineStyle": "SOLID",
+        "lineWidth": "",
+        "lineOpacity": "",
+        "pointStyle": "POINT",
+        "pointSize": "7",
+        "movablePointSize": "",
+        "pointOpacity": "0.65",
+        "fillOpacity": "",
+        "hidden": false,
+        "secret": true,
+        "dragMode": "AUTO",
+        "label": "",
+        "showLabel": false,
+        "labelSize": "",
+        "labelOrientation": "default",
+        "interactiveLabel": false,
+        "readonly": false,
+        "parametricDomain": {
+          "min": "",
+          "max": ""
+        },
+        "parametricDomain3Du": {
+          "min": "",
+          "max": ""
+        },
+        "parametricDomain3Dv": {
+          "min": "",
+          "max": ""
+        },
+        "parametricDomain3Dr": {
+          "min": "",
+          "max": ""
+        },
+        "parametricDomain3Dphi": {
+          "min": "",
+          "max": ""
+        },
+        "polarDomain": {
+          "min": "",
+          "max": ""
+        },
+        "domain": {
+          "min": "0",
+          "max": "1"
+        },
+        "playing": false
+      },
+      {
+        "id": "mock_positive_point",
+        "type": "expression",
+        "latex": "(7,0)",
+        "color": "#287c73",
+        "lineStyle": "SOLID",
+        "lineWidth": "",
+        "lineOpacity": "",
+        "pointStyle": "POINT",
+        "pointSize": "15",
+        "movablePointSize": "15",
+        "pointOpacity": "1",
+        "fillOpacity": "",
+        "hidden": false,
+        "secret": true,
+        "dragMode": "AUTO",
+        "label": "(7, 0)",
+        "showLabel": true,
+        "labelSize": "",
+        "labelOrientation": "default",
+        "interactiveLabel": false,
+        "readonly": false,
+        "parametricDomain": {
+          "min": "",
+          "max": ""
+        },
+        "parametricDomain3Du": {
+          "min": "",
+          "max": ""
+        },
+        "parametricDomain3Dv": {
+          "min": "",
+          "max": ""
+        },
+        "parametricDomain3Dr": {
+          "min": "",
+          "max": ""
+        },
+        "parametricDomain3Dphi": {
+          "min": "",
+          "max": ""
+        },
+        "polarDomain": {
+          "min": "",
+          "max": ""
+        },
+        "domain": {
+          "min": "0",
+          "max": "1"
+        },
+        "playing": false
+      }
+    ],
+    "analysis": {
+      "mock_curve": {
+        "isGraphable": true,
+        "isError": false
+      },
+      "mock_negative_point": {
+        "isGraphable": true,
+        "isError": false,
+        "evaluationDisplayed": false
+      },
+      "mock_positive_point": {
+        "isGraphable": true,
+        "isError": false,
+        "evaluationDisplayed": false
+      }
+    },
+    "bounds": {
+      "mathCoordinates": {
+        "left": -3,
+        "right": 10,
+        "bottom": -20,
+        "top": 12,
+        "xmin": -3,
+        "xmax": 10,
+        "ymin": -20,
+        "ymax": 12,
+        "width": 13,
+        "height": 32
+      },
+      "pixelCoordinates": {
+        "left": 0,
+        "right": 356,
+        "width": 356,
+        "top": 0,
+        "bottom": 567,
+        "height": 567
+      }
+    },
+    "settings": {
+      "__observers": {},
+      "guid": "guid_880777_1792119074292_5",
+      "showGrid": true,
+      "showXAxis": true,
+      "showYAxis": true,
+      "xAxisStep": 0,
+      "yAxisStep": 0,
+      "xAxisScale": "linear",
+      "yAxisScale": "linear",
+      "xAxisMinorSubdivisions": 0,
+      "yAxisMinorSubdivisions": 0,
+      "xAxisArrowMode": "NONE",
+      "yAxisArrowMode": "NONE",
+      "xAxisLabel": "",
+      "yAxisLabel": "",
+      "xAxisNumbers": true,
+      "yAxisNumbers": true,
+      "polarMode": false,
+      "polarNumbers": true,
+      "degreeMode": false,
+      "randomSeed": "e0f0eafb45bd4030c99c09fe3082bcfa",
+      "restrictGridToFirstQuadrant": false,
+      "userLockedViewport": false,
+      "complex": false,
+      "keypad": true,
+      "graphpaper": true,
+      "expressions": true,
+      "settingsMenu": true,
+      "zoomButtons": true,
+      "showResetButtonOnGraphpaper": false,
+      "expressionsTopbar": true,
+      "capExpressionSize": false,
+      "pointsOfInterest": true,
+      "trace": true,
+      "border": false,
+      "lockViewport": false,
+      "expressionsCollapsed": true,
+      "allowKeypadToBeDismissedWhenNarrow": false,
+      "keypadActivated": false,
+      "authorFeatures": false,
+      "authorMode": true,
+      "advancedStyling": false,
+      "images": true,
+      "showEvaluationCopyButtons": false,
+      "folders": true,
+      "notes": true,
+      "sliders": true,
+      "links": true,
+      "qwertyKeyboard": true,
+      "restrictedFunctions": false,
+      "enableRepeatFunction": false,
+      "forceEnableGeometryFunctions": false,
+      "pasteGraphLink": false,
+      "pasteTableData": true,
+      "clearIntoDegreeMode": false,
+      "autosize": false,
+      "plotSingleVariableImplicitEquations": true,
+      "plotImplicits": true,
+      "plotInequalities": true,
+      "colors": {
+        "RED": "#c74440",
+        "BLUE": "#2d70b3",
+        "GREEN": "#348543",
+        "ORANGE": "#fa7e19",
+        "PURPLE": "#6042a6",
+        "BLACK": "#000000"
+      },
+      "invertedColors": false,
+      "functionDefinition": true,
+      "projectorMode": false,
+      "decimalToFraction": true,
+      "fontSize": 16,
+      "language": "en",
+      "backgroundColor": "#fff",
+      "textColor": "#000",
+      "accentColor": "#2f72dc",
+      "distributions": true,
+      "brailleMode": "none",
+      "sixKeyInput": false,
+      "brailleControls": true,
+      "reportPosition": "default",
+      "zoomFit": true,
+      "forceLogModeRegressions": false,
+      "defaultLogModeRegressions": false,
+      "actions": "auto",
+      "audio": true,
+      "logScales": true,
+      "translucentSurfaces": false,
+      "perspectiveDistortion": 1,
+      "showKeyboardShortcutsInTooltips": false,
+      "tone": true,
+      "muted": true,
+      "showPerformanceMeter": false,
+      "allowComplex": true,
+      "customRegressions": true
+    }
+  },
+  "finalRender": {
+    "katexErrors": 0,
+    "geometry": {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "document": {
+        "width": 390,
+        "height": 844
+      },
+      "sidebar": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "scrollWidth": 0,
+        "clientWidth": 0,
+        "scrollHeight": 0,
+        "clientHeight": 0
+      },
+      "learning": {
+        "x": 0,
+        "y": 121,
+        "width": 390,
+        "height": 723,
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 1232,
+        "clientHeight": 723
+      },
+      "calculator": {
+        "x": 0,
+        "y": 121,
+        "width": 390,
+        "height": 723,
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 723,
+        "clientHeight": 723
+      },
+      "workspace": {
+        "x": 0,
+        "y": 121,
+        "width": 390,
+        "height": 723,
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 723,
+        "clientHeight": 723
+      },
+      "shell": "expanded",
+      "separator": {
+        "value": 47.6,
+        "min": 47.6,
+        "max": 47.6,
+        "orientation": "vertical",
+        "tabIndex": 0
+      }
+    }
+  }
+}

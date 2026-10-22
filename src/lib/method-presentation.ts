@@ -7,6 +7,7 @@ import {
   ProseLatexError,
   sanitizeSolutionProse,
 } from "./answer-consistency";
+import { repairGraphGuidance } from "./graph-guidance";
 import { methodApproach } from "./method-scoring";
 import type { CacheEntry, Explanation } from "./solve-cache";
 import type { Solution, SolutionMethod } from "./solver-schema";
@@ -259,7 +260,7 @@ export function presentMethod(entry: CacheEntry, method: Method, explanation: Ex
     clarification: null,
   };
   try {
-    return sanitizeSolutionProse(solution);
+    return repairGraphGuidance(sanitizeSolutionProse(solution));
   } catch (error) {
     if (error instanceof ProseLatexError) throw new ExplanationError(error.message, "prose_text");
     throw error;

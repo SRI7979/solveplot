@@ -1,4 +1,4 @@
-# Benchmark: current-cleanup-r3-off (DESMO_DESMOS_RESCUE=off, commit 69dcc5e)
+# Benchmark: current-cleanup-r3-off (SOLVEPLOT_DESMOS_RESCUE=off, commit 69dcc5e)
 
 Configuration: `{"model":"gpt-5-mini","reasoningEffort":"low","serviceTier":"priority","promptConfigVersion":"be5900447d7781e4a2676c05"}`. 47 cases × 1 runs.
 Compared with `current-cleanup-r3-on` (prompt be5900447d7781e4a2676c05).

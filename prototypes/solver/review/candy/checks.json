@@ -1,0 +1,605 @@
+{
+  "started": "2026-10-18T19:33:05.979Z",
+  "checks": [
+    {
+      "name": "Fresh session uses Candy with completed mathematically valid solution",
+      "pass": true,
+      "details": {
+        "count": 1,
+        "destroyed": 0,
+        "expressions": [
+          {
+            "id": "mock_curve",
+            "type": "expression",
+            "latex": "y=x^{2}-4x+1-(2x+8)",
+            "color": "#3b721f",
+            "lineStyle": "SOLID",
+            "lineWidth": "3",
+            "lineOpacity": "1",
+            "pointStyle": "POINT",
+            "pointSize": "",
+            "movablePointSize": "",
+            "pointOpacity": "",
+            "fillOpacity": "",
+            "hidden": false,
+            "secret": false,
+            "dragMode": "AUTO",
+            "label": "",
+            "showLabel": false,
+            "labelSize": "",
+            "labelOrientation": "default",
+            "interactiveLabel": false,
+            "readonly": false,
+            "parametricDomain": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Du": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dv": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dr": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dphi": {
+              "min": "",
+              "max": ""
+            },
+            "polarDomain": {
+              "min": "",
+              "max": ""
+            },
+            "domain": {
+              "min": "0",
+              "max": "1"
+            },
+            "playing": false
+          },
+          {
+            "id": "mock_negative_point",
+            "type": "expression",
+            "latex": "(-1,0)",
+            "color": "#3b721f",
+            "lineStyle": "SOLID",
+            "lineWidth": "",
+            "lineOpacity": "",
+            "pointStyle": "POINT",
+            "pointSize": "7",
+            "movablePointSize": "",
+            "pointOpacity": "0.65",
+            "fillOpacity": "",
+            "hidden": false,
+            "secret": true,
+            "dragMode": "AUTO",
+            "label": "",
+            "showLabel": false,
+            "labelSize": "",
+            "labelOrientation": "default",
+            "interactiveLabel": false,
+            "readonly": false,
+            "parametricDomain": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Du": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dv": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dr": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dphi": {
+              "min": "",
+              "max": ""
+            },
+            "polarDomain": {
+              "min": "",
+              "max": ""
+            },
+            "domain": {
+              "min": "0",
+              "max": "1"
+            },
+            "playing": false
+          },
+          {
+            "id": "mock_positive_point",
+            "type": "expression",
+            "latex": "(7,0)",
+            "color": "#3b721f",
+            "lineStyle": "SOLID",
+            "lineWidth": "",
+            "lineOpacity": "",
+            "pointStyle": "POINT",
+            "pointSize": "15",
+            "movablePointSize": "15",
+            "pointOpacity": "1",
+            "fillOpacity": "",
+            "hidden": false,
+            "secret": true,
+            "dragMode": "AUTO",
+            "label": "(7, 0)",
+            "showLabel": true,
+            "labelSize": "",
+            "labelOrientation": "default",
+            "interactiveLabel": false,
+            "readonly": false,
+            "parametricDomain": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Du": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dv": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dr": {
+              "min": "",
+              "max": ""
+            },
+            "parametricDomain3Dphi": {
+              "min": "",
+              "max": ""
+            },
+            "polarDomain": {
+              "min": "",
+              "max": ""
+            },
+            "domain": {
+              "min": "0",
+              "max": "1"
+            },
+            "playing": false
+          }
+        ],
+        "bounds": {
+          "left": -3,
+          "right": 10,
+          "bottom": -20,
+          "top": 12,
+          "xmin": -3,
+          "xmax": 10,
+          "ymin": -20,
+          "ymax": 12,
+          "width": 13,
+          "height": 32
+        },
+        "analysis": {
+          "mock_curve": {
+            "isGraphable": true,
+            "isError": false
+          },
+          "mock_negative_point": {
+            "isGraphable": true,
+            "isError": false,
+            "evaluationDisplayed": false
+          },
+          "mock_positive_point": {
+            "isGraphable": true,
+            "isError": false,
+            "evaluationDisplayed": false
+          }
+        },
+        "palette": "candy",
+        "amount": "colorful",
+        "appearance": null
+      }
+    },
+    {
+      "name": "Redundant topbar removed; desktop panes use full height",
+      "pass": true,
+      "details": {
+        "content": {
+          "x": 212,
+          "y": 0,
+          "width": 1228,
+          "height": 1000
+        },
+        "overflow": {
+          "w": 1440,
+          "h": 1000,
+          "sw": 1440,
+          "sh": 1000
+        }
+      }
+    },
+    {
+      "name": "Rounded active sidebar outline and profile separator present",
+      "pass": true,
+      "details": {
+        "nav": {
+          "radius": "17px",
+          "border": "2px solid rgb(167, 223, 255)",
+          "background": "rgb(237, 248, 255)",
+          "color": "rgb(7, 107, 158)"
+        },
+        "profileDivider": {
+          "height": "1px",
+          "background": "rgb(223, 227, 232)",
+          "width": "187px",
+          "top": "-13px"
+        }
+      }
+    },
+    {
+      "name": "Replace and Other methods have tactile borders",
+      "pass": true,
+      "details": [
+        {
+          "selector": ".sectionLabel button",
+          "border": "2px",
+          "bottom": "4px",
+          "radius": "13px"
+        },
+        {
+          "selector": ".methodMenu summary",
+          "border": "2px",
+          "bottom": "4px",
+          "radius": "13px"
+        }
+      ]
+    },
+    {
+      "name": "Problem and solution share scroll container with visible divider",
+      "pass": true,
+      "details": {
+        "parent": true,
+        "moved": -100,
+        "scroll": 100,
+        "divider": {
+          "height": "3px",
+          "background": "rgb(228, 230, 234)"
+        }
+      }
+    },
+    {
+      "name": "Sidebar hover animates icon; reduced-motion disables animation",
+      "pass": true,
+      "details": {
+        "regular": {
+          "animation": "history-turn",
+          "transform": "matrix(0.966618, -0.256221, 0.256221, 0.966618, 0, 0)",
+          "transition": "0s"
+        },
+        "reduced": {
+          "animation": "none",
+          "transform": "none",
+          "transition": "0s"
+        }
+      }
+    },
+    {
+      "name": "Resizing and keyboard reset preserve native graph edits",
+      "pass": true,
+      "details": {
+        "dragged": "49.7",
+        "count": 1
+      }
+    },
+    {
+      "name": "Nineteen selectable palettes include Candy and preserve preference",
+      "pass": true,
+      "details": [
+        "candy",
+        "tidal",
+        "lagoon",
+        "mint",
+        "botanical",
+        "cobalt",
+        "periwinkle",
+        "lavender",
+        "plum",
+        "rose",
+        "coral",
+        "terracotta",
+        "marigold",
+        "espresso",
+        "sand",
+        "slate",
+        "graphite",
+        "orchid",
+        "citrus"
+      ]
+    },
+    {
+      "name": "Reset returns Candy Colorful; invalid saved palette falls back to Candy",
+      "pass": true,
+      "details": {
+        "palette": "candy",
+        "reset": "Saved for this browser tab.\n\nCandy and Colorful restored.\nReset to default"
+      }
+    },
+    {
+      "name": "New problem is a page and clears current solved screen",
+      "pass": true,
+      "details": {
+        "url": "http://localhost:3001/new",
+        "text": "New problem\n\nAdd a screenshot of your question.\n\nDrop your question here\n\nA clear screenshot works best.\n\nChoose image\nPNG, JPG, or WebP \u00b7 up to 10 MB\n\nThis is a design preview. Images stay in this tab; use the sample below to explore a completed solution.\n\nTry a sample question\n\nFind where a quadratic and a line intersect.\n\nOpen sample\n\nYour previous solution is saved in History."
+      }
+    },
+    {
+      "name": "New problem archives edited calculator and History restores it",
+      "pass": true,
+      "details": {
+        "rows": 1,
+        "count": 2,
+        "bounds": {
+          "left": -12,
+          "right": 18,
+          "bottom": -30,
+          "top": 35,
+          "xmin": -12,
+          "xmax": 18,
+          "ymin": -30,
+          "ymax": 35,
+          "width": 30,
+          "height": 65
+        }
+      }
+    },
+    {
+      "name": "Replace opens New problem page without modal",
+      "pass": true,
+      "details": "http://localhost:3001/new"
+    },
+    {
+      "name": "Local upload validation and sample are usable on New problem page",
+      "pass": true,
+      "details": {
+        "sampleFresh": true
+      }
+    },
+    {
+      "name": "Mobile navigation accessible after header removal and pages fit screen",
+      "pass": true,
+      "details": [
+        {
+          "path": "/history",
+          "geometry": {
+            "w": 390,
+            "h": 844,
+            "sw": 390,
+            "sh": 844
+          }
+        },
+        {
+          "path": "/saved",
+          "geometry": {
+            "w": 390,
+            "h": 844,
+            "sw": 390,
+            "sh": 844
+          }
+        },
+        {
+          "path": "/settings",
+          "geometry": {
+            "w": 390,
+            "h": 844,
+            "sw": 390,
+            "sh": 844
+          }
+        },
+        {
+          "path": "/profile",
+          "geometry": {
+            "w": 390,
+            "h": 844,
+            "sw": 390,
+            "sh": 844
+          }
+        },
+        {
+          "path": "/",
+          "geometry": {
+            "w": 390,
+            "h": 844,
+            "sw": 390,
+            "sh": 844
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mobile New problem navigates without lingering drawer; sample opens solver",
+      "pass": true,
+      "details": {
+        "w": 390,
+        "h": 844,
+        "sw": 390,
+        "sh": 844
+      }
+    },
+    {
+      "name": "No runtime console errors or backend calls",
+      "pass": true,
+      "details": {
+        "pageErrors": [],
+        "consoleErrors": [],
+        "blocked": []
+      }
+    },
+    {
+      "name": "All nineteen palettes recolor existing graph without remount or lost edits",
+      "pass": true,
+      "details": [
+        "candy",
+        "tidal",
+        "lagoon",
+        "mint",
+        "botanical",
+        "cobalt",
+        "periwinkle",
+        "lavender",
+        "plum",
+        "rose",
+        "coral",
+        "terracotta",
+        "marigold",
+        "espresso",
+        "sand",
+        "slate",
+        "graphite",
+        "orchid",
+        "citrus"
+      ]
+    },
+    {
+      "name": "New empty screen survives Solver navigation and reload without duplicate history",
+      "pass": true,
+      "details": {
+        "rows": 1,
+        "emptyPersisted": true,
+        "bounds": {
+          "left": -12,
+          "right": 18,
+          "bottom": -30,
+          "top": 35,
+          "xmin": -12,
+          "xmax": 18,
+          "ymin": -30,
+          "ymax": 35,
+          "width": 30,
+          "height": 65
+        }
+      }
+    },
+    {
+      "name": "Alternate method and graph edits restore from History after reload",
+      "pass": true,
+      "details": {
+        "method": "intersections",
+        "bounds": {
+          "left": -6,
+          "right": 14,
+          "bottom": -12,
+          "top": 36,
+          "xmin": -6,
+          "xmax": 14,
+          "ymin": -12,
+          "ymax": 36,
+          "width": 20,
+          "height": 48
+        }
+      }
+    },
+    {
+      "name": "Uploaded local draft survives route navigation then sample clears it",
+      "pass": true,
+      "details": {
+        "localPreviewPreserved": true,
+        "draftCleared": true
+      }
+    },
+    {
+      "name": "Mobile drawer Escape restores focus and Back dismisses navigation",
+      "pass": true,
+      "details": {
+        "sequence": [
+          {
+            "tag": "A",
+            "label": "SolvePlot solver",
+            "hasFocus": true,
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "label": "Close navigation",
+            "hasFocus": true,
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "label": "New problem",
+            "hasFocus": true,
+            "inside": true
+          },
+          {
+            "tag": "A",
+            "label": null,
+            "hasFocus": true,
+            "inside": true
+          },
+          {
+            "tag": "A",
+            "label": null,
+            "hasFocus": true,
+            "inside": true
+          },
+          {
+            "tag": "A",
+            "label": null,
+            "hasFocus": true,
+            "inside": true
+          },
+          {
+            "tag": "A",
+            "label": null,
+            "hasFocus": true,
+            "inside": true
+          },
+          {
+            "tag": "A",
+            "label": "Your profile",
+            "hasFocus": true,
+            "inside": true
+          },
+          {
+            "tag": "BODY",
+            "label": null,
+            "hasFocus": false,
+            "inside": false
+          },
+          {
+            "tag": "A",
+            "label": "SolvePlot solver",
+            "hasFocus": true,
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "label": "Close navigation",
+            "hasFocus": true,
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "label": "New problem",
+            "hasFocus": true,
+            "inside": true
+          }
+        ],
+        "focusRestored": true,
+        "backClosesDrawer": true,
+        "note": "Native dialog allows Tab to browser chrome, but not background page content."
+      }
+    }
+  ],
+  "blocked": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "screenshots": [
+    "desktop-candy-solver.png",
+    "desktop-candy-settings.png",
+    "desktop-new-problem.png",
+    "desktop-history.png",
+    "mobile-candy-steps.png",
+    "mobile-candy-calculator.png",
+    "mobile-candy-navigation.png",
+    "mobile-new-problem.png"
+  ],
+  "finished": "2026-10-18T19:33:44.156Z"
+}

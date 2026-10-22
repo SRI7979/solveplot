@@ -60,6 +60,7 @@ import type { Meter, ModelCall } from "./spend";
 import { TECHNIQUES } from "./technique-vocabulary";
 import { loadGoldSolutions } from "./gold-solutions";
 import { expectedIntegerFactorExtremumAnswer, repairIntegerFactorExtremum, repairQuadraticRationalIntercept } from "./semantic-repairs";
+import { desmosNativePlan, repairCachedDesmosNativePlans, repairDesmosNativePlans } from "./desmos-native-plans";
 
 /** One guided correction per call, shared by both calls. */
 export const MAX_ATTEMPTS = 2;
@@ -95,11 +96,11 @@ export class ModelTimeoutError extends Error {
     this.name = "ModelTimeoutError";
   }
 }
-export const CANDIDATE_CACHE_KEY = "desmo-candidates-v1";
-export const EXPLANATION_CACHE_KEY = "desmo-explanation-v1";
+export const CANDIDATE_CACHE_KEY = "solveplot-candidates-v1";
+export const EXPLANATION_CACHE_KEY = "solveplot-explanation-v1";
 
-const candidateFormat = zodTextFormat(candidatesResponseSchema, "desmo_candidates");
-const explanationFormat = zodTextFormat(explanationSchema, "desmo_explanation");
+const candidateFormat = zodTextFormat(candidatesResponseSchema, "solveplot_candidates");
+const explanationFormat = zodTextFormat(explanationSchema, "solveplot_explanation");
 
 const reasoningEfforts = ["minimal", "low", "medium", "high"] as const;
 export type ReasoningEffort = (typeof reasoningEfforts)[number];
@@ -174,7 +175,7 @@ export async function loadSolveContext(): Promise<SolveContext> {
 export type SolveInput =
   /** bytes: the upload as received (hashed for the cache); modelBytes: what is sent, when downscaled. */
   | { kind: "image"; bytes: Buffer; mime: string; modelBytes?: Buffer }
-  | { kind: "text"; problem: string; choices: string[] | null };
+  | { kind: "text"; problem: string; choices?: string[] | null };
 
 export type PipelineDeps = {
   client: OpenAI;
@@ -280,7 +281,7 @@ export type ResolvedEntry =
 export type ReadyEntry = Extract<ResolvedEntry, { status: "ready" }>;
 
 export const HONEST_FAILURE =
-  "Every method found for this problem has a Desmos line that errors, even after one corrected attempt, so none is shown. Try a tighter crop of just this question.";
+  "Every method found for this problem has a Desmos line that errors, even after one corrected attempt, so none is shown. Check that the full question and all its values are included, then try again.";
 
 /** No method survived pre-flight, even after the one retry: an honest failure, never erroring rows. */
 export class PreflightFailedError extends Error {
@@ -297,6 +298,7 @@ export class PreflightFailedError extends Error {
  * method errored, the entry's Desmos retry (if it ran) takes its place.
  */
 export async function resolveEntry(cache: SolveCache, entry: CacheEntry, options: { fresh?: boolean } = {}): Promise<ResolvedEntry> {
+  entry = repairCachedDesmosNativePlans(entry);
   const verdicts = options.fresh ? {} : await cache.getPreflight(entry.cacheKey);
   const surviving = eligibleMethods(entry).filter((method) => verdicts[method.id]?.status !== "error");
   if (surviving.length > 0) {
@@ -486,7 +488,7 @@ async function callModel(
     }
   } catch (error) {
     if (controller.signal.aborted && !deps.signal?.aborted) {
-      console.warn("[desmo:call-timeout]", JSON.stringify({
+      console.warn("[solveplot:call-timeout]", JSON.stringify({
         id: deps.diagnosticId,
         call,
         elapsedMs: Math.round(performance.now() - started),
@@ -508,7 +510,7 @@ async function callModel(
     // Out of credit or locked out: every later call fails too, and students
     // only see "temporarily unavailable", so the real cause is logged loudly here.
     if (classifyOpenAIError(error).kind === "quota" || (error instanceof OpenAI.APIError && (error.status === 401 || error.status === 403))) {
-      console.error(`[desmo:ALERT] OpenAI refused the ${call} call; new solves will fail until this is fixed: ${describeOpenAIError(error)}`);
+      console.error(`[solveplot:ALERT] OpenAI refused the ${call} call; new solves will fail until this is fixed: ${describeOpenAIError(error)}`);
     }
     throw error;
   } finally {
@@ -519,10 +521,10 @@ async function callModel(
   if (stage) stage.usage = usageOf(response);
   // The tier OpenAI reports actually applied is what it bills.
   await deps.meter?.record(call, { status: "completed", model: response.model || model, serviceTier: response.service_tier ?? tier, usage: response.usage });
-  if (process.env.NODE_ENV === "development" || process.env.DESMO_DIAGNOSTICS === "1") {
+  if (process.env.NODE_ENV === "development" || process.env.SOLVEPLOT_DIAGNOSTICS === "1") {
     const usage = response.usage;
     console.info(
-      "[desmo:call]",
+      "[solveplot:call]",
       JSON.stringify({
         id: deps.diagnosticId,
         format: (body.text as { format?: { name?: string } } | undefined)?.format?.name,
@@ -566,7 +568,9 @@ export function outputTokenLimit(base: number, rejection: Rejection | undefined)
 }
 
 function textProblem(input: Extract<SolveInput, { kind: "text" }>): string {
-  const choices = input.choices
+  const choices = input.choices === undefined
+    ? "\nPreserve any answer choices included in the question above. If none are given, treat it as a student-produced response."
+    : input.choices
     ? `\nAnswer choices: ${input.choices.map((choice, index) => `${String.fromCharCode(65 + index)}) ${choice}`).join(", ")}`
     : "\n(Student-produced response; no answer choices.)";
   return `No image is attached for this request. The text below is the complete, already-transcribed question; solve it directly, exactly as if it had been read from a screenshot.\n\nProblem: ${input.problem}${choices}`;
@@ -664,6 +668,13 @@ export async function explainMethod(
   calls: CallCounts = { candidates: 0, explanation: 0 },
 ): Promise<{ solution: Solution; source: "cache" | "model" | "fallback"; failure?: unknown }> {
   deps.meter?.setCacheKey(entry.cacheKey);
+  const factorPlan = desmosNativePlan(entry.question);
+  if (factorPlan && method.techniqueId === factorPlan.candidate.techniqueId &&
+      JSON.stringify(method.rows.map(row => row.latex)) === JSON.stringify(factorPlan.candidate.rows.map(row => row.latex))) {
+    validateExplanationQuality(method, factorPlan.explanation);
+    await deps.cache.putExplanation(entry.cacheKey, method.id, factorPlan.explanation);
+    return { solution: presentMethod(entry, method, factorPlan.explanation), source: "cache" };
+  }
   const cached = await deps.cache.getExplanation(entry.cacheKey, method.id);
   if (cached) {
     try {
@@ -706,9 +717,9 @@ export async function explainMethod(
   };
 }
 
-/** DESMO_DESMOS_RESCUE=off disables the rescue (for A/B benchmarking); it is on by default. */
+/** SOLVEPLOT_DESMOS_RESCUE=off disables the rescue (for A/B benchmarking); it is on by default. */
 export function rescueEnabled(env: Record<string, string | undefined> = process.env): boolean {
-  return env.DESMO_DESMOS_RESCUE?.trim().toLowerCase() !== "off";
+  return env.SOLVEPLOT_DESMOS_RESCUE?.trim().toLowerCase() !== "off";
 }
 
 /** "strategies 61, 78 teach parameter-regression": the library tricks the question's wording points to. */
@@ -752,7 +763,7 @@ async function rescueDesmosCandidate(
   } catch (error) {
     // Out of budget, a timeout, or a provider error: the original selection stands.
     if (deps.signal?.aborted) throw error;
-    console.warn("[desmo:rescue]", JSON.stringify({ id: deps.diagnosticId, outcome: "failed", error: error instanceof Error ? error.name : String(error) }));
+    console.warn("[solveplot:rescue]", JSON.stringify({ id: deps.diagnosticId, outcome: "failed", error: error instanceof Error ? error.name : String(error) }));
     return { selection, outcome: "failed" };
   }
   try {
@@ -762,7 +773,7 @@ async function rescueDesmosCandidate(
     recordCandidateOutput(deps, "candidates", 2, retried, null);
     const merged = mergeSelections(selection, corrected);
     const outcome = merged.winnerId !== selection.winnerId ? "applied" : "kept";
-    console.info("[desmo:rescue]", JSON.stringify({ id: deps.diagnosticId, outcome, from: target.winner.techniqueId, to: merged.winnerId }));
+    console.info("[solveplot:rescue]", JSON.stringify({ id: deps.diagnosticId, outcome, from: target.winner.techniqueId, to: merged.winnerId }));
     return { selection: merged, outcome };
   } catch (error) {
     const failure = error instanceof StrategySelectionError ? new SolveValidationError(error.stage, error.message) : error;
@@ -828,13 +839,13 @@ export async function solveProblem(
         if (!(error instanceof ModelTimeoutError) || timeoutRetryUsed || deps.signal?.aborted || remaining < candidatesMs + explanationMs) throw error;
         timeoutRetryUsed = true;
         await deps.meter?.authorizeRetry();
-        console.warn("[desmo:timeout-retry]", JSON.stringify({ id: deps.diagnosticId, remainingMs: Number.isFinite(remaining) ? Math.round(remaining) : null }));
+        console.warn("[solveplot:timeout-retry]", JSON.stringify({ id: deps.diagnosticId, remainingMs: Number.isFinite(remaining) ? Math.round(remaining) : null }));
         response = await send();
       }
       try {
         const selectStarted = performance.now();
         const { parsed: rawParsed, repairs: metadataRepairs } = validateCandidatesResponse(response);
-        const parsed = repairIntegerFactorExtremum(repairQuadraticRationalIntercept(rawParsed));
+        const parsed = repairDesmosNativePlans(repairIntegerFactorExtremum(repairQuadraticRationalIntercept(rawParsed)));
         if (parsed.status === "needs_clarification") {
           recordCandidateOutput(deps, "candidates", attempt, response, null);
           const elapsed = performance.now() - started;

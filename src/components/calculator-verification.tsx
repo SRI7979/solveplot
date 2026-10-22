@@ -36,7 +36,7 @@ const CalculatorVerificationContext = createContext<ContextValue>({
   publish: () => undefined,
   selection: null,
   select: () => undefined,
-  traceId: "desmo-trace",
+  traceId: "solveplot-trace",
 });
 
 export function expressionsKey(

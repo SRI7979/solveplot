@@ -122,6 +122,31 @@ test("Rule 2: an inequality restriction never counts as a constraint", () => {
   assert.equal(violations[0].kind, "underdetermined");
 });
 
+// Two equations in x, y, z: each unknown is free, but x+y+z is fixed at 8.
+const SYSTEM_FIT = { latex: String.raw`[7x_{1}+4y_{1}+8z,4x_{1}+y_{1}+5z]\sim[61,37]` };
+
+test("Rule 2: an underdetermined fit passes when the line the plan reads is a combination the equations fix", () => {
+  assert.deepEqual(findRegressionDeterminacyViolations([SYSTEM_FIT, { latex: "x_{1}+y_{1}+z" }], { readoutRow: 2 }), []);
+  assert.deepEqual(findRegressionDeterminacyViolations([SYSTEM_FIT, { latex: "2x_1+2y_1+2z" }], { readoutRow: 2 }), []);
+  // A supplied value defined on an earlier line is a known number, not a fitted one.
+  assert.deepEqual(
+    findRegressionDeterminacyViolations([{ latex: "w=1" }, { latex: String.raw`[7x_{1}+4y_{1}+8zw,4x_{1}+y_{1}+5zw]\sim[61,37]` }, { latex: "x_{1}+y_{1}+z" }], { readoutRow: 3 }),
+    [],
+  );
+});
+
+test("Rule 2: an underdetermined fit stays rejected when its readout is not fixed or cannot be verified", () => {
+  const kind = (rows: { latex: string }[], readoutRow: number | null) => findRegressionDeterminacyViolations(rows, { readoutRow }).map((violation) => violation.kind);
+  assert.deepEqual(kind([SYSTEM_FIT, { latex: "x_{1}" }], 2), ["underdetermined"], "x alone is not fixed");
+  assert.deepEqual(kind([SYSTEM_FIT, { latex: "x_{1}+y_{1}+z" }], null), ["underdetermined"], "no readout line to check");
+  assert.deepEqual(kind([SYSTEM_FIT, { latex: "x_{1}+y_{1}+z" }], 1), ["underdetermined"], "a parameter read off the fit itself is arbitrary");
+  assert.deepEqual(kind([{ latex: String.raw`[a^{2}+b+c,a+b+c]\sim[3,2]` }, { latex: "b+c" }], 2), ["underdetermined"], "a nonlinear fit is not verified");
+  assert.deepEqual(kind([{ latex: String.raw`[7x_{1}+4y_{1}+8z,4x_{1}+y_{1}+5z]\sim[61,37]\left\{z>0\right\}` }, { latex: "x_{1}+y_{1}+z" }], 2), ["underdetermined"], "a restricted fit is not verified");
+  assert.deepEqual(kind([{ latex: String.raw`[a+b+c,2a+2b+2c]\sim[3,7]` }, { latex: "a+b+c" }], 2), ["underdetermined"], "contradictory equations fix nothing");
+  // The data-list fit of test 3a stays rejected whatever it reads.
+  assert.deepEqual(kind([{ latex: "x_{1}=[-2,8]" }, { latex: "y_{1}=[0,0]" }, { latex: String.raw`y_{1}\sim a x_{1}^2+b x_{1}+c` }, { latex: "a+b+c" }], 4), ["underdetermined"]);
+});
+
 // ================================================================================
 // RULE 3 — condition completeness for conditional-system questions
 // ================================================================================

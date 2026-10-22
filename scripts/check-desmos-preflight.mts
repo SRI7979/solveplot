@@ -51,7 +51,8 @@ function staticFlags(plan: ExamplePlan): string[] {
   if (prose.length) flags.push(`prose rows ${prose.join(",")}`);
   for (const { row, variables } of findUndefinedVariables(rows)) flags.push(`line ${row} undefined ${variables.join(",")}`);
   for (const violation of findListShapeViolations(rows)) flags.push(`line ${violation.row} list-shape ${violation.kind}`);
-  for (const violation of findRegressionDeterminacyViolations(rows)) flags.push(`line ${violation.row} ${violation.kind}${violation.kind === "underdetermined" ? ` (${violation.params.join(",")} vs ${violation.constraints})` : ""}`);
+  // A worked example reads its answer on its last row.
+  for (const violation of findRegressionDeterminacyViolations(rows, { readoutRow: rows.length })) flags.push(`line ${violation.row} ${violation.kind}${violation.kind === "underdetermined" ? ` (${violation.params.join(",")} vs ${violation.constraints})` : ""}`);
   if (plan.context.trim()) {
     for (const { row, constants } of findDerivedConstants(rows, plan.context, null)) flags.push(`line ${row} hidden-derivation numbers ${constants.join(",")}`);
     if (hasUnnecessaryCoefficientLists(rows, plan.context)) flags.push("coefficient-lists");
@@ -73,7 +74,7 @@ export { calculatorPayload, verdictFromAnalysis } from "./src/lib/desmos-preflig
   },
   bundle: true,
   format: "iife",
-  globalName: "DesmoPreflight",
+  globalName: "SolvePlotPreflight",
   platform: "browser",
   write: false,
   logLevel: "silent",
@@ -98,7 +99,7 @@ const server = http.createServer((request, response) => {
 await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
 const origin = `http://localhost:${(server.address() as { port: number }).port}/`;
 
-const chrome = spawn(chromePath, ["--headless=new", "--remote-debugging-port=0", `--user-data-dir=${mkdtempSync(path.join(os.tmpdir(), "desmo-chrome-"))}`, "--no-first-run", "--no-default-browser-check", ...(process.getuid?.() === 0 ? ["--no-sandbox"] : []), ...(process.env.HTTPS_PROXY ? [`--proxy-server=${process.env.HTTPS_PROXY}`] : []), "about:blank"], { stdio: ["ignore", "ignore", "pipe"] });
+const chrome = spawn(chromePath, ["--headless=new", "--remote-debugging-port=0", `--user-data-dir=${mkdtempSync(path.join(os.tmpdir(), "solveplot-chrome-"))}`, "--no-first-run", "--no-default-browser-check", ...(process.getuid?.() === 0 ? ["--no-sandbox"] : []), ...(process.env.HTTPS_PROXY ? [`--proxy-server=${process.env.HTTPS_PROXY}`] : []), "about:blank"], { stdio: ["ignore", "ignore", "pipe"] });
 const wsUrl = await new Promise<string>((resolve, reject) => {
   let buffer = "";
   chrome.stderr!.on("data", (chunk) => {
@@ -153,10 +154,10 @@ try {
     return ms;
   })()`);
   // The app's engine, exactly as bundled, as a global the checks below call.
-  await evaluate(`${engineScript}\nwindow.DesmoPreflight = DesmoPreflight; true`);
+  await evaluate(`${engineScript}\nwindow.SolvePlotPreflight = SolvePlotPreflight; true`);
   const created = await evaluate<number>(`(() => {
     const started = performance.now();
-    window.engine = DesmoPreflight.createPreflightEngine(window.Desmos, document);
+    window.engine = SolvePlotPreflight.createPreflightEngine(window.Desmos, document);
     return performance.now() - started;
   })()`);
 
@@ -164,7 +165,7 @@ try {
   const check = (plan: Plan) =>
     evaluate<Checked>(`(async () => {
       const plan = ${JSON.stringify(plan)};
-      const payload = DesmoPreflight.calculatorPayload(plan.rows, plan.answerState);
+      const payload = SolvePlotPreflight.calculatorPayload(plan.rows, plan.answerState);
       const started = performance.now();
       const verdict = await window.engine.check(payload);
       return { label: plan.label, verdict, ms: Math.round(performance.now() - started), updates: 0, rows: payload.items.map((item) => item.latex) };
@@ -176,8 +177,8 @@ try {
       const host = document.createElement("div");
       host.style.cssText = "position:fixed;left:-10000px;width:400px;height:300px";
       document.body.appendChild(host);
-      const calculator = Desmos.GraphingCalculator(host, { ...DesmoPreflight.MATH_OPTIONS, expressions: false });
-      const payload = DesmoPreflight.calculatorPayload(${JSON.stringify(rows.map((latex) => ({ latex, slider: null })))}, null);
+      const calculator = Desmos.GraphingCalculator(host, { ...SolvePlotPreflight.MATH_OPTIONS, expressions: false });
+      const payload = SolvePlotPreflight.calculatorPayload(${JSON.stringify(rows.map((latex) => ({ latex, slider: null })))}, null);
       calculator.setExpressions(payload.items.map((item, index) => ({ ...item, id: "p" + (index + 1) })));
       await new Promise((resolve) => setTimeout(resolve, 600));
       const analysis = JSON.parse(JSON.stringify(calculator.expressionAnalysis));
@@ -200,6 +201,9 @@ try {
     { label: "mismatched literal sides", rows: plainRows(["[a+b,c]\\sim[1,2,3]", "a"]), answerState: null },
     // s and y_1 enter only as their product; Desmos must still fit r = 3.
     { label: "small-system bracket regression (product unknowns)", rows: plainRows(["x_{1}=2", "[7rx_{1}+12sy_{1},3rx_{1}+4sy_{1}]\\sim[3,5]", "r"]), answerState: null },
+    // Two equations in three unknowns: each fitted value is arbitrary, but line 2 must read 8.
+    { label: "system in its own unknowns (two equations, fixed sum)", rows: plainRows(["[7x_{1}+4y_{1}+8z,4x_{1}+y_{1}+5z]\\sim[61,37]", "x_{1}+y_{1}+z"]), answerState: null },
+    { label: "system in its own unknowns (three equations)", rows: plainRows(["[x_{1}+y_{1},y_{1}+z,x_{1}+z]\\sim[5,7,6]", "x_{1}+y_{1}+z"]), answerState: null },
   ];
   const fixtureResults: Checked[] = [];
   for (const plan of fixtures) fixtureResults.push(await check(plan));

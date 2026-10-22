@@ -3,7 +3,7 @@
 Research input for `src/content/desmos-tricks.md` (76 strategies), routing, and
 scoring. Written 2026-10-04. Every example problem below is original; its
 answer was checked with sympy
-(`/tmp/claude-0/-home-user-desmo/4e96287a-47a6-5f4e-a8d6-b3a6e0bf63cb/scratchpad/research/verify_research.py`).
+(`/tmp/claude-0/-home-user-solveplot/4e96287a-47a6-5f4e-a8d6-b3a6e0bf63cb/scratchpad/research/verify_research.py`).
 **Fact-check update:** the draft said no row had run in Desmos. A later
 fact-check ran every row through the app's own pre-flight engine in real
 Desmos (API v1.11.4, headless Playwright Chromium, the app's degree-mode
@@ -733,7 +733,7 @@ of the difference (#76).
    Each is fine as a listed alternative, but none should win the default
    against a 1–3 row graph read.
 3. **Sliders are mainstream, but only on a grid.** Tutors widely recommend
-   sliders for no / one / infinitely many solutions. Desmo's cost model
+   sliders for no / one / infinitely many solutions. SolvePlot's cost model
    counts the drag as one manual iteration, which is fair. It never checks
    that the answer is reachable on the slider's step grid (E19). A slider
    whose answer is off-grid cannot produce the answer and must not be
@@ -745,7 +745,7 @@ of the difference (#76).
    the opposite for exact forms: it keeps graphing as the default but uses
    regression to get both roots exactly when the graph's decimals cannot.
 5. **Hand work is genuinely faster for one clean step** ("under 20–30
-   seconds": Vibrant Publishers and OnePrep, (S)). Desmo's philosophy
+   seconds": Vibrant Publishers and OnePrep, (S)). SolvePlot's philosophy
    deliberately still prefers graphing 3x=18. That is a product choice, not
    an error, but it means the written technique must stay listed for such
    problems, which it already is.

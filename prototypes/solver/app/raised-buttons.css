@@ -1,0 +1,60 @@
+/* The shell and hit area stay fixed. Only the face and its contents compress. */
+.appearanceScope :is(.outlinedControl, .secondaryButton, .primaryButton, .copyButton, .pointButton, .wsNewProblem, .wsMobileMenu, .appearanceAmountChoice, .appearancePaletteChoice) {
+  --press-travel:0px;
+  position:var(--press-position,relative);
+  isolation:isolate;
+  border:var(--press-border,1px) solid transparent;
+  border-bottom-width:calc(var(--press-border,1px) + var(--press-depth,3px));
+  background:transparent;
+  box-shadow:none;
+  transform:none;
+  touch-action:manipulation;
+  padding-top:calc(var(--press-padding,8px) + var(--press-travel));
+  padding-bottom:calc(var(--press-padding,8px) - var(--press-travel));
+  transition:padding .17s cubic-bezier(.2,.8,.2,1),color .15s;
+}
+
+.appearanceScope :is(.outlinedControl, .secondaryButton, .primaryButton, .copyButton, .pointButton, .wsNewProblem, .wsMobileMenu, .appearanceAmountChoice, .appearancePaletteChoice)::before,
+.appearanceScope :is(.outlinedControl, .secondaryButton, .primaryButton, .copyButton, .pointButton, .wsNewProblem, .wsMobileMenu, .appearanceAmountChoice, .appearancePaletteChoice)::after {
+  content:"";
+  position:absolute;
+  z-index:-1;
+  inset:calc(0px - var(--press-border,1px));
+  border-radius:inherit;
+  pointer-events:none;
+}
+
+/* The base never moves, including during a held press. */
+.appearanceScope :is(.outlinedControl, .secondaryButton, .primaryButton, .copyButton, .pointButton, .wsNewProblem, .wsMobileMenu, .appearanceAmountChoice, .appearancePaletteChoice)::before {
+  top:calc(var(--press-depth,3px) - var(--press-border,1px));
+  bottom:calc(0px - var(--press-border,1px) - var(--press-depth,3px));
+  background:var(--press-base,var(--control-edge));
+}
+
+.appearanceScope :is(.outlinedControl, .secondaryButton, .primaryButton, .copyButton, .pointButton, .wsNewProblem, .wsMobileMenu, .appearanceAmountChoice, .appearancePaletteChoice)::after {
+  border:var(--press-border,1px) solid var(--press-outline,var(--control-border));
+  background:var(--press-face,var(--paper));
+  box-shadow:var(--press-ring,none);
+  transform:translateY(var(--press-travel));
+  transition:transform .17s cubic-bezier(.2,.8,.2,1),background .15s,border-color .15s;
+}
+
+.appearanceScope :is(.outlinedControl, .secondaryButton, .primaryButton, .copyButton, .pointButton, .wsNewProblem, .wsMobileMenu, .appearanceAmountChoice, .appearancePaletteChoice):is([data-pressing],:focus-visible:active,:has(input:focus-visible:active)):not(:disabled):not([aria-disabled=true]) {
+  --press-travel:var(--press-depth,3px);
+  transition-duration:65ms;
+}
+.appearanceScope :is(.outlinedControl, .secondaryButton, .primaryButton, .copyButton, .pointButton, .wsNewProblem, .wsMobileMenu, .appearanceAmountChoice, .appearancePaletteChoice):is([data-pressing],:focus-visible:active,:has(input:focus-visible:active)):not(:disabled):not([aria-disabled=true])::after {
+  transition-duration:65ms;
+}
+
+.outlinedControl { --press-border:2px; --press-depth:4px; }
+.primaryButton { --press-padding:11px; --press-depth:4px; --press-face:var(--primary-button); --press-base:var(--primary-edge); --press-outline:var(--primary-edge); }
+.copyButton { --press-padding:2px; --press-depth:2px; }
+.pointButton { --press-padding:7px; }
+.wsMobileMenu { --press-padding:1px; --press-depth:1px; }
+.appearancePaletteChoice { --press-padding:11px; --press-depth:2px; }
+
+@media (prefers-reduced-motion:reduce) {
+  .appearanceScope :is(.outlinedControl, .secondaryButton, .primaryButton, .copyButton, .pointButton, .wsNewProblem, .wsMobileMenu, .appearanceAmountChoice, .appearancePaletteChoice),
+  .appearanceScope :is(.outlinedControl, .secondaryButton, .primaryButton, .copyButton, .pointButton, .wsNewProblem, .wsMobileMenu, .appearanceAmountChoice, .appearancePaletteChoice)::after { transition:none; }
+}

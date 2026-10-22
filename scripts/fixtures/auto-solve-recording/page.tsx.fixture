@@ -1,0 +1,14 @@
+import { notFound } from "next/navigation";
+import AccountNav from "@/components/account-nav";
+import SolverWorkspace from "../solve/solver-workspace";
+import styles from "./recording.module.css";
+
+export const dynamic = "force-dynamic";
+export const metadata = { title: "Product recording | SolvePlot", robots: { index: false, follow: false } };
+
+/** Development-only recording surface. The browser recorder fixtures the
+ * network; the upload, loading state, explanation and calculator are the app. */
+export default function DemoRecordingPage() {
+  if (process.env.NODE_ENV !== "development") notFound();
+  return <div className={styles.recording}><SolverWorkspace accountNav={<AccountNav name="Jordan Lee" email="jordan@example.com" active="solve" />} /></div>;
+}

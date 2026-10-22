@@ -1,0 +1,639 @@
+/* Shared app controls. Marketing pages and Desmos's native controls are outside
+   this system; every interactive app component opts into a named treatment. */
+.solveplot-shell[data-palette] {
+  :is(
+    .primaryButton,
+    .secondaryButton,
+    .outlinedControl,
+    .copyButton,
+    .pointButton,
+    .iconControl,
+    .choiceControl
+  ) {
+    font-family: var(--font-sans);
+    font-weight: 800;
+    text-decoration: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  :is(
+      .secondaryButton,
+      .outlinedControl,
+      .copyButton,
+      .pointButton,
+      .iconControl,
+      .choiceControl
+    ):hover:not(:disabled):not([aria-disabled="true"]) {
+    --press-face: var(--raised);
+    --press-outline: var(--selection-border);
+    color: var(--selection-accent);
+  }
+  :is(
+    .primaryButton,
+    .secondaryButton,
+    .outlinedControl,
+    .copyButton,
+    .pointButton,
+    .iconControl,
+    .choiceControl
+  ):is(:disabled, [aria-disabled="true"]) {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .iconControl {
+    --press-depth: 1px;
+    --press-padding: 4px;
+    --press-face: transparent;
+    --press-base: transparent;
+    --press-outline: transparent;
+    display: inline-grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 34px;
+    min-width: 34px;
+    height: 34px;
+    border-radius: 11px;
+    color: var(--muted);
+    line-height: 1;
+  }
+  .choiceControl {
+    --press-depth: 2px;
+    --press-padding: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 36px;
+    padding-inline: 12px;
+    border-radius: 12px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.3;
+  }
+  .copyButton {
+    min-inline-size: 88px;
+    white-space: nowrap;
+  }
+  /* Keep action labels clear of the face's edge, including compact resets. */
+  :is(button, a, summary):is(
+    .primaryButton,
+    .secondaryButton,
+    .outlinedControl,
+    .copyButton,
+    .pointButton
+  ) {
+    padding-inline: var(--press-inline, 14px);
+  }
+  :is(
+    .choiceControl,
+    .iconControl,
+    .secondaryButton,
+    .outlinedControl,
+    .copyButton
+  ):is(
+    [aria-pressed="true"],
+    [aria-selected="true"],
+    [data-selected="true"],
+    :has(input:checked)
+  ) {
+    --press-outline: var(--selection-border);
+    --press-base: var(--selection-border);
+    --press-face: var(--selection-soft);
+    color: var(--selection-accent);
+  }
+  /* A group has one track; only its selected option needs a visible face. */
+  .segmentedControl {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    width: fit-content;
+    padding: 4px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--raised);
+  }
+  .segmentedControl > :is(.iconControl, .choiceControl) {
+    --press-depth: 0px;
+    --press-face: transparent;
+    --press-base: transparent;
+    --press-outline: transparent;
+    border-radius: 10px;
+    box-shadow: none;
+    background: transparent;
+  }
+  .segmentedControl > :is(.iconControl, .choiceControl):hover:not(:disabled) {
+    --press-face: var(--hover);
+    --press-outline: transparent;
+  }
+  .segmentedControl > :is(.iconControl, .choiceControl)[aria-pressed="true"] {
+    --press-face: var(--paper);
+    --press-outline: var(--control-border);
+    --press-base: transparent;
+    color: var(--foreground);
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+  }
+  /* One moving, palette-colored selection surface for multi-option switches. */
+  .segmentedControl:not(.themeControlGroup) {
+    --segment-count: 2;
+    --segment-index: 0;
+    position: relative;
+    isolation: isolate;
+    display: inline-grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    gap: 4px;
+    max-width: 100%;
+    padding: 4px;
+    border-color: color-mix(in srgb, var(--selection-border) 35%, var(--border));
+    border-radius: var(--radius-lg);
+    background: color-mix(in srgb, var(--selection-soft) 20%, var(--canvas));
+  }
+  .segmentedControl:not(.themeControlGroup):has(> :last-child:nth-child(3)) {
+    --segment-count: 3;
+  }
+  .segmentedControl:not(.themeControlGroup):has(> :last-child:nth-child(4)) {
+    --segment-count: 4;
+  }
+  .segmentedControl:not(.themeControlGroup):has(> :nth-child(2):is([aria-pressed="true"], [aria-selected="true"], [data-selected="true"])) {
+    --segment-index: 1;
+  }
+  .segmentedControl:not(.themeControlGroup):has(> :nth-child(3):is([aria-pressed="true"], [aria-selected="true"], [data-selected="true"])) {
+    --segment-index: 2;
+  }
+  .segmentedControl:not(.themeControlGroup):has(> :nth-child(4):is([aria-pressed="true"], [aria-selected="true"], [data-selected="true"])) {
+    --segment-index: 3;
+  }
+  .segmentedControl:not(.themeControlGroup)::before {
+    content: "";
+    box-sizing: border-box;
+    position: absolute;
+    z-index: 0;
+    inset: 4px auto 4px 4px;
+    width: calc((100% - 8px - 4px * (var(--segment-count) - 1)) / var(--segment-count));
+    border: 1px solid var(--selection-border);
+    border-radius: var(--radius-md);
+    background: var(--selection-soft);
+    box-shadow: 0 1px 2px color-mix(in srgb, var(--selection-accent) 10%, transparent);
+    transform: translateX(calc(var(--segment-index) * (100% + 4px)));
+    pointer-events: none;
+    transition: transform 220ms cubic-bezier(0.22, 0.8, 0.25, 1), background 160ms, border-color 160ms;
+  }
+  .segmentedControl:not(.themeControlGroup) > .choiceControl {
+    --press-ring: none;
+    z-index: 1;
+    min-width: 0;
+    min-height: 38px;
+    padding-inline: 14px;
+    border-radius: var(--radius-md);
+    white-space: nowrap;
+  }
+  .segmentedControl:not(.themeControlGroup) > .choiceControl:is(
+    :hover, [aria-pressed="true"], [aria-selected="true"], [data-selected="true"]
+  ) {
+    --press-face: transparent;
+    --press-outline: transparent;
+    --press-base: transparent;
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+    color: var(--selection-accent);
+  }
+  .segmentedControl:not(.themeControlGroup) > .choiceControl > svg {
+    transition: transform 170ms ease, color 170ms ease;
+  }
+  .segmentedControl:not(.themeControlGroup) > .choiceControl:hover > svg {
+    transform: translateY(-1px) rotate(-4deg);
+  }
+  .segmentedControl:not(.themeControlGroup) > .choiceControl:is([aria-pressed="true"], [aria-selected="true"]) > svg {
+    animation: option-icon-select 200ms ease-out;
+  }
+  .segmentedControl.workspacePanelSwitch {
+    width: 100%;
+  }
+  .segmentedControl.themeControlGroup {
+    gap: 4px;
+    padding: 4px;
+    border-radius: 99px;
+  }
+  .segmentedControl.themeControlGroup > .iconControl {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+  }
+  .segmentedControl.themeControlGroup > .iconControl[aria-pressed="true"] {
+    --press-face: var(--selection-soft);
+    --press-outline: var(--selection-border);
+    color: var(--selection-accent);
+  }
+  .menuChoice {
+    border: 2px solid transparent;
+    border-radius: 12px;
+    cursor: pointer;
+    transition:
+      border-color 150ms,
+      background 150ms,
+      color 150ms;
+  }
+  .menuChoice:hover {
+    background: var(--hover);
+  }
+  .menuChoice:has(> .stepIndicator) {
+    padding: 4px 6px;
+  }
+  .menuChoice[aria-pressed="true"] {
+    border-color: var(--selection-border);
+    background: var(--selection-soft);
+    color: var(--selection-accent);
+  }
+  :is(.textControl, .disclosureControl) {
+    border-radius: 10px;
+    color: var(--muted);
+    font-family: var(--font-sans);
+    font-weight: 800;
+    cursor: pointer;
+    transition:
+      color 150ms,
+      background 150ms;
+  }
+  .textControl {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 32px;
+    padding: 5px 8px;
+    border: 0;
+    background: transparent;
+    font-size: 12px;
+    text-decoration: none;
+    line-height: 1.5;
+  }
+  :is(.textControl, .disclosureControl):hover:not(:disabled) {
+    background: var(--hover);
+    color: var(--selection-accent);
+  }
+  :is(.textControl, .disclosureControl):active:not(:disabled) {
+    background: var(--selection-soft);
+  }
+  .dangerControl:hover:not(:disabled) {
+    --press-outline: var(--danger);
+    --press-face: var(--danger-soft);
+    color: var(--danger);
+  }
+  :is(.appearanceAmountChoice, .appearancePaletteChoice)[data-selected="true"] {
+    --press-outline: var(--selection-border);
+    --press-base: var(--selection-border);
+    --press-ring: 0 0 0 1px var(--selection-border);
+    color: var(--selection-accent);
+  }
+  :is(.appearanceAmountChoice, .appearancePaletteChoice):hover {
+    --press-outline: var(--selection-border);
+  }
+  .appearanceAmountChoice[data-selected="true"] {
+    --press-face: var(--selection-soft);
+  }
+  .appearancePaletteChoice[data-selected="true"] .appearancePaletteCheck {
+    color: var(--paper);
+    background: var(--selection-accent);
+  }
+  .appField {
+    min-height: 44px;
+    padding: 10px 13px;
+    border: 2px solid var(--control-border);
+    border-radius: 12px;
+    background: var(--paper);
+    color: var(--foreground);
+    font: inherit;
+    font-size: 14px;
+    line-height: 1.5;
+    transition:
+      border-color 150ms,
+      box-shadow 150ms;
+  }
+  .appField:hover:not(:disabled) {
+    border-color: var(--control-edge);
+  }
+  .appField:focus-visible {
+    border-color: var(--selection-border);
+    outline: 0;
+    box-shadow: 0 0 0 3px var(--selection-soft);
+  }
+  .appField:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  :is(
+    .primaryButton,
+    .secondaryButton,
+    .outlinedControl,
+    .copyButton,
+    .pointButton,
+    .iconControl,
+    .choiceControl,
+    .menuChoice,
+    .textControl,
+    .disclosureControl
+  ):focus-visible,
+  :is(.appearanceAmountChoice, .appearancePaletteChoice, .choiceControl):has(
+    input:focus-visible
+  ) {
+    outline: 3px solid var(--selection-border);
+    outline-offset: 3px;
+  }
+  :is(.iconControl, .textControl, .choiceControl) > svg {
+    flex-shrink: 0;
+  }
+  .appProfile {
+    border: 2px solid transparent;
+    border-radius: 16px;
+  }
+  .appProfile[aria-current="page"] {
+    border-color: var(--selection-border);
+    background: var(--selection-soft);
+    color: var(--selection-accent);
+  }
+  [data-active="true"] .stepIndicator {
+    border-color: var(--selection-border);
+    background: var(--selection-soft);
+    color: var(--selection-accent);
+  }
+  textarea.appField {
+    min-height: 88px;
+  }
+  ::selection {
+    color: var(--foreground);
+    background: var(--selection-border);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .solveplot-shell[data-palette] {
+    :is(.iconControl, .textControl, .choiceControl) > svg {
+      transition: transform 160ms ease;
+    }
+    .iconControl:hover:not(:disabled) > svg {
+      transform: translateY(-1px);
+    }
+    .textControl:hover:not(:disabled) > svg {
+      transform: translateX(1px);
+    }
+    .menuChoice:active {
+      background: var(--selection-soft);
+    }
+    .appPageEnter {
+      animation: app-page-enter 180ms ease-out;
+    }
+    details[open]:has(> .disclosureControl) > :not(summary) {
+      animation: app-page-enter 160ms ease-out;
+    }
+  }
+}
+@keyframes app-page-enter {
+  from {
+    opacity: 0.5;
+    translate: 0 4px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .solveplot-shell[data-palette] .segmentedControl::before,
+  .solveplot-shell[data-palette] .segmentedControl > .choiceControl > svg {
+    animation: none;
+    transition: none;
+  }
+  .solveplot-shell[data-palette]
+    :is(
+      .iconControl,
+      .choiceControl,
+      .menuChoice,
+      .textControl,
+      .disclosureControl,
+      .appField
+    ),
+  .solveplot-shell[data-palette]
+    :is(.iconControl, .textControl, .choiceControl)
+    > svg {
+    transition: none;
+  }
+}
+
+@keyframes option-icon-select {
+  from { scale: 0.88; }
+  to { scale: 1; }
+}
+
+.solveplot-shell[data-palette] {
+  summary.disclosureControl {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
+    min-height: 44px;
+    padding: 11px 14px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    list-style: none;
+    line-height: 1.5;
+    transition: background 180ms ease, border-color 180ms ease, color 180ms ease;
+  }
+  summary.disclosureControl::-webkit-details-marker {
+    display: none;
+  }
+  summary.disclosureControl::marker {
+    content: "";
+  }
+  summary.disclosureControl > svg {
+    flex: 0 0 auto;
+    margin-left: auto;
+    color: var(--selection-accent);
+    transform: rotate(-90deg);
+    transition: transform 200ms cubic-bezier(0.22, 0.8, 0.25, 1);
+  }
+  details[open] > summary.disclosureControl > svg {
+    transform: rotate(0deg);
+  }
+  summary.disclosureControl:hover,
+  details[open] > summary.disclosureControl {
+    border-color: var(--selection-border);
+    background: color-mix(in srgb, var(--selection-soft) 65%, var(--paper));
+    color: var(--selection-accent);
+  }
+  [data-motion] {
+    gap: 8px;
+  }
+  .iconControl[data-motion] {
+    width: 38px;
+    min-width: 38px;
+    height: 38px;
+    border-radius: var(--radius-md);
+  }
+  [data-motion="restore"] {
+    min-height: 38px;
+    padding: 8px 11px;
+    white-space: nowrap;
+  }
+  [data-motion="expressions"] {
+    min-height: 38px;
+    padding-inline: 12px;
+  }
+  [data-motion] > svg {
+    flex-shrink: 0;
+    transform-origin: center;
+    transition: transform 200ms cubic-bezier(0.22, 0.8, 0.25, 1), filter 180ms ease;
+  }
+  [data-motion]:is(:hover, :focus-visible):not(:disabled) {
+    --press-ring: 0 0 0 3px color-mix(in srgb, var(--selection-border) 28%, transparent);
+    color: var(--selection-accent);
+  }
+  .textControl[data-motion]:is(:hover, :focus-visible):not(:disabled) {
+    box-shadow: var(--press-ring);
+    background: var(--selection-soft);
+  }
+  [data-motion]:hover:not(:disabled) > svg {
+    filter: drop-shadow(0 1px 3px color-mix(in srgb, var(--selection-accent) 22%, transparent));
+  }
+  :is([data-motion="restore"], [data-motion="reset"]):hover:not(:disabled) > svg {
+    transform: rotate(-38deg);
+  }
+  :is([data-motion="restore"], [data-motion="reset"]):active:not(:disabled) > svg {
+    transform: rotate(-100deg);
+  }
+  [data-motion="fullscreen"]:hover:not(:disabled) > svg {
+    transform: scale(1.16);
+  }
+  [data-motion="expressions"]:hover:not(:disabled) > svg {
+    transform: translateX(2px);
+  }
+  [data-motion="copy"]:hover:not(:disabled) > svg {
+    transform: translate(1px, -1px);
+  }
+  [data-motion="tutor"]:hover:not(:disabled) > svg {
+    transform: rotate(-6deg) scale(1.08);
+  }
+  [data-copied="true"] {
+    --press-face: var(--soft);
+    --press-outline: var(--accent-border);
+    color: var(--brand);
+  }
+  [data-copied="true"] > svg {
+    animation: option-icon-select 200ms ease-out;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .solveplot-shell[data-palette] [data-motion] > svg {
+    transform: none !important;
+    animation: none;
+    transition: none;
+  }
+}
+
+/* The glow lives on the moving face; the tactile base and hit area stay fixed. */
+.solveplot-shell[data-palette] {
+  --ui-control-glow: var(--selection-accent);
+  :is(
+    .primaryButton,
+    .secondaryButton,
+    .outlinedControl,
+    .copyButton,
+    .pointButton,
+    .iconControl,
+    .choiceControl,
+    .wsNewProblem,
+    .appearanceAmountChoice,
+    .appearancePaletteChoice,
+    .textControl,
+    .menuChoice,
+    .disclosureControl
+  ):is(:hover, :focus-visible):not(:disabled):not([aria-disabled="true"]) {
+    --press-ring:
+      0 0 0 2px color-mix(in srgb, var(--ui-control-glow) 10%, transparent),
+      0 0 20px color-mix(in srgb, var(--ui-control-glow) 17%, transparent);
+  }
+  :is(
+    .primaryButton,
+    .secondaryButton,
+    .outlinedControl,
+    .copyButton,
+    .pointButton,
+    .iconControl,
+    .choiceControl,
+    .wsNewProblem,
+    .appearanceAmountChoice,
+    .appearancePaletteChoice
+  )::after {
+    transition-property: transform, background, border-color, box-shadow;
+  }
+  :is(.textControl, .menuChoice, .disclosureControl) {
+    transition: color 180ms, background 180ms, border-color 180ms, box-shadow 180ms;
+  }
+  :is(.textControl, .menuChoice, .disclosureControl):is(:hover, :focus-visible):not(:disabled):not([aria-disabled="true"]) {
+    box-shadow: var(--press-ring);
+  }
+  .dangerControl { --ui-control-glow: var(--danger); }
+}
+/* Light surfaces need a clearer outer ring for the same glow to read. */
+html[data-theme="light"] .solveplot-shell[data-palette][data-color-mode="light"] {
+  :is(
+    .primaryButton,
+    .secondaryButton,
+    .outlinedControl,
+    .copyButton,
+    .pointButton,
+    .iconControl,
+    .choiceControl,
+    .wsNewProblem,
+    .appearanceAmountChoice,
+    .appearancePaletteChoice,
+    .textControl,
+    .menuChoice,
+    .disclosureControl
+  ):is(:hover, :focus-visible):not(:disabled):not([aria-disabled="true"]) {
+    --press-ring:
+      0 0 0 2px color-mix(in srgb, var(--ui-control-glow) 26%, transparent),
+      0 0 0 5px color-mix(in srgb, var(--ui-control-glow) 9%, transparent),
+      0 8px 24px color-mix(in srgb, var(--ui-control-glow) 25%, transparent);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .solveplot-shell[data-palette] :is(
+    .primaryButton, .secondaryButton, .outlinedControl, .copyButton,
+    .pointButton, .choiceControl, .appearanceAmountChoice, .appearancePaletteChoice
+  ) > svg {
+    transition: transform 180ms cubic-bezier(.2,.8,.2,1), scale 180ms, filter 180ms;
+  }
+  .solveplot-shell[data-palette] :is(
+    .primaryButton, .secondaryButton, .outlinedControl, .copyButton,
+    .pointButton, .choiceControl, .appearanceAmountChoice, .appearancePaletteChoice
+  ):hover:not(:disabled):not([aria-disabled="true"]) > svg {
+    scale: 1.06;
+    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--ui-control-glow) 24%, transparent));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .solveplot-shell[data-palette] :is(
+    .primaryButton, .secondaryButton, .outlinedControl, .copyButton,
+    .pointButton, .iconControl, .choiceControl, .wsNewProblem,
+    .appearanceAmountChoice, .appearancePaletteChoice, .textControl,
+    .menuChoice, .disclosureControl
+  ),
+  .solveplot-shell[data-palette] :is(
+    .primaryButton, .secondaryButton, .outlinedControl, .copyButton,
+    .pointButton, .iconControl, .choiceControl, .wsNewProblem,
+    .appearanceAmountChoice, .appearancePaletteChoice
+  )::after,
+  .solveplot-shell[data-palette] :is(
+    .primaryButton, .secondaryButton, .outlinedControl, .copyButton,
+    .pointButton, .iconControl, .choiceControl, .textControl
+  ) > svg {
+    animation: none;
+    transition: none;
+    scale: 1;
+  }
+}

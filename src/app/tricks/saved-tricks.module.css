@@ -1,0 +1,87 @@
+.emptyState {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+  min-height: 128px;
+  padding: 24px 28px;
+  border: 1px solid color-mix(in srgb, var(--selection-border) 62%, var(--border));
+  border-radius: 22px;
+  background:
+    radial-gradient(ellipse at 0% 0%, color-mix(in srgb, var(--selection-soft) 62%, transparent), transparent 58%),
+    var(--surface-raised);
+  box-shadow: var(--shadow-card);
+  animation: arrive 240ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+}
+
+.emptyIcon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 auto;
+  border: 1px solid var(--selection-border);
+  border-radius: 16px;
+  background: var(--selection-soft);
+  color: var(--selection-accent);
+}
+
+.emptyCopy {
+  min-width: 0;
+  flex: 1;
+}
+
+.emptyCopy h2 {
+  margin: 0;
+  color: var(--foreground);
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
+.emptyCopy p {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.emptyAction {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+@keyframes arrive {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 620px) {
+  .emptyState {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 20px;
+  }
+
+  .emptyCopy {
+    flex-basis: calc(100% - 64px);
+    padding-top: 3px;
+  }
+
+  .emptyAction {
+    margin-left: 62px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .emptyState {
+    animation: none;
+  }
+}

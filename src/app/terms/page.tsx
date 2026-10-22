@@ -1,0 +1,30 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { BRAND } from "@/lib/brand";
+import { LegalContact, LegalPage } from "@/components/landing/legal-page";
+
+export const metadata: Metadata = {
+  title: `Terms of Use | ${BRAND.name}`,
+  description: `Terms for using ${BRAND.name}, the SAT Math solver, AI Tutor, and saved study methods.`,
+};
+
+export default function TermsPage() {
+  return <LegalPage title="Terms of Use" intro={`These terms describe how you may use ${BRAND.name}, an independent SAT Math study service maintained by its developer.`}>
+    <section id="agreement"><h2>Using the service</h2><p>By using {BRAND.name}, you agree to these terms and the <Link href="/privacy">Privacy Policy</Link>. If you do not agree, do not use the service. You must meet the minimum age requirements that apply where you live, and must not use the service if you are under 13. If you are below the legal age of adulthood, involve a parent or guardian who can review and agree to these terms with you.</p></section>
+    <section id="study"><h2>A tool for studying</h2><p>{BRAND.name} helps you explore SAT Math questions through Desmos methods and AI-generated explanations. It does not provide an official test answer key, a guarantee of accuracy, or a guarantee of any score improvement.</p><p>AI can misread images, choose an unsuitable method, or produce an incorrect answer or explanation. Calculator checks reduce some errors but do not establish that every result is correct. Check the transcribed question and verify the method and result before relying on them.</p><p>Use the service for learning and preparation. Do not use it during an examination or assessment when outside assistance is prohibited, or in a way that violates a school’s or testing organization’s rules.</p></section>
+    <section id="accounts"><h2>Your account</h2><p>Keep your sign-in credentials secure and use accurate information. You are responsible for activity you authorize through your account. Do not use another person’s account without permission. Tell the developer if you believe your account has been accessed without authorization.</p><p>Usage limits may apply to solves, tutor requests, and other features. They can change to maintain availability, prevent abuse, or control service costs. A saved question is not a promise of indefinite storage or access.</p></section>
+    <section id="content"><h2>Content you upload</h2><p>You keep any rights you have in your uploads. Only submit content you are permitted to use and that is appropriate for this service. Avoid uploading personal or confidential information that is not needed to solve the question.</p><p>You give {BRAND.name} permission to process, store, and send your content to the service providers described in the Privacy Policy as needed to read the question, generate solutions, deliver tutoring, save account features, and maintain internal question and solution caches. This permission is limited to operating the service; it does not give us ownership of your uploads.</p><p>Generated explanations may not be unique. You are responsible for checking that your use of uploaded questions and generated content respects applicable copyright and other rights.</p></section>
+    <section id="acceptable-use"><h2>Acceptable use</h2><p>Do not:</p><ul>
+      <li>Submit unlawful, abusive, harmful, or rights-infringing content.</li>
+      <li>Try to access other users’ accounts, screenshots, saved questions, or private data.</li>
+      <li>Bypass usage limits, authentication, or other access and security controls.</li>
+      <li>Use automation to overload the service or interfere with another user’s access.</li>
+      <li>Use the service to facilitate cheating, impersonation, or fraud.</li>
+    </ul><p>We may restrict or suspend access where necessary to address misuse, protect users, or meet legal requirements.</p></section>
+    <section id="third-parties"><h2>Third-party services and ownership</h2><p>{BRAND.name} uses third-party services, including Google, Supabase, OpenAI, Vercel, and Desmos. Their services and content may be subject to their own terms and policies. Links to external websites do not imply endorsement.</p><p>{BRAND.name} is independent of Desmos and is not affiliated with or endorsed by Desmos, Google, the College Board, or any testing organization. Those organizations retain their own trademarks and content rights. Open-source components remain subject to their respective licenses, linked in the website footer.</p></section>
+    <section id="availability"><h2>Availability and changes</h2><p>We may update, change, pause, or discontinue features. The service can be unavailable because of maintenance, provider outages, technical failures, or other circumstances. Keep your own copies of study material you need to retain.</p><p>To the extent permitted by applicable law, the service is provided as available, without a warranty that it will be uninterrupted, error-free, or suitable for every purpose. Nothing in these terms removes consumer rights or limits responsibility where doing so is prohibited by applicable law.</p></section>
+    <section id="ending-use"><h2>Ending use and privacy requests</h2><p>You can stop using the service at any time. To request deletion of an account or uploaded content, contact <LegalContact />. We may need to verify ownership. Retention exceptions and service-provider backups are described in the <Link href="/privacy#retention">Privacy Policy</Link>.</p></section>
+    <section id="updates"><h2>Updates to these terms</h2><p>The current terms and their update date will be posted on this page. If material changes require notice or agreement under applicable law, we will follow those requirements. If you do not agree to revised terms, stop using the service.</p></section>
+    <section id="contact"><h2>Contact</h2><p>For questions about these terms, account access, or the service, contact <LegalContact />. Do not send passwords or publish private account information in public issues.</p></section>
+  </LegalPage>;
+}

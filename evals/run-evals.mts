@@ -1,5 +1,5 @@
 /**
- * Method-quality eval harness for the Desmo solver.
+ * Method-quality eval harness for the SolvePlot solver.
  *
  * Runs each problem in evals/problems/*.json N times through the SAME solve
  * pipeline the app uses (src/lib/solve-pipeline.ts: candidates call, server

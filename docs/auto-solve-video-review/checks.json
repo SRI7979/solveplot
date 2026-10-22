@@ -1,0 +1,96 @@
+[
+  {
+    "variant": "desktop",
+    "width": 3600,
+    "height": 2250,
+    "fps": 24,
+    "appearance": {
+      "palette": "candy",
+      "colorAmount": "colorful",
+      "typography": "modern",
+      "mode": "light"
+    },
+    "camera": "problem close-up → full workspace → result close-up",
+    "dragFrom": "left",
+    "ending": "hold then direct loop",
+    "requests": 1,
+    "liveModelCalls": 0,
+    "result": {
+      "rows": [
+        {
+          "id": "solveplot_1",
+          "latex": "x_{1}=[1,2,4]"
+        },
+        {
+          "id": "solveplot_2",
+          "latex": "y_{1}=[8,15,35]"
+        },
+        {
+          "id": "solveplot_3",
+          "latex": "(x_{1},y_{1})"
+        },
+        {
+          "id": "solveplot_4",
+          "latex": "y_{1}\\sim ax_{1}^2+bx_{1}+c"
+        },
+        {
+          "id": "solveplot_5",
+          "latex": "f(x)=ax^2+bx+c"
+        },
+        {
+          "id": "solveplot_6",
+          "latex": "f(10)"
+        }
+      ],
+      "answer": 143
+    },
+    "errors": []
+  },
+  {
+    "variant": "phone",
+    "width": 1260,
+    "height": 2340,
+    "fps": 24,
+    "appearance": {
+      "palette": "candy",
+      "colorAmount": "colorful",
+      "typography": "modern",
+      "mode": "light"
+    },
+    "camera": "problem close-up → full workspace → result close-up",
+    "dragFrom": "left",
+    "ending": "hold then direct loop",
+    "requests": 1,
+    "liveModelCalls": 0,
+    "result": {
+      "rows": [
+        {
+          "id": "solveplot_1",
+          "latex": "x_{1}=[1,2,4]"
+        },
+        {
+          "id": "solveplot_2",
+          "latex": "y_{1}=[8,15,35]"
+        },
+        {
+          "id": "solveplot_3",
+          "latex": "(x_{1},y_{1})"
+        },
+        {
+          "id": "solveplot_4",
+          "latex": "y_{1}\\sim ax_{1}^2+bx_{1}+c"
+        },
+        {
+          "id": "solveplot_5",
+          "latex": "f(x)=ax^2+bx+c"
+        },
+        {
+          "id": "solveplot_6",
+          "latex": "f(10)"
+        }
+      ],
+      "answer": 143
+    },
+    "errors": []
+  }
+]

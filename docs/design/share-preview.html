@@ -1,0 +1,48 @@
+<!-- Render inside a loaded SolvePlot page to inherit its Nunito font, then capture
+     #solveplot-share-card at 1200 × 630. The app screenshot is the real Candy UI. -->
+<style>
+#solveplot-share-card {
+  position: fixed; inset: 0 auto auto 0; z-index: 2147483647;
+  width: 1200px; height: 630px; overflow: hidden; isolation: isolate;
+  background: radial-gradient(ellipse at 74% 35%, #234658 0%, transparent 60%),
+    radial-gradient(ellipse at 10% 105%, #223729 0%, transparent 52%), #10191f;
+  color: #f5f8fa; font-family: var(--font-nunito), Nunito, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+#solveplot-share-card *, #solveplot-share-card *::before, #solveplot-share-card *::after { box-sizing: border-box; margin: 0; }
+#solveplot-share-card .share-brand {
+  position: absolute; left: 64px; top: 55px; display: flex; align-items: center; gap: 15px;
+  font-size: 54px; font-weight: 900; line-height: 1; letter-spacing: -2px;
+}
+#solveplot-share-card .share-mark {
+  display: grid; place-items: center; width: 57px; height: 57px;
+  border: 1px solid #b6dffa; border-radius: 19px; background: #dff3ff; color: #187ca9;
+  box-shadow: inset 0 1px #fff;
+}
+#solveplot-share-card .share-title {
+  position: absolute; left: 64px; top: 218px; width: 405px;
+  font-size: 60px; font-weight: 850; line-height: 1.13; letter-spacing: -2.1px;
+}
+#solveplot-share-card .share-title span { color: #bde0f5; }
+#solveplot-share-card .share-url {
+  position: absolute; left: 67px; bottom: 54px;
+  color: #b1c0ca; font-size: 22px; font-weight: 650; letter-spacing: -.3px;
+}
+#solveplot-share-card .share-screen {
+  position: absolute; left: 492px; top: 100px; width: 805px; height: 504px;
+  border: 2px solid #c9e6f3; border-radius: 24px; overflow: hidden;
+  transform: rotate(-3deg); transform-origin: 50% 50%;
+  background: #fff; box-shadow: 0 28px 65px #0007, 0 0 0 8px #e5f5ff06;
+}
+#solveplot-share-card .share-screen img { width: 100%; height: 100%; object-fit: cover; display: block; }
+#solveplot-share-card .share-screen::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  box-shadow: inset 0 1px 0 #fff;
+}
+</style>
+<article id="solveplot-share-card" aria-label="SolvePlot — SAT Math with Desmos">
+  <div class="share-brand"><span class="share-mark"><svg viewBox="0 0 24 24" width="35" height="35" fill="none" aria-hidden="true"><path d="M3 17c5 0 4-10 9-10s4 10 9 10M3 12h18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></span>SolvePlot</div>
+  <h1 class="share-title">SAT Math<br>with <span>Desmos</span></h1>
+  <p class="share-url">SAT Math solver</p>
+  <div class="share-screen"><img src="/demo/auto-solve-desktop.webp" alt="SolvePlot’s Candy solver with step explanations and the Desmos graphing calculator" /></div>
+</article>

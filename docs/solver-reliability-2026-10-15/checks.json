@@ -1,0 +1,92 @@
+[
+  {
+    "scenario": "cold-and-cached",
+    "initialStateMs": 1567,
+    "initialState": "calculator-ready",
+    "scriptRequests": 1,
+    "interceptedSolves": 1,
+    "explanationRequests": 0,
+    "realModelCalls": 0,
+    "result": {
+      "answer": 6.2,
+      "rows": [
+        "g(x)=\\frac{a x^{2}+b x+10}{x+2}",
+        "[g(1),g(4)]\\sim[5,7]",
+        "g(3)"
+      ]
+    },
+    "browserErrors": []
+  },
+  {
+    "scenario": "first-request-fails",
+    "initialStateMs": 1540,
+    "initialState": "calculator-ready",
+    "scriptRequests": 2,
+    "interceptedSolves": 1,
+    "explanationRequests": 0,
+    "realModelCalls": 0,
+    "result": {
+      "answer": 6.2,
+      "rows": [
+        "g(x)=\\frac{a x^{2}+b x+10}{x+2}",
+        "[g(1),g(4)]\\sim[5,7]",
+        "g(3)"
+      ]
+    },
+    "browserErrors": []
+  },
+  {
+    "scenario": "preflight-reconnects",
+    "initialStateMs": 1241,
+    "initialState": "network-failure",
+    "scriptRequests": 3,
+    "interceptedSolves": 1,
+    "explanationRequests": 0,
+    "realModelCalls": 0,
+    "result": {
+      "answer": 6.2,
+      "rows": [
+        "g(x)=\\frac{a x^{2}+b x+10}{x+2}",
+        "[g(1),g(4)]\\sim[5,7]",
+        "g(3)"
+      ]
+    },
+    "browserErrors": []
+  },
+  {
+    "scenario": "manual-reconnect",
+    "initialStateMs": 1297,
+    "initialState": "network-failure",
+    "scriptRequests": 5,
+    "interceptedSolves": 1,
+    "explanationRequests": 0,
+    "realModelCalls": 0,
+    "result": {
+      "answer": 6.2,
+      "rows": [
+        "g(x)=\\frac{a x^{2}+b x+10}{x+2}",
+        "[g(1),g(4)]\\sim[5,7]",
+        "g(3)"
+      ]
+    },
+    "browserErrors": []
+  },
+  {
+    "scenario": "phone",
+    "initialStateMs": 943,
+    "initialState": "calculator-ready",
+    "scriptRequests": 1,
+    "interceptedSolves": 1,
+    "explanationRequests": 0,
+    "realModelCalls": 0,
+    "result": {
+      "answer": 6.2,
+      "rows": [
+        "g(x)=\\frac{a x^{2}+b x+10}{x+2}",
+        "[g(1),g(4)]\\sim[5,7]",
+        "g(3)"
+      ]
+    },
+    "browserErrors": []
+  }
+]

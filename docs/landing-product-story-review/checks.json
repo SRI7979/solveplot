@@ -1,0 +1,50 @@
+[
+  {
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "pageWidth": 1440,
+    "pageOverflow": false,
+    "runtimeErrors": [],
+    "failedHttpResponses": [],
+    "apiRequests": 0,
+    "interactions": {
+      "graphSelected": "true",
+      "fitSelected": "true",
+      "answerSelected": "true",
+      "bookmarkUpdated": "false",
+      "historyVisible": true,
+      "savedVisible": true,
+      "tutorClosed": true,
+      "tutorOpened": true
+    },
+    "intentionalRequestBlocks": [
+      "https://va.vercel-scripts.com/v1/script.debug.js"
+    ]
+  },
+  {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "pageWidth": 390,
+    "pageOverflow": false,
+    "runtimeErrors": [],
+    "failedHttpResponses": [],
+    "apiRequests": 0,
+    "interactions": {
+      "graphSelected": "true",
+      "fitSelected": "true",
+      "answerSelected": "true",
+      "bookmarkUpdated": "false",
+      "historyVisible": true,
+      "savedVisible": true,
+      "tutorClosed": true,
+      "tutorOpened": true
+    },
+    "intentionalRequestBlocks": [
+      "https://va.vercel-scripts.com/v1/script.debug.js"
+    ]
+  }
+]

@@ -1,0 +1,33 @@
+{
+  "checks": [
+    {
+      "name": "18 selectable palettes with readable accents",
+      "pass": true
+    },
+    {
+      "name": "Family filters and palette radio keyboard",
+      "pass": true
+    },
+    {
+      "name": "Soft and Colorful across navigation and reload",
+      "pass": true
+    },
+    {
+      "name": "Reset to Tidal and Colorful",
+      "pass": true
+    },
+    {
+      "name": "mobile settings no horizontal overflow and selection",
+      "pass": true
+    },
+    {
+      "name": "malformed saved appearance falls back safely",
+      "pass": true
+    },
+    {
+      "name": "settings still usable when session storage writes are blocked",
+      "pass": true
+    }
+  ],
+  "errors": []
+}

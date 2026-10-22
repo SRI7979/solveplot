@@ -1,0 +1,68 @@
+[
+  {
+    "variant": "desktop",
+    "viewport": {
+      "width": 1363,
+      "height": 936
+    },
+    "duration": 11,
+    "muted": true,
+    "loop": true,
+    "controls": false,
+    "src": "http://localhost:3000/demo/auto-solve-desktop.webm?v=6",
+    "nativeWidth": 3600,
+    "nativeHeight": 2250,
+    "uninterruptedPlayback": {
+      "wraps": 1,
+      "samples": 43,
+      "last": 0.000331,
+      "decodedFrames": 269,
+      "droppedFrames": 0,
+      "droppedFrameRatio": 0
+    },
+    "finalFrameDifference": 0.08955078125,
+    "noEndFade": true,
+    "centered": true,
+    "overflow": false,
+    "buttons": 0,
+    "reducedMotion": {
+      "paused": true,
+      "hasSource": false
+    },
+    "paidApiCalls": 0,
+    "browserErrors": []
+  },
+  {
+    "variant": "phone",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "duration": 11,
+    "muted": true,
+    "loop": true,
+    "controls": false,
+    "src": "http://localhost:3000/demo/auto-solve-phone.webm?v=6",
+    "nativeWidth": 1260,
+    "nativeHeight": 2340,
+    "uninterruptedPlayback": {
+      "wraps": 1,
+      "samples": 43,
+      "last": 0.000234,
+      "decodedFrames": 268,
+      "droppedFrames": 0,
+      "droppedFrameRatio": 0
+    },
+    "finalFrameDifference": 0.0087890625,
+    "noEndFade": true,
+    "centered": true,
+    "overflow": false,
+    "buttons": 0,
+    "reducedMotion": {
+      "paused": true,
+      "hasSource": false
+    },
+    "paidApiCalls": 0,
+    "browserErrors": []
+  }
+]

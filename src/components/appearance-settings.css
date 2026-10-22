@@ -1,0 +1,654 @@
+@keyframes appearance-spin {
+  to { transform: rotate(360deg); }
+}
+
+.solveplot-shell {
+  .appearancePage {
+    padding-top: 40px;
+  }
+  .appearancePageInner {
+    max-width: 1100px;
+  }
+  .appearancePage .wsPageHeading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 35px;
+  }
+  .appearanceLayout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 260px;
+    gap: 42px;
+    align-items: start;
+  }
+  .appearanceOptions {
+    min-width: 0;
+  }
+  .appearanceSectionHeading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .appearanceSectionHeading h2 {
+    font-size: 19px;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+  }
+  .appearanceSectionHeading > span {
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .appearanceOptions fieldset {
+    border: 0;
+    padding: 0;
+    margin: 0;
+    min-width: 0;
+  }
+  .appearanceOptions legend {
+    padding: 0;
+    font-size: 14px;
+    font-weight: 800;
+  }
+  .appearanceOptions .appearanceAmount {
+    padding: 24px 0 26px;
+    margin-top: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .appearanceOptions .appearanceTreatmentField {
+    margin-top: 22px;
+  }
+  .appearanceOptions .appearanceTreatmentField:last-of-type {
+    padding-bottom: 24px;
+  }
+  .appearanceAmount > p {
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--muted);
+    margin-top: -14px;
+    margin-bottom: 14px;
+  }
+  .appearanceAmountChoices {
+    display: flex;
+    gap: 10px;
+    align-items: stretch;
+  }
+  .appearanceAmountChoice {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    min-height: 42px;
+    padding: 8px 15px;
+    border: 1px solid var(--control-border);
+    border-bottom-width: 3px;
+    border-radius: 11px;
+    font-size: 13px;
+    font-weight: 750;
+    cursor: pointer;
+    background: var(--paper);
+    transition:
+      color 150ms ease,
+      border-color 150ms ease,
+      background 150ms ease;
+  }
+  .appearanceAmountChoice input,
+  .appearancePaletteChoice input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  .appearanceAmountChoice:has(input:focus-visible),
+  .appearancePaletteChoice:has(input:focus-visible) {
+    outline: 3px solid var(--teal);
+    outline-offset: 4px;
+  }
+  .appearanceAmountChoice:hover {
+    --press-outline: var(--accent-border);
+  }
+  .appearanceAmountChoice[data-selected="true"] {
+    --press-outline: var(--teal);
+    --press-base: var(--teal);
+    --press-face: var(--soft);
+    color: var(--teal);
+  }
+  .appearanceAmountChoice > svg {
+    visibility: hidden;
+  }
+  .appearanceAmountChoice:has(.appearanceChoiceText) {
+    min-width: min(0, 100%);
+    min-height: 66px;
+    flex: 1 1 calc(50% - 8px);
+    justify-content: flex-start;
+    text-align: left;
+  }
+  .appearanceChoiceText {
+    display: grid;
+    gap: 3px;
+    min-width: 0;
+  }
+  .appearanceChoiceText strong {
+    font-size: 13px;
+    line-height: 1.2;
+  }
+  .appearanceChoiceText small {
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 550;
+    line-height: 1.35;
+  }
+  .appearanceAmountChoice[data-selected="true"] .appearanceChoiceText small {
+    color: var(--selection-accent);
+    opacity: 0.82;
+  }
+  .appearanceAmountChoice[data-selected="true"] > svg {
+    visibility: visible;
+  }
+  .appearanceAmountDot {
+    width: 13px;
+    height: 13px;
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--teal) 15%, white);
+    border: 1px solid color-mix(in srgb, var(--teal) 32%, white);
+  }
+  .appearanceAmountDot[data-amount="colorful"] {
+    background: var(--teal);
+    border-color: var(--teal);
+  }
+  .appearanceOptions .appearancePaletteField {
+    margin-top: 26px;
+  }
+  .appearancePaletteToolbar {
+    margin: 6px 0 18px;
+  }
+  .appearancePaletteToolbar > p {
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .appearancePaletteToolbar strong {
+    color: var(--ink);
+    font-weight: 750;
+  }
+  .appearanceFilters {
+    display: flex;
+    gap: 4px;
+    width: fit-content;
+    margin-top: 17px;
+    padding: 3px;
+    background: var(--raised);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+  .appearanceFilters button {
+    padding: 6px 13px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 750;
+    color: var(--muted);
+    min-height: 31px;
+  }
+  .appearanceFilters button:hover {
+    color: var(--ink);
+  }
+  .appearanceFilters button[aria-pressed="true"] {
+    background: var(--paper);
+    color: var(--ink);
+    box-shadow: 0 1px 3px var(--shadow);
+  }
+  .appearanceAccountLink {
+    --press-depth: 2px;
+    flex: 0 0 auto;
+    min-height: 42px;
+    gap: 9px;
+    margin-left: auto;
+    padding-inline: 16px;
+    white-space: nowrap;
+    font-size: 13px;
+    border-radius: var(--radius-md);
+    color: var(--foreground);
+  }
+  .appearanceAccountLink[aria-busy="true"] {
+    cursor: progress;
+  }
+  .appearanceAccountSpinner {
+    animation: appearance-spin 850ms linear infinite;
+  }
+  .appearancePaletteGrid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .appearancePaletteChoice {
+    position: relative;
+    display: block;
+    padding: 11px;
+    min-width: 0;
+    border: 1px solid var(--control-border);
+    border-bottom-width: 3px;
+    border-radius: 13px;
+    background: var(--paper);
+    cursor: pointer;
+    transition:
+      border-color 0.12s,
+      box-shadow 0.12s;
+  }
+  .appearancePaletteChoice:hover {
+    --press-outline: var(--swatch-accent);
+  }
+  .appearancePaletteChoice[data-selected="true"] {
+    --press-outline: var(--swatch-accent);
+    --press-base: var(--swatch-accent);
+    --press-ring: 0 0 0 1px var(--swatch-accent);
+  }
+  .appearanceSwatches {
+    display: flex;
+    width: 100%;
+    height: 34px;
+    overflow: hidden;
+    border: 1px solid #26323809;
+    border-radius: 6px;
+  }
+  .appearanceSwatches > span {
+    flex: 1;
+  }
+  .appearanceSwatches > span:first-child {
+    flex: 1.35;
+  }
+  .appearanceSwatches > span:last-child {
+    flex: 0.7;
+  }
+  .appearancePaletteName {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    margin-top: 10px;
+    font-size: 13px;
+    line-height: 1.3;
+    font-weight: 800;
+  }
+  .appearancePaletteCheck {
+    display: grid;
+    place-items: center;
+    width: 17px;
+    height: 17px;
+    border-radius: 50%;
+  }
+  .appearancePaletteChoice[data-selected="true"] .appearancePaletteCheck {
+    color: white;
+    background: var(--swatch-accent);
+  }
+  .appearancePaletteDescription {
+    display: block;
+    margin-top: 4px;
+    font-size: 10px;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+  .appearanceFooter {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    margin-top: 26px;
+    padding-top: 19px;
+    border-top: 1px solid var(--border);
+  }
+  .appearanceFooter p {
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .appearanceFooter [role="status"] {
+    display: block;
+    color: var(--teal);
+    font-size: 11px;
+    margin-top: 5px;
+    min-height: 17px;
+  }
+  .appearanceReset {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 38px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 750;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .appearanceReset:hover {
+    color: var(--teal);
+  }
+  .appearancePreview {
+    position: sticky;
+    top: 0;
+    padding-top: 1px;
+  }
+  .appearancePreviewHeading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 18px;
+    min-height: 28px;
+  }
+  .appearancePreviewHeading h2 {
+    font-size: 13px;
+    font-weight: 750;
+  }
+  .appearancePreviewHeading > span {
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .appearanceMiniApp {
+    overflow: hidden;
+    border: 1px solid var(--control-border);
+    border-bottom-width: 3px;
+    border-radius: var(--radius-xl);
+    background: var(--canvas);
+  }
+  .appearanceMiniHeader {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 46px;
+    padding: 10px 13px;
+    background: var(--sidebar, var(--soft));
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+  .appearanceMiniHeader > svg {
+    margin-left: auto;
+    color: var(--tertiary);
+  }
+  .appearanceMiniBody {
+    padding: 18px 15px 16px;
+  }
+  .appearanceMiniLabel {
+    color: var(--teal);
+    font-size: 10px;
+    font-weight: 750;
+    margin-bottom: 7px;
+  }
+  .appearanceMiniBody h3 {
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .appearanceMiniBody > p:not(.appearanceMiniLabel) {
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.65;
+    margin-top: 7px;
+  }
+  .appearanceMiniInput {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 8px;
+    margin: 15px 0 12px;
+    border: 1px solid var(--accent-border);
+    border-radius: var(--radius-md);
+    background: var(--paper);
+  }
+  .appearanceMiniInput > span {
+    display: grid;
+    place-items: center;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: var(--secondary-soft);
+    color: var(--secondary);
+    font-size: 9px;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+  .appearanceMiniInput code {
+    font-family: Georgia, serif;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .appearanceMiniGraph {
+    overflow: hidden;
+    height: 142px;
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+  }
+  .appearanceMiniGraph svg {
+    display: block;
+    height: 100%;
+    width: 100%;
+  }
+  .appearanceGraphGrid {
+    stroke: var(--border);
+    stroke-width: 0.7;
+  }
+  .appearanceGraphAxes {
+    stroke: var(--subtle);
+    stroke-width: 0.9;
+  }
+  .appearanceGraphCurve {
+    fill: none;
+    stroke: var(--teal);
+    stroke-width: 2.6;
+  }
+  .appearanceGraphPoint {
+    fill: var(--teal);
+    stroke: white;
+    stroke-width: 2;
+  }
+  .appearanceGraphLabel {
+    fill: var(--paper);
+    stroke: var(--border);
+    stroke-width: 0.7;
+  }
+  .appearanceMiniGraph text {
+    fill: var(--ink);
+    font-size: 10px;
+    font-weight: 750;
+  }
+  .appearanceMiniAnswer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 12px 0;
+    padding: 10px 12px;
+    border: 1px solid var(--accent-border);
+    border-radius: var(--radius-md);
+    background: var(--answer-fill);
+  }
+  .appearanceMiniAnswer > span {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: var(--teal);
+    font-size: 11px;
+    font-weight: 750;
+  }
+  .appearanceMiniAnswer strong {
+    font-size: 23px;
+    line-height: 1;
+  }
+  .appearancePreviewButton {
+    width: 100%;
+    min-height: 40px;
+    font-size: 12px;
+    border-radius: var(--radius-lg);
+  }
+  .appearancePreviewNote {
+    font-size: 11px;
+    line-height: 1.75;
+    color: var(--muted);
+    margin: 13px 3px 0;
+  }
+  @media (max-width: 1330px) {
+    .appearanceLayout {
+      gap: 28px;
+      grid-template-columns: minmax(0, 1fr) 240px;
+    }
+    .appearancePaletteGrid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 1120px) {
+    .appearancePage {
+      padding-left: 32px;
+      padding-right: 32px;
+    }
+  }
+  @media (max-width: 980px) {
+    .appearanceLayout {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 28px;
+    }
+    .appearancePaletteGrid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .appearancePreview {
+      position: static;
+      max-width: 340px;
+      width: 100%;
+    }
+  }
+  @media (max-width: 600px) {
+    .appearancePage {
+      padding: 29px 20px 35px;
+    }
+    .appearancePage .wsPageHeading {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 29px;
+    }
+    .appearanceAccountLink {
+      margin-left: 0;
+    }
+    .appearancePaletteGrid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .appearancePaletteChoice {
+      padding: 11px;
+    }
+    .appearancePaletteName {
+      font-size: 14px;
+    }
+    .appearancePaletteDescription {
+      font-size: 10px;
+    }
+    .appearanceSwatches {
+      height: 38px;
+    }
+    .appearanceAmountChoices {
+      gap: 10px;
+    }
+    .appearanceAmountChoice:has(.appearanceChoiceText) {
+      flex-basis: calc(50% - 6px);
+      padding-inline: 11px;
+    }
+    .appearanceAmountChoice {
+      min-height: 44px;
+      flex: 1;
+    }
+    .appearanceFilters {
+      width: 100%;
+    }
+    .appearanceFilters button {
+      flex: 1;
+      min-height: 38px;
+      padding: 7px 10px;
+    }
+    .appearanceFooter {
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .appearanceReset {
+      min-height: 40px;
+      align-self: flex-start;
+    }
+    .appearancePreview {
+      max-width: none;
+    }
+    .appearanceMiniBody {
+      padding: 19px;
+    }
+    .appearanceMiniInput code {
+      font-size: 15px;
+    }
+    .appearanceMiniGraph {
+      height: 170px;
+    }
+    .appearancePreviewNote {
+      font-size: 12px;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .appearancePaletteChoice,
+    .appearanceAmountChoice,
+    .appearanceAccountSpinner {
+      animation: none;
+      transition: none;
+    }
+  }
+
+  .appearancePage {
+    padding-top: 0;
+  }
+  .appearanceThemeToggle {
+    display: flex;
+    gap: 3px;
+    background: var(--raised);
+    padding: 3px;
+    border: 1px solid var(--border);
+    border-radius: 99px;
+  }
+  .appearanceThemeToggle button {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 32px;
+    border: 1px solid transparent;
+    border-radius: 50%;
+    color: var(--muted);
+    background: transparent;
+  }
+  .appearanceThemeToggle button[aria-pressed="true"] {
+    border-color: var(--control-border);
+    background: var(--paper);
+    color: var(--foreground);
+  }
+  .appearancePage h1 {
+    margin: 0;
+  }
+  @media (max-width: 860px) {
+    .appearancePage .wsPageHeading h1 {
+      padding-left: 32px;
+    }
+  }
+  .appearancePage .wsPageHeading p {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--muted);
+  }
+}
+.solveplot-shell {
+  .appearanceAmountChoices {
+    flex-wrap: wrap;
+  }
+  .appearanceFilters button,
+  .appearanceReset {
+    border: 0;
+    background: transparent;
+  }
+}

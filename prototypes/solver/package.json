@@ -1,0 +1,6 @@
+{
+  "name": "solveplot-solver-preview",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Isolated frontend design preview; no authentication, backend, or AI calls"
+}

@@ -1,0 +1,220 @@
+/* The public page has its own presentation; workspace preferences stay scoped. */
+.solveplot-landing.landing-relaunch:has(.auto-solve-hero) {
+  --paper: #0b0c0e;
+  --ink: #edf0f3;
+  --quiet: #939ba6;
+  color-scheme: dark;
+  background:
+    radial-gradient(ellipse 740px 840px at 2% 28%, #315d7420, transparent 72%),
+    radial-gradient(ellipse 750px 950px at 98% 52%, #31514116, transparent 72%),
+    radial-gradient(ellipse 950px 600px at 45% 89%, #35577017, transparent 75%),
+    #0b0c0e;
+  color: #edf0f3;
+}
+.solveplot-landing.landing-relaunch .auto-solve-hero {
+  padding-bottom: 76px;
+  background: linear-gradient(180deg, #203c55 0%, #152b3c 52%, #0b0c0e 100%);
+}
+.solveplot-landing.landing-relaunch .auto-solve-hero .horizon-art {
+  height: 1000px !important;
+  object-position: center bottom;
+  mask-image: linear-gradient(180deg, #000 0%, #000 52%, #000d 62%, #0009 76%, #0003 90%, transparent 100%);
+}
+.solveplot-landing.landing-relaunch .auto-solve-hero::after {
+  background: linear-gradient(180deg, #08162638 0%, transparent 48%);
+}
+.solveplot-landing.landing-relaunch .auto-solve-hero .landing-nav {
+  max-width: 1280px;
+  padding: 24px 42px;
+  margin-inline: auto;
+}
+.solveplot-landing.landing-relaunch .auto-solve-hero .landing-nav nav { gap: 29px; }
+.solveplot-landing.landing-relaunch .auto-solve-hero .landing-nav nav a { font-size: 12px; color: #d4e1ed; }
+.solveplot-landing.landing-relaunch .auto-solve-hero .landing-nav nav a:hover { color: #fff; opacity: 1; }
+.solveplot-landing.landing-relaunch .auto-solve-hero .landing-hero { margin-top: 50px; max-width: 900px; }
+.solveplot-landing.landing-relaunch .auto-solve-hero .landing-hero h1 {
+  margin-top: 0;
+  font-family: var(--font-geist), sans-serif;
+  font-size: clamp(48px, 5.2vw, 72px);
+  font-weight: 500;
+  line-height: 1.06;
+  letter-spacing: -.052em;
+  color: #fff;
+}
+.solveplot-landing.landing-relaunch .auto-solve-hero .landing-hero h1 em { font: inherit; color: #d3e8f6; }
+.solveplot-landing.landing-relaunch .auto-solve-hero .landing-hero p { max-width: 480px; font-size: 14px; color: #d0dce8; }
+.solveplot-landing.landing-relaunch .auto-solve-hero .landing-hero .hero-actions { margin-top: 26px; }
+.solveplot-landing.landing-relaunch .auto-solve-hero .landing-cta { color: #1d303e; background: #eef7fc; border-color: #d8e8f1; box-shadow: 0 2px 0 #7999ad; font-size: 13px; }
+.solveplot-landing.landing-relaunch .auto-solve-hero .hero-footnote { color: #bccedb; font-size: 10px; }
+.solveplot-landing.landing-relaunch .auto-solve-hero .nav-cta { padding: 9px 16px; border-radius: 10px; color: #20384a; background: #e9f3f9; box-shadow: 0 2px 0 #7d9cb0; border-color: #c7deeb; font-size: 12px; }
+.solveplot-landing.landing-relaunch .auto-solve-film { width: min(1120px, calc(100% - 80px)); margin-top: 55px; border: 1px solid #637b8c; border-radius: 20px; box-shadow: 0 24px 100px #0005; }
+.solveplot-landing.landing-relaunch .landing-content { max-width: 1240px; padding: 0 48px; color: #edf0f3; }
+.solveplot-landing.landing-relaunch .refined-faq { padding: 85px 0; border-color: #282c32; gap: 100px; }
+.solveplot-landing.landing-relaunch .refined-faq h2 { font-family: var(--font-geist), sans-serif; color: #edf0f3; font-size: 36px; letter-spacing: -.045em; }
+.solveplot-landing.landing-relaunch .faq-intro > p, .solveplot-landing.landing-relaunch .faq-questions details p { color: #8e98a4; font-size: 13px; }
+.solveplot-landing.landing-relaunch .faq-page-link { color: #bdc9d5; font-size: 12px; }
+.solveplot-landing.landing-relaunch .faq-questions details, .solveplot-landing.landing-relaunch .faq-questions details:first-child { border-color: #2a2e35; }
+.solveplot-landing.landing-relaunch .faq-questions summary { color: #c6ced8; font-size: 14px; padding-block: 20px; }
+.solveplot-landing.landing-relaunch .faq-questions summary:hover { color: #b9dcf3; }
+.solveplot-landing.landing-relaunch .faq-questions summary svg { color: #778795; }
+.solveplot-landing.landing-relaunch .quiet-cta { padding: 54px 0 76px; border-top: 1px solid #282c32; }
+.solveplot-landing.landing-relaunch .quiet-cta h2 { font-family: var(--font-geist), sans-serif; font-size: 34px; font-weight: 500; color: #e2e7ed; letter-spacing: -.04em; }
+.solveplot-landing.landing-relaunch .quiet-cta p { font-size: 13px; color: #8f99a5; }
+.solveplot-landing.landing-relaunch .quiet-cta .landing-cta { padding: 12px 18px; min-height: 44px; border-radius: 10px; border-color: #3c566a; background: #203548; color: #d4e7f5; box-shadow: 0 2px 0 #0a1721; font-size: 12px; }
+.solveplot-landing.landing-relaunch .quiet-cta .landing-cta:hover { background: #2c4960; opacity: 1; }
+.solveplot-landing.landing-relaunch .site-footer { border-color: #282c32; padding-top: 48px; }
+.solveplot-landing.landing-relaunch .footer-top { gap: 36px; }
+.solveplot-landing.landing-relaunch .footer-brand .landing-logo { color: #dce4ec; }
+.solveplot-landing.landing-relaunch .footer-brand p, .solveplot-landing.landing-relaunch .prototype-label { color: #717f8e; font-size: 11px; }
+.solveplot-landing.landing-relaunch .footer-top h3 { color: #b6c0cc; font-size: 11px; }
+.solveplot-landing.landing-relaunch .footer-top > div:not(:first-child) > a { color: #7f8b99; font-size: 11px; }
+.solveplot-landing.landing-relaunch .footer-top > div:not(:first-child) > a:hover { color: #b5d6ec; opacity: 1; }
+.solveplot-landing.landing-relaunch .footer-notices { border-color: #252b32; }
+.solveplot-landing.landing-relaunch .footer-notices details { border-color: #252b32; }
+.solveplot-landing.landing-relaunch .footer-notices summary { color: #7d8b9b; font-size: 11px; }
+.solveplot-landing.landing-relaunch .footer-notices details p { color: #758394; font-size: 11px; }
+.solveplot-landing.landing-relaunch .footer-bottom { border-color: #252b32; color: #667789; font-size: 10px; }
+
+/* One light chapter gives the workspace a different setting without changing
+   the real Candy app surfaces or their carefully scoped theme tokens. */
+.solveplot-landing.landing-relaunch #experience {
+  position: relative;
+  margin-inline: calc(50% - 50vw);
+  padding: 100px max(48px, calc((100vw - 1144px) / 2)) 82px;
+  border-block: 1px solid #dce3e7;
+  background:
+    radial-gradient(ellipse at 8% 78%, #dcebf25c, transparent 48%),
+    radial-gradient(ellipse at 93% 28%, #ecf3df7a, transparent 42%),
+    #f8fafb;
+  color: #25282d;
+  color-scheme: light;
+}
+.solveplot-landing.landing-relaunch #experience > header h2 { color: #25282d; }
+.solveplot-landing.landing-relaunch #experience > header p { color: #596574; }
+.solveplot-landing.landing-relaunch #experience > header a { color: #126c97; }
+.solveplot-landing.landing-relaunch #experience > header a:hover { color: #08486c; }
+
+/* The scene is static. Motion belongs to controls and the student's actions. */
+.solveplot-landing.landing-relaunch .landing-nav nav a {
+  position: relative;
+  padding-block: 5px;
+}
+.solveplot-landing.landing-relaunch .landing-nav nav a::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  border-radius: 1px;
+  background: #c6e9ff;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 200ms cubic-bezier(.2,.8,.2,1);
+}
+.solveplot-landing.landing-relaunch .landing-nav nav a:is(:hover,:focus-visible)::after { transform: scaleX(1); }
+.solveplot-landing.landing-relaunch :is(.landing-cta,.nav-cta) {
+  transition: background 180ms, border-color 180ms, box-shadow 200ms, color 180ms;
+}
+.solveplot-landing.landing-relaunch :is(.landing-cta,.nav-cta) > svg {
+  flex-shrink: 0;
+  transition: translate 200ms cubic-bezier(.2,.8,.2,1);
+}
+.solveplot-landing.landing-relaunch :is(.landing-cta,.nav-cta):hover > svg { translate: 3px 0; }
+.solveplot-landing.landing-relaunch .auto-solve-hero :is(.landing-cta,.nav-cta):hover {
+  background: #fff;
+  box-shadow: 0 2px 0 #7999ad, 0 0 24px #b5e0fa2e;
+  opacity: 1;
+}
+.solveplot-landing.landing-relaunch .quiet-cta .landing-cta:hover {
+  box-shadow: 0 2px 0 #0a1721, 0 0 24px #9bd6fd18;
+}
+.solveplot-landing.landing-relaunch .solveplot-shell :is(.secondaryButton,.copyButton):hover:not(:disabled) {
+  --press-ring: 0 0 16px color-mix(in srgb, var(--selection-accent) 12%, transparent);
+}
+.solveplot-landing.landing-relaunch .solveplot-shell :is(.secondaryButton,.copyButton,.choiceControl) > svg {
+  transition: transform 180ms cubic-bezier(.2,.8,.2,1), scale 180ms, filter 180ms;
+}
+.solveplot-landing.landing-relaunch .solveplot-shell :is(.secondaryButton,.copyButton,.choiceControl):hover:not(:disabled) > svg {
+  scale: 1.06;
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--selection-accent) 25%, transparent));
+}
+.solveplot-landing.landing-relaunch .faq-questions summary {
+  border-radius: 9px;
+  transition: color 180ms, background 180ms;
+}
+.solveplot-landing.landing-relaunch .faq-questions summary:hover { background: #afdfff04; }
+.solveplot-landing.landing-relaunch .faq-questions summary svg {
+  transition: transform 220ms cubic-bezier(.2,.8,.2,1), color 180ms;
+}
+.solveplot-landing.landing-relaunch .faq-questions details[open] summary svg { color: #afdfff; }
+.solveplot-landing.landing-relaunch .faq-questions details[open] p { animation: landing-answer-in 220ms ease-out; }
+.solveplot-landing.landing-relaunch .footer-top > div:not(:first-child) > a,
+.solveplot-landing.landing-relaunch .footer-bottom > a {
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 4px;
+  transition: color 180ms, text-decoration-color 180ms;
+}
+.solveplot-landing.landing-relaunch .footer-top > div:not(:first-child) > a:hover,
+.solveplot-landing.landing-relaunch .footer-bottom > a:hover { text-decoration-color: #789fb6; }
+
+@keyframes landing-section-in {
+  from { opacity: .55; translate: 0 16px; }
+  to { opacity: 1; translate: 0 0; }
+}
+@keyframes landing-answer-in {
+  from { opacity: .6; translate: 0 -3px; }
+  to { opacity: 1; translate: 0 0; }
+}
+@keyframes landing-calculator-in {
+  from { opacity: .6; }
+  to { opacity: 1; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .solveplot-landing.landing-relaunch [data-landing-reveal="visible"] {
+    animation: landing-section-in 620ms cubic-bezier(.2,.8,.2,1) backwards;
+  }
+  .solveplot-landing.landing-relaunch article[data-landing-reveal="visible"]:nth-child(2) { animation-delay: 70ms; }
+  .solveplot-landing.landing-relaunch [data-product-scene][data-landing-reveal="visible"]:has([data-testid="desmos-calculator"]) { animation-name: landing-calculator-in; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .solveplot-landing.landing-relaunch *,
+  .solveplot-landing.landing-relaunch *::before,
+  .solveplot-landing.landing-relaunch *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+@media (min-width: 1600px) {
+  .solveplot-landing.landing-relaunch .auto-solve-hero .landing-hero { margin-top: 65px; }
+  .solveplot-landing.landing-relaunch .auto-solve-hero .horizon-art { height: 1100px !important; }
+}
+@media (max-width: 900px) {
+  .solveplot-landing.landing-relaunch .auto-solve-hero .landing-nav { padding: 22px 27px; }
+  .solveplot-landing.landing-relaunch .auto-solve-hero .landing-nav nav { gap: 18px; }
+  .solveplot-landing.landing-relaunch .auto-solve-hero .horizon-art { height: 850px !important; }
+  .solveplot-landing.landing-relaunch .landing-content { padding-inline: 28px; }
+  .solveplot-landing.landing-relaunch #experience { padding-inline: 28px; }
+  .solveplot-landing.landing-relaunch .refined-faq { gap: 40px; }
+}
+@media (max-width: 600px) {
+  .solveplot-landing.landing-relaunch .auto-solve-hero { padding-bottom: 52px; }
+  .solveplot-landing.landing-relaunch .auto-solve-hero .landing-nav { padding: 19px 20px; }
+  .solveplot-landing.landing-relaunch .auto-solve-hero .landing-hero { margin-top: 29px; padding-inline: 22px; }
+  .solveplot-landing.landing-relaunch .auto-solve-hero .landing-hero h1 { font-size: clamp(44px, 11.4vw, 60px); line-height: 1.08; margin-bottom: 20px; }
+  .solveplot-landing.landing-relaunch .auto-solve-hero .landing-hero p { font-size: 13px; max-width: 330px; }
+  .solveplot-landing.landing-relaunch .auto-solve-hero .horizon-art { height: 760px !important; object-position: 65% bottom; mask-image: linear-gradient(180deg, #000 0%, #000 58%, #000a 77%, transparent 100%); }
+  .solveplot-landing.landing-relaunch .auto-solve-film { width: calc(100% - 32px); margin-top: 40px; border-radius: 18px; }
+  .solveplot-landing.landing-relaunch .auto-solve-hero .hero-footnote { background: #12283a66; font-size: 9px; }
+  .solveplot-landing.landing-relaunch .landing-content { padding: 0 22px; }
+  .solveplot-landing.landing-relaunch #experience { padding: 62px 22px 53px; }
+  .solveplot-landing.landing-relaunch .refined-faq { padding: 58px 0; gap: 24px; }
+  .solveplot-landing.landing-relaunch .refined-faq h2 { font-size: 31px; }
+  .solveplot-landing.landing-relaunch .quiet-cta { padding: 39px 0 48px; gap: 24px; }
+  .solveplot-landing.landing-relaunch .quiet-cta h2 { font-size: 28px; }
+  .solveplot-landing.landing-relaunch .quiet-cta p { max-width: 300px; line-height: 1.7; }
+  .solveplot-landing.landing-relaunch .footer-top { gap: 30px 20px; }
+  .solveplot-landing.landing-relaunch .footer-brand { grid-column: 1 / -1; }
+}

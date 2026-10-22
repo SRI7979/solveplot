@@ -1,0 +1,319 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { loadDesmos } from "../../../src/lib/desmos-loader";
+import type { DesmosCalculatorInstance } from "../../../src/lib/desmos-engine";
+import { useAppearance } from "./appearance";
+import { useWorkspace } from "./workspace";
+
+type Method = "difference" | "intersections";
+
+type Props = {
+  method: Method;
+  activeStep: number;
+  resetSignal: number;
+  expressionsOpen: boolean;
+};
+
+type Expression = {
+  id: string;
+  latex?: string;
+  color?: string;
+  secret?: boolean;
+  lineWidth?: number;
+  lineOpacity?: number;
+  pointSize?: number;
+  pointOpacity?: number;
+  showLabel?: boolean;
+  label?: string;
+};
+
+type Calculator = Omit<
+  DesmosCalculatorInstance,
+  "setExpression" | "setExpressions" | "updateSettings"
+> & {
+  setExpression: (expression: Expression) => void;
+  setExpressions: (expressions: Expression[]) => void;
+  updateSettings: (settings: Record<string, unknown>) => void;
+  getState: () => unknown;
+  setState: (state: unknown) => void;
+};
+
+type Palette = { accent: string; secondary: string };
+
+const CURVE = "mock_curve";
+const LINE = "mock_line";
+const NEGATIVE_POINT = "mock_negative_point";
+const POSITIVE_POINT = "mock_positive_point";
+
+const BOUNDS = {
+  difference: { left: -3, right: 10, bottom: -20, top: 12 },
+  intersections: { left: -4, right: 10, bottom: -8, top: 30 },
+};
+
+function loadMethod(calculator: Calculator, method: Method, palette: Palette) {
+  const difference = method === "difference";
+  calculator.setBlank();
+  calculator.setExpressions([
+    {
+      id: CURVE,
+      latex: difference ? "y=x^{2}-4x+1-(2x+8)" : "y=x^{2}-4x+1",
+      color: palette.accent,
+      lineWidth: 3,
+      lineOpacity: 1,
+    },
+    ...(!difference
+      ? [{ id: LINE, latex: "y=2x+8", color: palette.secondary, lineWidth: 3, lineOpacity: 1 }]
+      : []),
+    {
+      id: NEGATIVE_POINT,
+      latex: difference ? "(-1,0)" : "(-1,6)",
+      color: palette.accent,
+      secret: true,
+      pointSize: 7,
+      pointOpacity: 0.65,
+      showLabel: false,
+    },
+    {
+      id: POSITIVE_POINT,
+      latex: difference ? "(7,0)" : "(7,22)",
+      color: palette.accent,
+      secret: true,
+      pointSize: 12,
+      pointOpacity: 1,
+      showLabel: true,
+      label: difference ? "(7, 0)" : "(7, 22)",
+    },
+  ]);
+  calculator.setMathBounds(BOUNDS[method]);
+}
+
+function updatePalette(calculator: Calculator, palette: Palette) {
+  const ids = new Set(calculator.getExpressions().map((expression) => expression.id));
+  // Only recolor the example's surviving rows. Preserve edits, student-added
+  // expressions, removed rows, and the current viewport.
+  const colors = [
+    { id: CURVE, color: palette.accent },
+    { id: LINE, color: palette.secondary },
+    { id: NEGATIVE_POINT, color: palette.accent },
+    { id: POSITIVE_POINT, color: palette.accent },
+  ].filter((expression) => ids.has(expression.id));
+  if (colors.length) calculator.setExpressions(colors);
+}
+
+function highlightStep(calculator: Calculator, activeStep: number) {
+  const ids = new Set(calculator.getExpressions().map((expression) => expression.id));
+  const update = (expression: Expression) => {
+    // A highlight must not recreate a row the student removed or replace edits.
+    if (ids.has(expression.id)) calculator.setExpression(expression);
+  };
+  update({ id: CURVE, lineWidth: activeStep === 0 ? 4.5 : 3, lineOpacity: 1 });
+  update({ id: LINE, lineWidth: 3, lineOpacity: 1 });
+  update({
+    id: POSITIVE_POINT,
+    pointSize: activeStep === 0 ? 8 : activeStep === 1 ? 12 : 15,
+    pointOpacity: activeStep === 0 ? 0.7 : 1,
+    showLabel: activeStep > 0,
+  });
+}
+
+export default function MockCalculator({
+  method,
+  activeStep,
+  resetSignal,
+  expressionsOpen,
+}: Props) {
+  const { palette, calculatorDraftRef } = useAppearance();
+  const { sampleRevision, currentProblemId, calculatorCaptureRef, rememberCalculatorState, readCalculatorState } = useWorkspace();
+  const mountRef = useRef<HTMLDivElement>(null);
+  const calculatorRef = useRef<Calculator | null>(null);
+  const loadedMethodRef = useRef<Method | null>(null);
+  const latestPropsRef = useRef({ method, activeStep, expressionsOpen, palette });
+  const lastResetSignalRef = useRef(resetSignal);
+  const [ready, setReady] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [loadAttempt, setLoadAttempt] = useState(0);
+
+  useEffect(() => {
+    latestPropsRef.current = { method, activeStep, expressionsOpen, palette };
+  }, [method, activeStep, expressionsOpen, palette]);
+
+  useEffect(() => {
+    let active = true;
+    let instance: Calculator | null = null;
+    let observer: ResizeObserver | undefined;
+    let resizeFrame = 0;
+    const saveForRefresh = () => {
+      if (instance && loadedMethodRef.current) {
+        rememberCalculatorState(currentProblemId, { method: loadedMethodRef.current, state: instance.getState() });
+      }
+    };
+    window.addEventListener('pagehide', saveForRefresh);
+
+    loadDesmos()
+      .then((desmos) => {
+        if (!active || !mountRef.current) return;
+        const current = latestPropsRef.current;
+        instance = desmos.GraphingCalculator(mountRef.current, {
+          autosize: false,
+          expressions: true,
+          expressionsCollapsed: !current.expressionsOpen,
+          expressionsTopbar: true,
+          settingsMenu: true,
+          zoomButtons: true,
+          keypad: true,
+          pointsOfInterest: true,
+          trace: true,
+          border: false,
+          fontSize: 16,
+          showGrid: true,
+          showXAxis: true,
+          showYAxis: true,
+        }) as Calculator;
+        calculatorRef.current = instance;
+        const draft = calculatorDraftRef.current;
+        const state = draft?.method === current.method && draft.sampleRevision === sampleRevision
+          ? draft.state
+          : readCalculatorState(currentProblemId, current.method);
+        if (state) {
+          instance.setState(state);
+          updatePalette(instance, current.palette);
+        } else {
+          loadMethod(instance, current.method, current.palette);
+        }
+        loadedMethodRef.current = current.method;
+        calculatorCaptureRef.current = () => instance && loadedMethodRef.current
+          ? { method: loadedMethodRef.current, state: instance.getState() }
+          : null;
+        highlightStep(instance, current.activeStep);
+
+        observer = new ResizeObserver(() => {
+          cancelAnimationFrame(resizeFrame);
+          resizeFrame = requestAnimationFrame(() => {
+            if (active) instance?.resize();
+          });
+        });
+        observer.observe(mountRef.current);
+        instance.resize();
+        setError(null);
+        setReady(true);
+      })
+      .catch((failure: unknown) => {
+        if (!active) return;
+        observer?.disconnect();
+        instance?.destroy();
+        calculatorRef.current = null;
+        calculatorCaptureRef.current = null;
+        loadedMethodRef.current = null;
+        setReady(false);
+        setError(failure instanceof Error ? failure.message : "Desmos could not load.");
+      });
+
+    return () => {
+      active = false;
+      window.removeEventListener('pagehide', saveForRefresh);
+      cancelAnimationFrame(resizeFrame);
+      observer?.disconnect();
+      if (instance && loadedMethodRef.current) {
+        // Native state is kept opaque and scoped to this sample. Navigating to
+        // Settings and back must preserve graph edits and zoom bounds.
+        const snapshot = { method: loadedMethodRef.current, state: instance.getState() };
+        rememberCalculatorState(currentProblemId, snapshot);
+        // History may have already selected a new revision before this old
+        // instance unmounts. Do not overwrite the state waiting to be restored.
+        if (!calculatorDraftRef.current || calculatorDraftRef.current.sampleRevision <= sampleRevision) {
+          calculatorDraftRef.current = { ...snapshot, sampleRevision };
+        }
+      }
+      calculatorCaptureRef.current = null;
+      instance?.destroy();
+      calculatorRef.current = null;
+      loadedMethodRef.current = null;
+    };
+  }, [loadAttempt, calculatorDraftRef, sampleRevision, currentProblemId, calculatorCaptureRef, rememberCalculatorState, readCalculatorState]);
+
+  useEffect(() => {
+    const calculator = calculatorRef.current;
+    if (!ready || !calculator || loadedMethodRef.current === method) return;
+    loadMethod(calculator, method, latestPropsRef.current.palette);
+    loadedMethodRef.current = method;
+  }, [method, ready]);
+
+  useEffect(() => {
+    const calculator = calculatorRef.current;
+    if (ready && calculator) updatePalette(calculator, palette);
+  }, [palette, ready]);
+
+  useEffect(() => {
+    const calculator = calculatorRef.current;
+    if (ready && calculator) highlightStep(calculator, activeStep);
+  }, [activeStep, method, ready]);
+
+  useEffect(() => {
+    const calculator = calculatorRef.current;
+    if (!ready || !calculator) return;
+    calculator.updateSettings({ expressionsCollapsed: !expressionsOpen });
+    calculator.resize();
+  }, [expressionsOpen, ready]);
+
+  useEffect(() => {
+    const calculator = calculatorRef.current;
+    if (!ready || !calculator || resetSignal === lastResetSignalRef.current) return;
+    lastResetSignalRef.current = resetSignal;
+    calculator.setMathBounds(BOUNDS[method]);
+  }, [resetSignal, method, ready]);
+
+  return (
+    <div style={{ position: "absolute", inset: 0, background: "#ffffff" }}>
+      <div
+        ref={mountRef}
+        className="calculatorMount"
+        style={{ position: "absolute", inset: 0 }}
+        aria-label="Interactive Desmos graphing calculator"
+      />
+      {(!ready || error) && (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 12,
+            padding: 24,
+            background: "#ffffff",
+            color: "#666c6a",
+            textAlign: "center",
+          }}
+        >
+          <p role="status" aria-live="polite">{error || "Loading Desmos…"}</p>
+          {error && (
+            <button
+              type="button"
+              onClick={() => {
+                setError(null);
+                setReady(false);
+                setLoadAttempt((attempt) => attempt + 1);
+              }}
+              style={{
+                border: "1px solid #d4d8d5",
+                borderRadius: 999,
+                minHeight: 44,
+                padding: "10px 20px",
+                background: "#ffffff",
+                boxShadow: "0 3px 0 #e3e6e1",
+                color: palette.accent,
+                font: "inherit",
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              Retry calculator
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}

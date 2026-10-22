@@ -16,6 +16,8 @@ next-env.d.ts
 *.log
 .vercel/
 .playwright-mcp/
+.solveplot-debug/
+# Private diagnostics from checkouts created before the rename.
 .desmo-debug/
 
 # Licensed benchmark problems (e.g. Bedrock Prep) stay local; see evals/private.example
@@ -23,3 +25,4 @@ evals/private/
 
 # Agent worktrees
 .claude/worktrees/
+.vercel

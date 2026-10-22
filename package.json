@@ -1,9 +1,9 @@
 {
-  "name": "desmo",
+  "name": "solveplot",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --webpack",
     "build": "next build",
     "audit:secrets": "tsx scripts/audit-client-secrets.mts",
     "start": "next start",
@@ -18,7 +18,10 @@
     "bench:routing": "tsx evals/routing-bench.mts",
     "bench:replay": "tsx evals/replay.mts",
     "bench:rescore": "tsx evals/rescore-recorded.mts",
-    "bench:prompt": "tsx scripts/prompt-budget.mts"
+    "bench:prompt": "tsx scripts/prompt-budget.mts",
+    "dev:solver-preview": "node scripts/solver-preview.mjs dev",
+    "build:solver-preview": "node scripts/solver-preview.mjs build",
+    "typecheck:solver-preview": "tsc --noEmit --project prototypes/solver/tsconfig.json"
   },
   "engines": {
     "node": ">=22.0.0"
@@ -26,14 +29,17 @@
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.116.0",
+    "@tailwindcss/postcss": "^4.3.3",
     "@vercel/analytics": "^2.0.1",
     "katex": "0.18.7",
+    "lucide-react": "^1.16.0",
     "next": "16.3.5",
     "openai": "7.18.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "server-only": "^0.0.1",
     "sharp": "^0.35.4",
+    "tailwindcss": "^4.3.3",
     "zod": "4.6.5"
   },
   "devDependencies": {

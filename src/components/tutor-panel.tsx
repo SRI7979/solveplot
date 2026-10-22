@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, type RefObject } from "react";
+import { createPortal } from "react-dom";
 import MathExpression from "@/components/math-expression";
 import MathText from "@/components/math-text";
 import type { TutorAnswer, TutorSource } from "@/lib/tutor";
@@ -16,8 +17,13 @@ export type { TutorSource };
  * optional question; the server resolves and verifies the solution context.
  */
 
-type TutorSelection = { kind: "row"; row: number } | { kind: "text"; text: string };
-type Ask = { selection: TutorSelection; label: string; question: string | null };
+type TutorSelection =
+  { kind: "row"; row: number } | { kind: "text"; text: string };
+type Ask = {
+  selection: TutorSelection;
+  label: string;
+  question: string | null;
+};
 type Practice =
   | { status: "idle" }
   | { status: "loading" }
@@ -37,16 +43,31 @@ function sourceKey(source: TutorSource | null): string {
   return source ? JSON.stringify(source) : "";
 }
 
-async function askTutor(source: TutorSource, selection: TutorSelection, question: string | null, practice: boolean, signal: AbortSignal): Promise<TutorAnswer> {
+async function askTutor(
+  source: TutorSource,
+  selection: TutorSelection,
+  question: string | null,
+  practice: boolean,
+  signal: AbortSignal,
+): Promise<TutorAnswer> {
   const response = await fetch("/api/tutor", {
     method: "POST",
     headers: JSON_HEADERS,
-    body: JSON.stringify({ source, selection, practice, ...(question ? { question } : {}) }),
+    body: JSON.stringify({
+      source,
+      selection,
+      practice,
+      ...(question ? { question } : {}),
+    }),
     signal,
   });
   const data = await response.json().catch(() => null);
   if (!response.ok || !data || typeof data.meaning !== "string") {
-    throw new Error(typeof data?.error === "string" ? data.error : "The tutor could not answer. Please try again.");
+    throw new Error(
+      typeof data?.error === "string"
+        ? data.error
+        : "The tutor could not answer. Please try again.",
+    );
   }
   return data as TutorAnswer;
 }
@@ -66,7 +87,10 @@ export type Tutor = {
 /** One tutor conversation per solution: a new technique or problem starts fresh. */
 export function useTutor(source: TutorSource | null): Tutor {
   const key = sourceKey(source);
-  const [state, setState] = useState<{ key: string; view: TutorView }>({ key, view: IDLE });
+  const [state, setState] = useState<{ key: string; view: TutorView }>({
+    key,
+    view: IDLE,
+  });
   const request = useRef<AbortController | null>(null);
   // The control that opened the panel gets focus back when it closes.
   const opener = useRef<HTMLElement | null>(null);
@@ -84,23 +108,56 @@ export function useTutor(source: TutorSource | null): Tutor {
   function open(selection: TutorSelection, label: string) {
     if (!source) return;
     const active = document.activeElement;
-    if (active instanceof HTMLElement && active !== document.body && !active.closest("[data-tutor-panel]")) opener.current = active;
+    if (
+      active instanceof HTMLElement &&
+      active !== document.body &&
+      !active.closest("[data-tutor-panel]")
+    )
+      opener.current = active;
     request.current?.abort();
     request.current = null;
-    setState({ key, view: { status: "draft", ask: { selection, label, question: null } } });
+    setState({
+      key,
+      view: { status: "draft", ask: { selection, label, question: null } },
+    });
   }
 
   function send(current: Ask) {
     if (!source) return;
     const controller = start();
     setState({ key, view: { status: "loading", ask: current } });
-    askTutor(source, current.selection, current.question, false, controller.signal).then(
+    askTutor(
+      source,
+      current.selection,
+      current.question,
+      false,
+      controller.signal,
+    ).then(
       (answer) => {
-        if (request.current === controller) setState({ key, view: { status: "ready", ask: current, answer, practice: { status: "idle" } } });
+        if (request.current === controller)
+          setState({
+            key,
+            view: {
+              status: "ready",
+              ask: current,
+              answer,
+              practice: { status: "idle" },
+            },
+          });
       },
       (error: unknown) => {
         if (controller.signal.aborted) return;
-        setState({ key, view: { status: "error", ask: current, message: error instanceof Error ? error.message : "The tutor could not answer." } });
+        setState({
+          key,
+          view: {
+            status: "error",
+            ask: current,
+            message:
+              error instanceof Error
+                ? error.message
+                : "The tutor could not answer.",
+          },
+        });
       },
     );
   }
@@ -118,7 +175,16 @@ export function useTutor(source: TutorSource | null): Tutor {
     if (view.status !== "ready" && view.status !== "error") return;
     request.current?.abort();
     request.current = null;
-    setState({ key, view: { status: "draft", ask: { ...view.ask, question: preserveQuestion ? view.ask.question : null } } });
+    setState({
+      key,
+      view: {
+        status: "draft",
+        ask: {
+          ...view.ask,
+          question: preserveQuestion ? view.ask.question : null,
+        },
+      },
+    });
   }
 
   function requestPractice() {
@@ -126,17 +192,38 @@ export function useTutor(source: TutorSource | null): Tutor {
     const ready = view;
     const controller = start();
     setState({ key, view: { ...ready, practice: { status: "loading" } } });
-    askTutor(source, ready.ask.selection, ready.ask.question, true, controller.signal).then(
+    askTutor(
+      source,
+      ready.ask.selection,
+      ready.ask.question,
+      true,
+      controller.signal,
+    ).then(
       (answer) => {
         if (request.current !== controller) return;
         const practice: Practice = answer.practice
           ? { status: "ready", ...answer.practice }
-          : { status: "error", message: "No practice problem came back. Try again." };
+          : {
+              status: "error",
+              message: "No practice problem came back. Try again.",
+            };
         setState({ key, view: { ...ready, practice } });
       },
       (error: unknown) => {
         if (controller.signal.aborted) return;
-        setState({ key, view: { ...ready, practice: { status: "error", message: error instanceof Error ? error.message : "The practice problem did not load." } } });
+        setState({
+          key,
+          view: {
+            ...ready,
+            practice: {
+              status: "error",
+              message:
+                error instanceof Error
+                  ? error.message
+                  : "The practice problem did not load.",
+            },
+          },
+        });
       },
     );
   }
@@ -151,11 +238,22 @@ export function useTutor(source: TutorSource | null): Tutor {
   }
 
   const openAt = view.status === "idle" ? null : "top";
-  return { enabled: source !== null, view, openAt, open, submit, retry, edit, requestPractice, close };
+  return {
+    enabled: source !== null,
+    view,
+    openAt,
+    open,
+    submit,
+    retry,
+    edit,
+    requestPractice,
+    close,
+  };
 }
 
 /** Never part of what a student is asking about. */
-const NOT_CONTENT = "button, h3, h4, summary, [data-tutor-ignore], [data-tutor-panel]";
+const NOT_CONTENT =
+  "button, h3, h4, summary, [data-tutor-ignore], [data-tutor-panel]";
 
 /**
  * The selected text, as the server can verify it: rendered math is replaced
@@ -166,50 +264,109 @@ const NOT_CONTENT = "button, h3, h4, summary, [data-tutor-ignore], [data-tutor-p
  */
 function selectionTexts(range: Range): { query: string; display: string } {
   const expanded = range.cloneRange();
-  const formula = (node: Node) => (node instanceof Element ? node : node.parentElement)?.closest(".katex") ?? null;
+  const formula = (node: Node) =>
+    (node instanceof Element ? node : node.parentElement)?.closest(".katex") ??
+    null;
   const first = formula(expanded.startContainer);
   const last = formula(expanded.endContainer);
   if (first) expanded.setStartBefore(first);
   if (last) expanded.setEndAfter(last);
   const query = expanded.cloneContents();
   const display = expanded.cloneContents();
-  for (const fragment of [query, display]) fragment.querySelectorAll(NOT_CONTENT).forEach((node) => node.remove());
+  for (const fragment of [query, display])
+    fragment.querySelectorAll(NOT_CONTENT).forEach((node) => node.remove());
   query.querySelectorAll(".katex").forEach((node) => {
-    const tex = node.querySelector('annotation[encoding="application/x-tex"]')?.textContent ?? "";
+    const tex =
+      node.querySelector('annotation[encoding="application/x-tex"]')
+        ?.textContent ?? "";
     node.replaceWith(document.createTextNode(` ${tex} `));
   });
   display.querySelectorAll(".katex-mathml").forEach((node) => node.remove());
-  return { query: cleanSelection(query.textContent ?? ""), display: cleanSelection(display.textContent ?? "") };
+  return {
+    query: cleanSelection(query.textContent ?? ""),
+    display: cleanSelection(display.textContent ?? ""),
+  };
 }
 
-type Offer = { text: string; display: string; top: number; left: number };
+type Offer = {
+  text: string;
+  display: string;
+  top: number;
+  left: number;
+  portal: Element;
+};
 
 function readOffer(container: HTMLElement | null): Offer | null {
   const selection = window.getSelection();
-  if (!container || !selection || selection.isCollapsed || selection.rangeCount === 0) return null;
+  if (
+    !container ||
+    !selection ||
+    selection.isCollapsed ||
+    selection.rangeCount === 0
+  )
+    return null;
   const range = selection.getRangeAt(0);
   if (!container.contains(range.commonAncestorContainer)) return null;
-  const ancestor = range.commonAncestorContainer instanceof Element ? range.commonAncestorContainer : range.commonAncestorContainer.parentElement;
+  const ancestor =
+    range.commonAncestorContainer instanceof Element
+      ? range.commonAncestorContainer
+      : range.commonAncestorContainer.parentElement;
   // Wholly inside a heading, a label, a control, or the tutor's own answer: nothing to explain.
   if (ancestor?.closest(NOT_CONTENT)) return null;
   const { query, display } = selectionTexts(range);
   if (!isExplainableSelection(query)) return null;
   const rect = range.getBoundingClientRect();
   const box = container.getBoundingClientRect();
+  let top = 0;
+  let bottom = window.innerHeight;
+  // A selection near the bottom of the scrolling explanation still needs a
+  // reachable action. Position the action in the shell, outside that clipping pane.
+  for (
+    let parent = container.parentElement;
+    parent;
+    parent = parent.parentElement
+  ) {
+    if (/(auto|scroll|hidden)/.test(getComputedStyle(parent).overflowY)) {
+      const bounds = parent.getBoundingClientRect();
+      top = Math.max(top, bounds.top);
+      bottom = Math.min(bottom, bounds.bottom);
+    }
+  }
+  if (rect.bottom < top || rect.top > bottom) return null;
+  const portal = container.closest(".solveplot-shell");
+  if (!portal) return null;
   return {
+    portal,
     text: query,
     display: display || query,
-    top: rect.bottom - box.top + 6,
-    left: Math.max(0, Math.min(rect.left - box.left, box.width - 160)),
+    top: Math.max(
+      top + 6,
+      Math.min(
+        rect.bottom + 48 < bottom ? rect.bottom + 6 : rect.top - 46,
+        bottom - 46,
+      ),
+    ),
+    left: Math.max(
+      8,
+      Math.min(rect.left, box.right - 156, window.innerWidth - 164),
+    ),
   };
 }
 
 function shorten(text: string, length = 60): string {
-  return text.length > length ? `${text.slice(0, length - 1).trimEnd()}…` : text;
+  return text.length > length
+    ? `${text.slice(0, length - 1).trimEnd()}…`
+    : text;
 }
 
 /** Offers the tutor beside text selected inside the solution card. */
-export function SelectionAskTutor({ tutor, containerRef }: { tutor: Tutor; containerRef: RefObject<HTMLElement | null> }) {
+export function SelectionAskTutor({
+  tutor,
+  containerRef,
+}: {
+  tutor: Tutor;
+  containerRef: RefObject<HTMLElement | null>;
+}) {
   const [offer, setOffer] = useState<Offer | null>(null);
   const enabled = tutor.enabled;
   useEffect(() => {
@@ -218,45 +375,68 @@ export function SelectionAskTutor({ tutor, containerRef }: { tutor: Tutor; conta
     // selectionchange covers mouse, touch, and keyboard selection alike.
     const update = () => {
       window.clearTimeout(timer);
-      timer = window.setTimeout(() => setOffer(readOffer(containerRef.current)), 150);
+      timer = window.setTimeout(
+        () => setOffer(readOffer(containerRef.current)),
+        150,
+      );
     };
     const dismiss = (event: KeyboardEvent) => {
       if (event.key === "Escape") setOffer(null);
     };
     document.addEventListener("selectionchange", update);
     document.addEventListener("keydown", dismiss);
+    window.addEventListener("scroll", update, true);
+    window.addEventListener("resize", update);
     return () => {
       window.clearTimeout(timer);
       document.removeEventListener("selectionchange", update);
       document.removeEventListener("keydown", dismiss);
+      window.removeEventListener("scroll", update, true);
+      window.removeEventListener("resize", update);
     };
   }, [enabled, containerRef]);
   if (!enabled || !offer) return null;
-  return (
+  return createPortal(
     <button
       type="button"
-      className={`${shared.copyButton} ${styles.selectionButton}`}
+      className={`${shared.copyButton} ${styles.selectionButton} copyButton`}
       style={{ top: offer.top, left: offer.left }}
       // Keep the selection while the button is pressed.
-      onMouseDown={(event) => event.preventDefault()}
+      onPointerDown={(event) => event.preventDefault()}
       onClick={() => {
-        tutor.open({ kind: "text", text: offer.text }, `“${shorten(offer.display)}”`);
+        tutor.open(
+          { kind: "text", text: offer.text },
+          `“${shorten(offer.display)}”`,
+        );
         setOffer(null);
         window.getSelection()?.removeAllRanges();
       }}
       aria-label={`Ask AI Tutor about the selected text: ${shorten(offer.display, 80)}`}
       data-testid="ask-ai-tutor-selection"
+      data-motion="tutor"
     >
       <TutorIcon />
       Ask AI Tutor
-    </button>
+    </button>,
+    offer.portal,
   );
 }
 
 export function TutorIcon() {
   return (
-    <svg viewBox="0 0 24 24" width="17" height="17" fill="none" aria-hidden="true">
-      <path d="M3 17c5 0 4-10 9-10s4 10 9 10M3 12h18" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+    <svg
+      viewBox="0 0 24 24"
+      width="17"
+      height="17"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M3 17c5 0 4-10 9-10s4 10 9 10M3 12h18"
+        stroke="currentColor"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -266,20 +446,46 @@ function Loading({ label }: { label: string }) {
     <div className={shared.skeletonLines} role="status">
       <span className={shared.srOnly}>{label}</span>
       <span className={shared.purposeShimmer} aria-hidden="true" />
-      <span className={`${shared.purposeShimmer} ${shared.shimmerShort}`} aria-hidden="true" />
+      <span
+        className={`${shared.purposeShimmer} ${shared.shimmerShort}`}
+        aria-hidden="true"
+      />
     </div>
   );
 }
 
-function TutorComposer({ initialQuestion, onSubmit }: { initialQuestion: string; onSubmit: (question: string) => void }) {
+function TutorComposer({
+  initialQuestion,
+  onSubmit,
+}: {
+  initialQuestion: string;
+  onSubmit: (question: string) => void;
+}) {
   const [question, setQuestion] = useState(initialQuestion);
   const input = useRef<HTMLTextAreaElement>(null);
   const inputId = useId();
-  useEffect(() => input.current?.focus({ preventScroll: true }), []);
+  useEffect(() => {
+    input.current?.focus({ preventScroll: true });
+    input.current?.closest("[data-tutor-panel]")?.scrollIntoView({
+      block: "nearest",
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "instant"
+        : "smooth",
+    });
+  }, []);
   return (
-    <form className={styles.composer} onSubmit={(event) => { event.preventDefault(); onSubmit(question); }}>
-      <label htmlFor={inputId}>Add a question <span>(optional)</span></label>
+    <form
+      className={styles.composer}
+      onSubmit={(event) => {
+        event.preventDefault();
+        onSubmit(question);
+      }}
+    >
+      <label htmlFor={inputId}>
+        Add a question <span>(optional)</span>
+      </label>
       <textarea
+        className="appField"
         ref={input}
         id={inputId}
         value={question}
@@ -290,7 +496,9 @@ function TutorComposer({ initialQuestion, onSubmit }: { initialQuestion: string;
       />
       <div className={styles.composerActions}>
         <span>Leave blank for an explanation of the highlighted text</span>
-        <button type="submit" className={styles.askButton}><TutorIcon /> Ask AI Tutor</button>
+        <button type="submit" className={`${styles.askButton} primaryButton`} data-motion="tutor">
+          <TutorIcon /> Ask AI Tutor
+        </button>
       </div>
     </form>
   );
@@ -310,41 +518,93 @@ export function TutorPanel({ tutor }: { tutor: Tutor }) {
   }, [ask, view.status]);
   if (view.status === "idle") return null;
   return (
-    <section className={styles.panel} aria-labelledby={titleId} data-tutor-panel data-testid="tutor-panel">
+    <section
+      className={styles.panel}
+      aria-labelledby={titleId}
+      data-tutor-panel
+      data-testid="tutor-panel"
+    >
       <div className={styles.heading}>
-        <h3 id={titleId} ref={heading} tabIndex={-1}>{view.status === "ready" ? view.answer.title : "Ask AI Tutor"}</h3>
-        <button type="button" className={shared.copyButton} onClick={tutor.close} aria-label="Close the tutor">Close</button>
+        <h3 id={titleId} ref={heading} tabIndex={-1}>
+          {view.status === "ready" ? view.answer.title : "Ask AI Tutor"}
+        </h3>
+        <button
+          type="button"
+          className={`${shared.copyButton} secondaryButton`}
+          onClick={tutor.close}
+          aria-label="Close the tutor"
+        >
+          Close
+        </button>
       </div>
       <p className={styles.about}>About {view.ask.label}</p>
       <div aria-live="polite">
         {view.status === "draft" ? (
-          <TutorComposer key={`${view.ask.selection.kind}:${view.ask.selection.kind === "text" ? view.ask.selection.text : view.ask.selection.row}`} initialQuestion={view.ask.question ?? ""} onSubmit={tutor.submit} />
+          <TutorComposer
+            key={`${view.ask.selection.kind}:${view.ask.selection.kind === "text" ? view.ask.selection.text : view.ask.selection.row}`}
+            initialQuestion={view.ask.question ?? ""}
+            onSubmit={tutor.submit}
+          />
         ) : view.status === "loading" ? (
           <Loading label="The tutor is writing an answer…" />
         ) : view.status === "error" ? (
           <div className={styles.actions}>
-            <p className={styles.error} role="alert">{view.message}</p>
+            <p className={styles.error} role="alert">
+              {view.message}
+            </p>
             <div className={styles.actionButtons}>
-              <button type="button" className={shared.retryButton} onClick={() => tutor.edit(true)}>Edit question</button>
-              <button type="button" className={shared.retryButton} onClick={tutor.retry}>Try again</button>
+              <button
+                type="button"
+                className={`${shared.retryButton} secondaryButton`}
+                onClick={() => tutor.edit(true)}
+              >
+                Edit question
+              </button>
+              <button
+                type="button"
+                className={`${shared.retryButton} secondaryButton`}
+                onClick={tutor.retry}
+              >
+                Try again
+              </button>
             </div>
           </div>
         ) : (
           <>
-            <p><MathText>{view.answer.meaning}</MathText></p>
+            <p>
+              <MathText>{view.answer.meaning}</MathText>
+            </p>
             <h4>Why it’s used here</h4>
-            <p><MathText>{view.answer.whyHere}</MathText></p>
+            <p>
+              <MathText>{view.answer.whyHere}</MathText>
+            </p>
             {view.answer.example && (
               <>
                 <h4>Example</h4>
-                <p><MathText>{view.answer.example.description}</MathText></p>
+                <p>
+                  <MathText>{view.answer.example.description}</MathText>
+                </p>
                 {view.answer.example.rows.map((row, index) => (
-                  <div key={index} className={`${shared.equation} ${styles.exampleRow}`}><MathExpression latex={row} /></div>
+                  <div
+                    key={index}
+                    className={`${shared.equation} ${styles.exampleRow}`}
+                  >
+                    <MathExpression latex={row} />
+                  </div>
                 ))}
               </>
             )}
-            <PracticeSection practice={view.practice} onRequest={tutor.requestPractice} />
-            <button type="button" className={styles.anotherButton} onClick={() => tutor.edit()}>Ask another question about this text</button>
+            <PracticeSection
+              practice={view.practice}
+              onRequest={tutor.requestPractice}
+            />
+            <button
+              type="button"
+              className={`${styles.anotherButton} textControl`}
+              onClick={() => tutor.edit()}
+            >
+              Ask another question about this text
+            </button>
           </>
         )}
       </div>
@@ -352,34 +612,66 @@ export function TutorPanel({ tutor }: { tutor: Tutor }) {
   );
 }
 
-function PracticeSection({ practice, onRequest }: { practice: Practice; onRequest: () => void }) {
+function PracticeSection({
+  practice,
+  onRequest,
+}: {
+  practice: Practice;
+  onRequest: () => void;
+}) {
   if (practice.status === "idle") {
     return (
       <div className={styles.actions}>
-        <button type="button" className={shared.retryButton} onClick={onRequest}>Practice problem</button>
+        <button
+          type="button"
+          className={`${shared.retryButton} secondaryButton`}
+          onClick={onRequest}
+        >
+          Practice problem
+        </button>
       </div>
     );
   }
-  if (practice.status === "loading") return <><h4>Practice problem</h4><Loading label="Writing a practice problem…" /></>;
+  if (practice.status === "loading")
+    return (
+      <>
+        <h4>Practice problem</h4>
+        <Loading label="Writing a practice problem…" />
+      </>
+    );
   if (practice.status === "error") {
     return (
       <div className={styles.actions}>
-        <p className={styles.error} role="alert">{practice.message}</p>
-        <button type="button" className={shared.retryButton} onClick={onRequest}>Try again</button>
+        <p className={styles.error} role="alert">
+          {practice.message}
+        </p>
+        <button
+          type="button"
+          className={`${shared.retryButton} secondaryButton`}
+          onClick={onRequest}
+        >
+          Try again
+        </button>
       </div>
     );
   }
   return (
     <div data-testid="tutor-practice">
       <h4>Practice problem</h4>
-      <p><MathText>{practice.problem}</MathText></p>
+      <p>
+        <MathText>{practice.problem}</MathText>
+      </p>
       <details className={shared.transcription}>
-        <summary>Show hint</summary>
-        <p><MathText>{practice.hint}</MathText></p>
+        <summary className="disclosureControl">Show hint</summary>
+        <p>
+          <MathText>{practice.hint}</MathText>
+        </p>
       </details>
       <details className={shared.transcription}>
-        <summary>Show answer</summary>
-        <p><MathText>{practice.answer}</MathText></p>
+        <summary className="disclosureControl">Show answer</summary>
+        <p>
+          <MathText>{practice.answer}</MathText>
+        </p>
       </details>
     </div>
   );
@@ -388,9 +680,19 @@ function PracticeSection({ practice, onRequest }: { practice: Practice; onReques
 /** "Save this trick" ⇄ "Saved": bookmarks the technique of this solution (the server resolves what is saved). */
 export function SaveTrickButton({ source }: { source: TutorSource }) {
   const key = sourceKey(source);
-  type SaveState = { key: string; status: "idle" | "saving" | "saved" | "removing" | "error"; id: string | null; message?: string };
-  const [state, setState] = useState<SaveState>({ key, status: "idle", id: null });
-  const current: SaveState = state.key === key ? state : { key, status: "idle", id: null };
+  type SaveState = {
+    key: string;
+    status: "idle" | "saving" | "saved" | "removing" | "error";
+    id: string | null;
+    message?: string;
+  };
+  const [state, setState] = useState<SaveState>({
+    key,
+    status: "idle",
+    id: null,
+  });
+  const current: SaveState =
+    state.key === key ? state : { key, status: "idle", id: null };
   const busy = current.status === "saving" || current.status === "removing";
 
   async function toggle() {
@@ -406,16 +708,32 @@ export function SaveTrickButton({ source }: { source: TutorSource }) {
       const data = await response.json().catch(() => null);
       // Removing a trick that is already gone is still removed.
       if (!response.ok && !(remove && response.status === 404)) {
-        throw new Error(typeof data?.error === "string" ? data.error : remove ? "Could not remove this trick. Please try again." : "Could not save this trick. Please try again.");
+        throw new Error(
+          typeof data?.error === "string"
+            ? data.error
+            : remove
+              ? "Could not remove this trick. Please try again."
+              : "Could not save this trick. Please try again.",
+        );
       }
-      if (!remove && typeof data?.trick?.id !== "string") throw new Error("The trick was not saved. Please try again.");
-      setState(remove ? { key, status: "idle", id: null } : { key, status: "saved", id: data.trick.id });
+      if (!remove && typeof data?.trick?.id !== "string")
+        throw new Error("The trick was not saved. Please try again.");
+      setState(
+        remove
+          ? { key, status: "idle", id: null }
+          : { key, status: "saved", id: data.trick.id },
+      );
     } catch (error) {
       setState({
         key,
         status: remove ? "saved" : "error",
         id: current.id,
-        message: error instanceof Error ? error.message : remove ? "Could not remove this trick. Please try again." : "Could not save this trick. Please try again.",
+        message:
+          error instanceof Error
+            ? error.message
+            : remove
+              ? "Could not remove this trick. Please try again."
+              : "Could not save this trick. Please try again.",
       });
     }
   }
@@ -431,19 +749,33 @@ export function SaveTrickButton({ source }: { source: TutorSource }) {
     <span className={styles.saveControl}>
       <button
         type="button"
-        className={shared.copyButton}
+        className={`${shared.copyButton} secondaryButton`}
         onClick={toggle}
         disabled={busy}
         aria-pressed={current.status === "saved"}
-        title={current.status === "saved" ? "Saved to your tricks · click to remove" : "Keep this technique in Saved tricks"}
+        title={
+          current.status === "saved"
+            ? "Saved to your tricks · click to remove"
+            : "Keep this technique in Saved tricks"
+        }
         data-testid="save-trick"
       >
         <svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true">
-          <path d="M6 3.5h8a1 1 0 0 1 1 1v12l-5-3.2-5 3.2v-12a1 1 0 0 1 1-1Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" fill={current.status === "saved" ? "currentColor" : "none"} />
+          <path
+            d="M6 3.5h8a1 1 0 0 1 1 1v12l-5-3.2-5 3.2v-12a1 1 0 0 1 1-1Z"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinejoin="round"
+            fill={current.status === "saved" ? "currentColor" : "none"}
+          />
         </svg>
         {label}
       </button>
-      {current.message && <span className={styles.saveError} role="alert">{current.message}</span>}
+      {current.message && (
+        <span className={styles.saveError} role="alert">
+          {current.message}
+        </span>
+      )}
     </span>
   );
 }

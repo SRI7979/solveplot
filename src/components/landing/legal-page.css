@@ -1,0 +1,20 @@
+.solveplot-landing .legal-content { width: min(100%, 840px); margin: 0 auto; padding: 64px 40px 72px; }
+.solveplot-landing .legal-heading { padding-bottom: 32px; border-bottom: 1px solid #e3e8ef; }
+.solveplot-landing .legal-heading > a { font-size: 14px; color: #5d6d7a; }
+.solveplot-landing .legal-heading h1 { margin: 22px 0 16px; font-size: clamp(34px, 4.5vw, 48px); font-weight: 500; line-height: 1.15; letter-spacing: -.04em; }
+.solveplot-landing .legal-heading p { margin-bottom: 16px; font-size: 16px; line-height: 1.7; color: #5d6d7a; }
+.solveplot-landing .legal-heading > span { font-size: 13px; color: #647586; }
+.solveplot-landing .legal-body { padding-top: 8px; }
+.solveplot-landing .legal-body section { margin-top: 36px; scroll-margin-top: 36px; }
+.solveplot-landing .legal-body h2 { font-size: 22px; font-weight: 500; line-height: 1.35; letter-spacing: -.025em; margin-bottom: 14px; }
+.solveplot-landing .legal-body p, .solveplot-landing .legal-body li { font-size: 15px; line-height: 1.8; color: #4c5e6e; overflow-wrap: anywhere; }
+.solveplot-landing .legal-body p + p, .solveplot-landing .legal-body ul + p { margin-top: 14px; }
+.solveplot-landing .legal-body ul { margin: 14px 0; padding-left: 22px; list-style: disc; }
+.solveplot-landing .legal-body li + li { margin-top: 10px; }
+.solveplot-landing .legal-body strong { font-weight: 500; color: #223143; }
+.solveplot-landing .legal-body a { text-decoration: underline; text-underline-offset: 3px; }
+.solveplot-landing.legal-page .landing-content { padding-top: 0; }
+@media (max-width: 760px) {
+  .solveplot-landing .legal-content { padding: 40px 20px 52px; }
+  .solveplot-landing .legal-body h2 { font-size: 20px; }
+}

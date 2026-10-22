@@ -62,10 +62,10 @@ export function cacheKeyFor(key: string, promptConfigVersion: string): string {
 }
 
 /** The exact submitted input: image bytes, or the problem text and choices. */
-export function inputHash(input: Uint8Array | { problem: string; choices: readonly string[] | null }): string {
+export function inputHash(input: Uint8Array | { problem: string; choices?: readonly string[] | null }): string {
   const hash = createHash("sha256");
   if (input instanceof Uint8Array) hash.update("image:").update(input);
-  else hash.update(`text:${JSON.stringify([input.problem, input.choices])}`);
+  else hash.update(`text:${JSON.stringify([input.problem, input.choices === undefined ? "embedded" : input.choices])}`);
   return hash.digest("hex");
 }
 
@@ -388,7 +388,7 @@ export function routeSolveCache(client: { from(table: string): unknown }): Solve
     createSupabaseSolveCache(client),
     (operation, error) =>
       console.warn(
-        `[desmo:cache] ${operation} failed; using this server's in-memory cache. ${error instanceof Error ? error.message : ""}`.trim(),
+        `[solveplot:cache] ${operation} failed; using this server's in-memory cache. ${error instanceof Error ? error.message : ""}`.trim(),
       ),
     processSolveCache,
   );

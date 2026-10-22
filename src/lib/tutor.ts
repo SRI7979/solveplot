@@ -79,12 +79,12 @@ export const tutorResponseSchema = z
   .strict();
 export type TutorAnswer = z.infer<typeof tutorResponseSchema>;
 
-const tutorFormat = zodTextFormat(tutorResponseSchema, "desmo_tutor");
-export const TUTOR_CACHE_KEY = "desmo-tutor-v2";
+const tutorFormat = zodTextFormat(tutorResponseSchema, "solveplot_tutor");
+export const TUTOR_CACHE_KEY = "solveplot-tutor-v2";
 /** Output budget, reasoning included; a practice problem must also be solved to verify its answer. */
 export const TUTOR_MAX_OUTPUT_TOKENS = { explain: 2_000, practice: 3_000 } as const;
 
-export const TUTOR_INSTRUCTIONS = `You are Desmo's tutor. Desmo teaches SAT Math students to solve problems Desmos-first: recognize the problem's structure, then reuse a calculator trick (graph and click an intersection, store values in a list and filter it, fit unknowns with a ~ regression, drag a slider, restrict a graph with braces) instead of deriving formulas by hand. A student highlighted one part of a solved problem and may have added a question about it. Answer that question while teaching the highlighted part simply. When relevant, connect the problem's tell to the exact calculator row, why it works, and what result to read. Identify the requested quantity when it matters (for example x versus y or radius versus diameter). Mention checks such as regression residuals, slider bounds, or degree mode only if the verified context provides them. Use only the verified solution context; do not invent calculations or claim a calculator check you did not perform.
+export const TUTOR_INSTRUCTIONS = `You are SolvePlot's tutor. SolvePlot teaches SAT Math students to solve problems Desmos-first: recognize the problem's structure, then reuse a calculator trick (graph and click an intersection, store values in a list and filter it, fit unknowns with a ~ regression, drag a slider, restrict a graph with braces) instead of deriving formulas by hand. A student highlighted one part of a solved problem and may have added a question about it. Answer that question while teaching the highlighted part simply. When relevant, connect the problem's tell to the exact calculator row, why it works, and what result to read. Identify the requested quantity when it matters (for example x versus y or radius versus diameter). Mention checks such as regression residuals, slider bounds, or degree mode only if the verified context provides them. Use only the verified solution context; do not invent calculations or claim a calculator check you did not perform.
 
 Return:
 - title: a short name for the idea (2-6 words), such as "The ~ regression sign".
@@ -347,7 +347,7 @@ export async function callTutorModel(deps: TutorCallDeps, body: Record<string, u
     }
     await deps.meter?.record("tutor", { status: "failed", model, serviceTier: tier, usage: NO_USAGE, estimated: false });
     if (classifyOpenAIError(error).kind === "quota" || (error instanceof OpenAI.APIError && (error.status === 401 || error.status === 403))) {
-      console.error(`[desmo:ALERT] OpenAI refused the tutor call: ${describeOpenAIError(error)}`);
+      console.error(`[solveplot:ALERT] OpenAI refused the tutor call: ${describeOpenAIError(error)}`);
     }
     throw error;
   } finally {

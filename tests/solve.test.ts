@@ -9,6 +9,7 @@ import sharp from "sharp";
 import { createMemorySolveCache, withCacheFallback, type SolveCache } from "../src/lib/solve-cache";
 import { createMethodHandler, createPreflightHandler, createSolveHandler, type SolveDependencies } from "../src/lib/solve-handler";
 import { MAX_IMAGE_BYTES } from "../src/lib/solver-schema";
+import { MAX_PROBLEM_TEXT_BODY_BYTES, MAX_PROBLEM_TEXT_LENGTH, originalProblemText } from "../src/lib/text-problem";
 import { createMemoryUsageStore } from "../src/lib/spend";
 import { retryCountdown } from "../src/lib/retry-countdown";
 import { createTelemetry, memorySink, supabaseSink, type TelemetryRecord } from "../src/lib/telemetry";
@@ -101,6 +102,72 @@ function switchTo(cacheKey: string, methodId: string, headers: Record<string, st
     headers: { "Content-Type": "application/json", ...headers },
   });
 }
+
+function typed(body: unknown, headers: Record<string, string> = {}) {
+  return new Request("http://localhost/api/solve", {
+    method: "POST", body: JSON.stringify(body),
+    headers: { "Content-Type": "application/json", ...headers },
+  });
+}
+
+test("typed questions use text model input, retain their source in History, and stream cached results", async () => {
+  const {requests} = mockModel({candidates: candidatesResponse()});
+  const save = mock.method(dependencies, "saveProblem");
+  const problem = "What is the positive solution to x^2 = 9?\nA) 1\nB) 3\nC) 9";
+  const response = await POST(typed({problem: `  ${problem}\n`}));
+  assert.equal(response.status, 200);
+  const data = await response.json();
+  assert.equal(data.solution.answer, "3");
+  assert.equal(data.problemId, problemId);
+  assert.equal(data.cached, false);
+  const prompt = JSON.stringify(requests.candidates[0].input);
+  assert.match(prompt, /complete, already-transcribed question/);
+  assert.match(prompt, /positive solution to x\^2 = 9/);
+  assert.match(prompt, /Preserve any answer choices included/);
+  assert.doesNotMatch(prompt, /no answer choices/);
+  assert.doesNotMatch(prompt, /input_image|data:image/);
+  assert.match(response.headers.get("server-timing") ?? "", /text_input/);
+  assert.doesNotMatch(response.headers.get("server-timing") ?? "", /image_prepare|image_validate/);
+  const savedInput = save.mock.calls[0].arguments[0];
+  assert.equal(savedInput.text, problem);
+  assert.equal(savedInput.mime, "image/png");
+  assert.equal((await sharp(savedInput.bytes).metadata()).format, "png");
+  assert.equal(originalProblemText({...savedInput.solution, inputText: savedInput.text}), problem);
+  const stream = await POST(typed({problem}, {Accept: "application/x-ndjson"}));
+  assert.equal(stream.status, 200);
+  const streamed = await events(stream);
+  assert.ok(streamed.some(e => e.type === "methods" && e.cached === true));
+  assert.ok(streamed.some(e => e.type === "solution" && e.solution.answer === "3"));
+  assert.ok(streamed.some(e => e.type === "saved" && e.problemId === problemId));
+  assert.equal(requests.candidates.length, 1, "an identical typed problem reuses its own cache mapping");
+});
+
+test("invalid, oversized, and ambiguous typed input cannot reserve usage or reach the model", async () => {
+  const reserve = mock.method(dependencies, "reserveSolve");
+  const {fetchMock} = mockModel({candidates: candidatesResponse()});
+  for (const body of [{problem: "   "}, {problem: 5}, {problem: "x".repeat(MAX_PROBLEM_TEXT_LENGTH + 1)}, {problem: "x^2=9", image: "also an image"}, {problem: "x\u0000=1"}, null, []]) {
+    assert.equal((await POST(typed(body))).status, 400);
+  }
+  const excessiveHeader = typed({problem: "x^2=9"}, {"Content-Length": String(MAX_PROBLEM_TEXT_BODY_BYTES + 1)});
+  assert.equal((await POST(excessiveHeader)).status, 413);
+  const excessiveBody = new Request("http://localhost/api/solve", {method: "POST", headers: {"Content-Type": "application/json"}, body: new Uint8Array(MAX_PROBLEM_TEXT_BODY_BYTES + 1)});
+  assert.equal((await POST(excessiveBody)).status, 413);
+  const malformed = new Request("http://localhost/api/solve", {method: "POST", headers: {"Content-Type": "application/json"}, body: "{"});
+  assert.equal((await POST(malformed)).status, 400);
+  assert.equal(reserve.mock.callCount(), 0);
+  assert.equal(fetchMock.mock.callCount(), 0);
+});
+
+test("typed input keeps the same authentication, cross-site, and rate-limit guards as uploads", async () => {
+  const reserve = mock.method(dependencies, "reserveSolve", async () => ({allowed: false, retryAfter: 27}));
+  mock.method(dependencies, "getCurrentUser", async () => null);
+  assert.equal((await POST(typed({problem: "x^2=9"}))).status, 401);
+  assert.equal((await POST(typed({problem: "x^2=9"}, {Origin: "https://another-site.example"}))).status, 403);
+  assert.equal(reserve.mock.callCount(), 0);
+  dependencies.getCurrentUser = async () => ({id: userId});
+  assert.equal((await POST(typed({problem: "x^2=9"}))).status, 429);
+  assert.equal(reserve.mock.callCount(), 1);
+});
 
 function report(cacheKey: string, verdicts: unknown[]) {
   return new Request("http://localhost/api/solve/preflight", {
@@ -296,11 +363,11 @@ test("the candidates call is terse, strict, cached by prefix, and sees the image
     assert.equal(text.format.type, "json_schema");
     assert.equal(text.verbosity, "low");
   }
-  assert.equal(call1.prompt_cache_key, "desmo-candidates-v1");
-  assert.equal(call2.prompt_cache_key, "desmo-explanation-v1");
+  assert.equal(call1.prompt_cache_key, "solveplot-candidates-v1");
+  assert.equal(call2.prompt_cache_key, "solveplot-explanation-v1");
   const instructions = String(call1.instructions);
   for (const pattern of [
-    /DESMO SAT MATH STRATEGY LIBRARY/,
+    /SOLVEPLOT SAT MATH STRATEGY LIBRARY/,
     /\[technique: three-point-regression \| Three-point regression\]/,
     /<gold_solutions>/,
     /"techniqueId": "identity-regression"/,
@@ -420,7 +487,7 @@ test("service tier can be disabled and falls back permanently when the project l
     if (body.service_tier === "priority") {
       return Response.json({ error: { code: "invalid_value", message: "Invalid value: 'priority' for service_tier." } }, { status: 400 });
     }
-    return Response.json(providerBody(body.text.format.name === "desmo_explanation" ? explanation() : candidatesResponse()));
+    return Response.json(providerBody(body.text.format.name === "solveplot_explanation" ? explanation() : candidatesResponse()));
   });
   cache = createMemorySolveCache();
   assert.equal((await handler(upload())).status, 200);
@@ -488,6 +555,39 @@ test("integer factor maximum returns 421 through the shared solve API, not one r
   assert.equal(data.solution.answer, "421");
   assert.equal(data.solution.result.value, 421);
   assert.equal(data.solution.expressions[5].latex, "\\operatorname{max}(k_{1})");
+});
+
+test("an omitted displayed polynomial retries against the original image and only saves a complete Desmos solution", async () => {
+  const incomplete = "The expression above has factors ax^9 + b and cx^9 + d, where a, b, c, and d are all integer constants. What is the maximum value of k?";
+  const complete = `12x^18 + kx^9 + 35. ${incomplete}`;
+  const generated = (question: string) => candidatesResponse([paperCandidate({ answer: "421" })], { question });
+  const { requests } = mockModel({
+    candidates: (_body: unknown, call: number) => generated(call === 1 ? incomplete : complete),
+    explanation: explanation(6, { why: "The list checks every signed integer factor pair.", readAnswer: "Line 6 gives 421." }),
+  });
+  const response = await POST(upload());
+  const data = await response.json();
+  assert.equal(response.status, 200);
+  assert.equal(requests.candidates.length, 2);
+  const retry = JSON.stringify(requests.candidates[1].input);
+  assert.match(retry, /semantic_inputs/);
+  assert.match(retry, /omits the polynomial containing k/);
+  assert.match(retry, /data:image\/png;base64/, "the retry reads the source image again");
+  assert.equal(data.selectedMethodId, "integer-list-filter");
+  assert.equal(data.solution.answer, "421");
+  assert.equal(data.solution.expressions.length, 6);
+  assert.match(data.question, /12x\^18\s*\+\s*kx\^9\s*\+\s*35/);
+});
+
+test("an omitted displayed polynomial on both attempts fails without saving a guessed answer", async () => {
+  const incomplete = "The expression above has factors ax^9 + b and cx^9 + d, where a, b, c, and d are all integer constants. What is the maximum value of k?";
+  const { requests } = mockModel({ candidates: candidatesResponse([paperCandidate({ answer: "421" })], { question: incomplete }) });
+  const save = mock.method(dependencies, "saveProblem");
+  const response = await POST(upload());
+  assert.equal(response.status, 502);
+  assert.equal(requests.candidates.length, 2);
+  assert.equal(requests.explanation.length, 0);
+  assert.equal(save.mock.callCount(), 0);
 });
 
 test("regression test 3: a prompt configuration change is a cache miss and regenerates", async () => {
@@ -599,9 +699,9 @@ test("an algebra-only reply to the rational table problem offers Desmos first an
         ],
         readAnswer: null,
       })
-      : explanation(6, {
+      : explanation(3, {
         why: "Keep f(0)=10 in the quadratic and let Desmos fit the two unknown coefficients from the g table.",
-        readAnswer: "Line 6 displays g(3)=6.2, which is 31/5.",
+        readAnswer: "Line 3 displays g(3)=6.2, which is 31/5.",
       }),
   });
   const solved = await POST(upload());
@@ -619,10 +719,130 @@ test("an algebra-only reply to the rational table problem offers Desmos first an
   assert.equal(alternative.solution.answer, "31/5");
 });
 
-test("no solver-mode remnant survives in the workspace UI: no segmented control, no mode field, no dead badge usage", () => {
+const rationalQuestion = (table: string) =>
+  "The function g is a rational function defined by g(x)=f(x)/(x+2), where f is a quadratic function. " +
+  "The y-intercept of the graph of f is (0,10), and g passes through the points shown in the table below. " +
+  `${table}\nWhat is the value of g(3)?`;
+
+const rationalExplanation = () => explanation(3, {
+  why: "The intercept supplies the constant term 10 in f. Bracket regression fits the two coefficients directly to the printed g values, with no rearranging of the table.",
+  readAnswer: "Line 3 evaluates g(3) and displays 6.2, which is 31/5.",
+  purposes: [
+    "Define g with the quadratic numerator ax²+bx+10. The 10 comes from f's y-intercept, not a point on g.",
+    "Fit a and b to both printed table pairs together: g(1)=5 and g(4)=7.",
+    "Evaluate g(3) using the fitted coefficients and read 6.2.",
+  ],
+});
+
+for (const [format, table] of [
+  ["plain text", "x  g(x)\n1  5\n4  7"],
+  ["Markdown", "| x | g(x) |\n| --- | --- |\n| 1 | 5 |\n| 4 | 7 |"],
+  ["LaTeX", String.raw`\begin{array}{c|c}x & g(x) \\ \hline 1 & 5 \\ 4 & 7\end{array}`],
+] as const) {
+  test(`the solve API reads a ${format} rational table once and returns the complete bracket regression`, async () => {
+    const question = rationalQuestion(table);
+    const { requests } = mockModel({
+      candidates: candidatesResponse([paperCandidate({ techniqueId: "substitution", answer: "31/5" })], { question }),
+      explanation: rationalExplanation(),
+    });
+    const save = mock.method(dependencies, "saveProblem");
+    const response = await POST(upload());
+    const data = await response.json();
+    assert.equal(response.status, 200, JSON.stringify(data));
+    assert.equal(requests.candidates.length, 1, "valid table formatting never needs a paid correction");
+    assert.equal(requests.explanation.length, 1);
+    const expectedQuestion = format === "LaTeX" ? rationalQuestion("x | g(x)\n1 | 5\n4 | 7\n") : question;
+    assert.equal(data.question, expectedQuestion, "only table presentation changes; every cell and all surrounding prose stay intact");
+    assert.equal(data.selectedMethodId, "parameter-regression");
+    assert.deepEqual(data.solution.expressions.map((row: { latex: string }) => row.latex), [
+      "g(x)=\\frac{a x^{2}+b x+10}{x+2}",
+      "[g(1),g(4)]\\sim[5,7]",
+      "g(3)",
+    ]);
+    assert.equal(data.solution.result.row, 3);
+    assert.equal(data.solution.result.value, 6.2);
+    assert.equal(data.solution.answer, "6.2");
+    assert.equal(data.solution.handMath, null);
+    assert.equal(save.mock.callCount(), 1);
+  });
+}
+
+test("an omitted rational table row is recovered once from the original image before showing or saving an answer", async () => {
+  const incomplete = rationalQuestion("x  g(x)\n1  5");
+  const complete = rationalQuestion("x  g(x)\n1  5\n4  7");
+  const { requests } = mockModel({
+    candidates: (_body: unknown, call: number) => candidatesResponse(
+      [paperCandidate({ techniqueId: "substitution", answer: "31/5" })],
+      { question: call === 1 ? incomplete : complete },
+    ),
+    explanation: rationalExplanation(),
+  });
+  const save = mock.method(dependencies, "saveProblem");
+  const response = await POST(upload());
+  const data = await response.json();
+  assert.equal(response.status, 200, JSON.stringify(data));
+  assert.equal(requests.candidates.length, 2, "only one automatic correction");
+  assert.equal(requests.explanation.length, 1, "no explanation is generated for the incomplete transcription");
+  const retry = JSON.stringify(requests.candidates[1].input);
+  assert.match(retry, /semantic_inputs/);
+  assert.match(retry, /Include every table row/);
+  assert.match(retry, new RegExp(png.toString("base64").replace(/[.*+?^${}()|[\]\\]/g, "\\$&")), "correction re-reads the identical source image");
+  assert.equal(data.solution.result.value, 6.2);
+  assert.equal(data.solution.result.row, 3);
+  assert.equal(save.mock.callCount(), 1, "only the complete corrected solution is saved");
+});
+
+test("a rational table row missing twice fails without a guessed answer or raw validation text, including in development", async (t) => {
+  const previous = process.env.NODE_ENV;
+  Object.assign(process.env, { NODE_ENV: "development" });
+  t.after(() => {
+    if (previous === undefined) delete (process.env as Record<string, string | undefined>).NODE_ENV;
+    else Object.assign(process.env, { NODE_ENV: previous });
+  });
+  mock.method(console, "error", () => undefined);
+  const { requests } = mockModel({
+    candidates: candidatesResponse([paperCandidate({ techniqueId: "substitution", answer: "31/5" })], {
+      question: rationalQuestion("x  g(x)\n1  5"),
+    }),
+  });
+  const save = mock.method(dependencies, "saveProblem");
+  const response = await POST(upload());
+  const data = await response.json();
+  assert.equal(response.status, 502);
+  assert.equal(requests.candidates.length, 2);
+  assert.equal(requests.explanation.length, 0);
+  assert.equal(save.mock.callCount(), 0);
+  assert.equal("solution" in data, false);
+  assert.equal("methods" in data, false);
+  assert.match(data.error, /could not read.*values reliably/);
+  assert.doesNotMatch(data.error, /semantic_inputs|validation failed|paired x|transcribed|31\/5|6\.2/i);
+  assert.equal(data.validation.stage, "semantic_inputs", "developers retain the precise rejection separately");
+  assert.ok(data.diagnosticId);
+  for (const attempt of [1, 2]) t.after(() => unlink(`.solveplot-debug/${data.diagnosticId}-${attempt}.json`));
+});
+
+test("conflicting rational table cells are retried once and then explained without exposing transcription internals", async () => {
+  const { requests } = mockModel({
+    candidates: candidatesResponse([paperCandidate({ techniqueId: "substitution", answer: "31/5" })], {
+      question: rationalQuestion("g(1)=5 and g(1)=6; g(4)=7."),
+    }),
+  });
+  const save = mock.method(dependencies, "saveProblem");
+  const response = await POST(upload());
+  const data = await response.json();
+  assert.equal(response.status, 502);
+  assert.equal(requests.candidates.length, 2);
+  assert.equal(requests.explanation.length, 0);
+  assert.equal(save.mock.callCount(), 0);
+  assert.match(data.error, /could not be read consistently/);
+  assert.doesNotMatch(data.error, /transcription_conflict|validation failed|two different values|31\/5|6\.2/i);
+  assert.equal("solution" in data, false);
+});
+
+test("removed solver modes and their badges do not return to the workspace UI", () => {
   const workspace = readFileSync("src/app/solve/solver-workspace.tsx", "utf8");
   const css = readFileSync("src/app/solve/page.module.css", "utf8");
-  for (const pattern of [/Weaponized/i, /Desmos First/i, /Fastest SAT/i, /mode/i, /segmented/i]) {
+  for (const pattern of [/Weaponized/i, /Desmos First/i, /Fastest SAT/i, /\b(?:SolveMode|solverMode|setMode)\b|\bmode\s*[:=]/i, /SegmentedMode/i]) {
     assert.doesNotMatch(workspace, pattern, `solver-workspace.tsx must not reference ${pattern}`);
   }
   assert.doesNotMatch(css, /\.modeOption|\.modes\b|\.modeSelected|\.modeHint/, "no dead mode CSS in page.module.css");
@@ -658,6 +878,52 @@ test("streaming sends the calculator rows and answer before the explanation", as
   assert.equal(solution.problemId, undefined);
   assert.equal(saved.type, "saved");
   assert.equal(saved.problemId, problemId);
+});
+
+test("the first streamed methods arrive before a blocked telemetry flush, which still runs on completion", async () => {
+  let releaseExplanation!: () => void;
+  const explanationPending = new Promise<void>((resolve) => (releaseExplanation = resolve));
+  let releaseFlush!: () => void;
+  const flushPending = new Promise<void>((resolve) => (releaseFlush = resolve));
+  let announceFlush!: () => void;
+  const flushStarted = new Promise<"flush">((resolve) => (announceFlush = () => resolve("flush")));
+  const flush = mock.method(dependencies.telemetry!, "flush", () => {
+    announceFlush();
+    return flushPending;
+  });
+  mockModel({
+    candidates: candidatesResponse(),
+    explanation: async () => {
+      await explanationPending;
+      return explanation();
+    },
+  });
+  const pending = POST(upload(png, "image/png", { Accept: "application/x-ndjson" }));
+  try {
+    // This race is controlled entirely by promises, not a timing threshold:
+    // the former handler entered flush before it could return the response.
+    const first = await Promise.race([pending, flushStarted]);
+    assert.notEqual(first, "flush", "telemetry must not hold back the first methods response");
+    const response = first as Response;
+    const reader = response.body!.getReader();
+    const initial = await reader.read();
+    assert.equal(JSON.parse(new TextDecoder().decode(initial.value).trim()).type, "methods");
+    assert.equal(flush.mock.callCount(), 0, "rows are delivered while the explanation remains pending");
+    releaseExplanation();
+    let remaining = "";
+    while (true) {
+      const next = await reader.read();
+      if (next.done) break;
+      remaining += new TextDecoder().decode(next.value);
+    }
+    assert.deepEqual(remaining.trim().split("\n").map((line) => JSON.parse(line).type), ["solution", "saved"]);
+    await flushStarted;
+    assert.equal(flush.mock.callCount(), 1, "telemetry is flushed exactly once after delivery");
+  } finally {
+    releaseExplanation();
+    releaseFlush();
+    await pending;
+  }
 });
 
 test("a stream whose history save fails still delivers the explanation first, then the warning", async () => {
@@ -794,7 +1060,7 @@ test("slider rows keep their bounds, the calculator opens at the answer state, a
   assert.deepEqual(data.solution.parameters, [{ name: "b", integer: true, min: -1000, max: 1000 }], "the question's integer parameter is recorded");
 });
 
-test("development rejection exposes the exact stage and stores the raw response without request credentials", async (t) => {
+test("development rejection keeps a student-facing message and stores exact diagnostics without request credentials", async (t) => {
   const previous = process.env.NODE_ENV;
   Object.assign(process.env, { NODE_ENV: "development" });
   t.after(() => {
@@ -809,9 +1075,11 @@ test("development rejection exposes the exact stage and stores the raw response 
   assert.equal(requests.candidates.length, 2);
   const rejected = await response.json();
   assert.equal(rejected.validation.stage, "result_contract");
-  assert.match(rejected.error, /numeric requires an existing calculator row/);
+  assert.match(rejected.validation.message, /numeric requires an existing calculator row/);
+  assert.match(rejected.error, /could not verify a reliable solution/);
+  assert.doesNotMatch(rejected.error, /result_contract|numeric requires|validation failed/i);
   for (const attempt of [1, 2]) {
-    const file = `.desmo-debug/${rejected.diagnosticId}-${attempt}.json`;
+    const file = `.solveplot-debug/${rejected.diagnosticId}-${attempt}.json`;
     t.after(() => unlink(file));
     const logged = await readFile(file, "utf8");
     const diagnostic = JSON.parse(logged);
@@ -1215,7 +1483,7 @@ test("regression test 2: over the daily spend ceiling new solves stop, loudly, w
   assert.match(body.error, /at capacity today/);
   assert.equal(blocked.headers.get("retry-after"), null);
   assert.equal(requests.candidates.length, callsBefore, "zero model calls");
-  assert.ok(alerts.some((line) => /\[desmo:ALERT\] ceiling_hit/.test(line)), "the trip is logged loudly");
+  assert.ok(alerts.some((line) => /\[solveplot:ALERT\] ceiling_hit/.test(line)), "the trip is logged loudly");
   assert.equal(usage.solves.length, 1, "a refused solve does not count against the user");
 
   assert.equal((await POST(upload())).status, 200, "a cached solve is unaffected");
@@ -1354,7 +1622,7 @@ test("regression tests 8 + 9: a rate limit gets a countdown, being out of credit
     assert.equal(retryCountdown(response.status, body, response.headers.get("retry-after")), expected.retryAfter ? Number(expected.retryAfter) : null, `${variant}: the client's countdown`);
     if (expected.kind === "unavailable") {
       assert.equal(body.error, "Service temporarily unavailable. Please try again later.", "no billing details for students");
-      assert.ok(alerts.some((line) => /\[desmo:ALERT\].*candidates call/.test(line) && /no credits remaining|current quota/.test(line)), `${variant}: the real cause is logged loudly`);
+      assert.ok(alerts.some((line) => /\[solveplot:ALERT\].*candidates call/.test(line) && /no credits remaining|current quota/.test(line)), `${variant}: the real cause is logged loudly`);
     }
     assert.equal(fetchMock.mock.callCount(), 1, `${variant}: one request, no automatic retry`);
   }

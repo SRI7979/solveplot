@@ -1,4 +1,10 @@
-import { verdictFromAnalysis, type CalculatorItem, type CalculatorPayload, type DesmosAnalysis, type PreflightVerdict } from "./desmos-preflight";
+import {
+  verdictFromAnalysis,
+  type CalculatorItem,
+  type CalculatorPayload,
+  type DesmosAnalysis,
+  type PreflightVerdict,
+} from "./desmos-preflight";
 
 /**
  * The slice of the Desmos API (v1.11) the app uses. Kept here, not in a
@@ -14,13 +20,41 @@ export type DesmosCalculatorInstance = {
   unobserveEvent: (name: string) => void;
   setBlank: () => void;
   setExpressions: (expressions: CalculatorItem[]) => void;
-  setMathBounds: (bounds: { left: number; right: number; bottom: number; top: number }) => void;
+  setMathBounds: (bounds: {
+    left: number;
+    right: number;
+    bottom: number;
+    top: number;
+  }) => void;
+  /** Display settings only. The hidden pre-flight calculator never uses this. */
+  updateSettings?: (settings: Record<string, unknown>) => void;
+  /** Updates one existing row's display properties (its color for the theme); visible calculator only. */
+  setExpression?: (expression: {
+    id: string;
+    color?: string;
+    lineWidth?: number;
+    pointSize?: number;
+  }) => void;
   resize: () => void;
   destroy: () => void;
 };
 
+/**
+ * Desmos's dark mode (invertedColors) inverts every color it draws, which
+ * turns the SolvePlot cyan orange. The visible calculator pre-inverts its row
+ * colors in dark mode so they render as the colors the light theme shows.
+ */
+export function displayColor(color: string, dark: boolean): string {
+  const hex = /^#([0-9a-f]{6})$/i.exec(color)?.[1];
+  if (!dark || !hex) return color;
+  return `#${(0xffffff - Number.parseInt(hex, 16)).toString(16).padStart(6, "0")}`;
+}
+
 export type DesmosApi = {
-  GraphingCalculator: (container: HTMLElement, options: Record<string, unknown>) => DesmosCalculatorInstance;
+  GraphingCalculator: (
+    container: HTMLElement,
+    options: Record<string, unknown>,
+  ) => DesmosCalculatorInstance;
 };
 
 declare global {
@@ -63,13 +97,18 @@ export type PreflightEngine = {
  * check inserts its rows under fresh ids, so a late analysis of the previous
  * batch can never be read as this batch's result.
  */
-export function createPreflightEngine(desmos: DesmosApi, doc: Document, timing: PreflightTiming = DEFAULT_TIMING): PreflightEngine {
+export function createPreflightEngine(
+  desmos: DesmosApi,
+  doc: Document,
+  timing: PreflightTiming = DEFAULT_TIMING,
+): PreflightEngine {
   const host = doc.createElement("div");
   host.setAttribute("aria-hidden", "true");
-  host.setAttribute("data-desmo-preflight", "");
+  host.setAttribute("data-solveplot-preflight", "");
   host.inert = true;
   // Off-screen rather than display:none, so the calculator lays out normally.
-  host.style.cssText = "position:fixed;left:-10000px;top:0;width:480px;height:320px;overflow:hidden;pointer-events:none;";
+  host.style.cssText =
+    "position:fixed;left:-10000px;top:0;width:480px;height:320px;overflow:hidden;pointer-events:none;";
   doc.body.appendChild(host);
   const calculator = desmos.GraphingCalculator(host, {
     ...MATH_OPTIONS,
@@ -83,7 +122,9 @@ export function createPreflightEngine(desmos: DesmosApi, doc: Document, timing: 
 
   function run(payload: CalculatorPayload): Promise<PreflightVerdict> {
     batch += 1;
-    const ids = payload.items.map((_, index) => `preflight${batch}_${index + 1}`);
+    const ids = payload.items.map(
+      (_, index) => `preflight${batch}_${index + 1}`,
+    );
     return new Promise((resolve) => {
       let quiet: ReturnType<typeof setTimeout> | undefined;
       let settled = false;
@@ -93,24 +134,33 @@ export function createPreflightEngine(desmos: DesmosApi, doc: Document, timing: 
         clearTimeout(quiet);
         clearTimeout(limit);
         calculator.unobserve("expressionAnalysis");
-        resolve(verdictFromAnalysis(calculator.expressionAnalysis, ids) ?? { status: "timeout", rows: ids.length });
+        resolve(
+          verdictFromAnalysis(calculator.expressionAnalysis, ids) ?? {
+            status: "timeout",
+            rows: ids.length,
+          },
+        );
       };
       const limit = setTimeout(finish, timing.timeoutMs);
       const update = () => {
-        if (verdictFromAnalysis(calculator.expressionAnalysis, ids) === null) return;
+        if (verdictFromAnalysis(calculator.expressionAnalysis, ids) === null)
+          return;
         clearTimeout(quiet);
         quiet = setTimeout(finish, timing.quietMs);
       };
       calculator.setBlank();
       calculator.observe("expressionAnalysis", update);
-      calculator.setExpressions(payload.items.map((item, index) => ({ ...item, id: ids[index] })));
+      calculator.setExpressions(
+        payload.items.map((item, index) => ({ ...item, id: ids[index] })),
+      );
       update();
     });
   }
 
   return {
     check(payload) {
-      if (payload.items.length === 0) return Promise.resolve({ status: "clean", rows: 0, evaluations: {} });
+      if (payload.items.length === 0)
+        return Promise.resolve({ status: "clean", rows: 0, evaluations: {} });
       const next = queue.then(() => run(payload));
       queue = next.catch(() => undefined);
       return next;

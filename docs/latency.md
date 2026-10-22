@@ -1,5 +1,23 @@
 # Latency: where a solve's time goes
 
+## Reliability update — October 15, 2026
+
+The rational-table validator now accepts complete plain, Markdown and numeric
+LaTeX table layouts without an unnecessary correction call. Its preferred fresh
+method fits both coefficients with one bracket regression (three rows total).
+The first streamed result no longer awaits the initial telemetry flush, removing
+a wait previously capped at two seconds. Model effort and Desmos-first rescue
+remain unchanged; live model generation time was not rebenchmarked.
+
+Calculator and preflight now share an eager, retryable loader. Browser checks
+measured a ready graph at about 1.6 seconds on desktop and 0.94 seconds on phone
+in the development harness; these are not production/network guarantees.
+Returning through client navigation made no additional script request. Simulated
+script failures recovered automatically or through Retry calculator, retaining
+the generated result and explanation with no repeated solve. Five browser
+scenarios used the real Desmos engine and zero paid model calls; details and
+screenshots are in [the reliability report](solver-reliability-2026-10-15/README.md).
+
 Everything here was measured, and every number says what it was measured on.
 Live model latency could not be re-measured in the session that wrote this
 (no `OPENAI_API_KEY` in that environment), so model-side numbers come from
@@ -42,7 +60,7 @@ Findings:
 4. **The Desmos rescue trades latency for strategy quality on a minority of
    solves.** It adds one candidates call (~9–15 s) only when a math-heavy
    default stands because a cheaper Desmos technique was rejected for a slip:
-   5–10% of recorded runs. `DESMO_DESMOS_RESCUE=off` turns it off for A/B.
+   5–10% of recorded runs. `SOLVEPLOT_DESMOS_RESCUE=off` turns it off for A/B.
 
 ## Input size (measured, `npm run bench:prompt`)
 
@@ -91,14 +109,14 @@ never waits on storage.
   calculator rows.
 - **Browser timing** (`src/lib/client-timing.ts`): per solve, ms to response
   headers, `methods`, rows shown after pre-flight, and the explanation, plus
-  the server stages, on `window.__desmoTimings` (logged in development).
+  the server stages, on `window.__solveplotTimings` (logged in development).
 - **Benchmark** (`npm run bench:solver`): first-useful and complete p50/p75/p95,
   per-stage p50/p95, and mean input/cached/output/reasoning tokens per solve.
 
 ## Recommended experiments (run with the benchmark; adopt only if accuracy and strategy quality hold)
 
 1. Re-measure the current prompt (`npm run bench:solver -- current`), then
-   `DESMO_DESMOS_RESCUE=off` to price the rescue.
+   `SOLVEPLOT_DESMOS_RESCUE=off` to price the rescue.
 2. Output tokens drive latency: compare `OPENAI_MODEL` candidates the account
    can use, at the same reasoning effort, on accuracy and gold-strategy rate.
    README notes `minimal` effort was ~2× faster but answered r+s wrongly, so
