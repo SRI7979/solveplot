@@ -1,6 +1,6 @@
 # Search setup for SolvePlot
 
-Updated October 28, 2026 after the authorized production release. The SEO changes are live at `https://solveplot.com` (release commit `079fea7`). No Search Console or Bing account has been registered or verified by this work. No sitemap or indexing request has been submitted. All steps below are free; do not buy a search package or analytics upgrade for this setup.
+Updated October 29, 2026 after the authorized production branding release. The SEO and icon changes are live at `https://solveplot.com` (branding commit `fe2cc14`, following the guide release `079fea7`). No Search Console or Bing account has been registered or verified by this work. No sitemap or indexing request has been submitted by this work. All steps below are free; do not buy a search package or analytics upgrade for this setup.
 
 ## 1. Review the live update
 
@@ -47,7 +47,7 @@ Submit `https://solveplot.com/sitemap.xml` under Sitemaps and check read/errors.
 
 ### Brand and favicon follow-up, October 29
 
-After the branding release is verified, use Google URL Inspection on `https://solveplot.com/`: run Test live URL, check the intended canonical, and request indexing once. The homepage references the official favicon, square PNGs, and Apple touch icon. `/favicon.ico` includes 16, 32, 48, and 64px frames; `/icons/solveplot-96.png` is a larger square search icon. These URLs are stable. Favicons do not need separate sitemap entries.
+The branding release is verified live. Use Google URL Inspection on `https://solveplot.com/`: run Test live URL, check the intended canonical, and request indexing once. The homepage references the official favicon, square PNGs, and Apple touch icon. `/favicon.ico` includes 16, 32, 48, and 64px frames; `/icons/solveplot-96.png` is a larger square search icon. These URLs are stable. Favicons do not need separate sitemap entries. The [branding release note](https://solveplot.com/updates/solveplot-search-branding) describes the published change.
 
 Google must recrawl and process the homepage and icon before a search-result icon can change. A compliant icon is not guaranteed to appear, and processing can take days to weeks. [Google's favicon guidance](https://developers.google.com/search/docs/appearance/favicon-in-search) explains the distinction. Do not keep changing the icon URL or repeatedly requesting indexing while waiting.
 

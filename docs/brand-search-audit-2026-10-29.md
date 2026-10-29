@@ -1,6 +1,6 @@
 # SolvePlot search branding, October 29, 2026
 
-Scope: a narrow release from the current production source. Existing unpublished dark-default/button edits and unrelated research remain intact in the main checkout and outside this release. No paid model inference, search-account registration, DNS changes, or search-result guarantees are part of this work. Deployment and final live checks are pending at this revision.
+Scope: a narrow release from the current production source, now deployed and verified below. Existing unpublished dark-default/button edits and unrelated research remain intact in the main checkout and outside this release. No paid model inference, search-account registration, DNS changes, or search-result guarantees are part of this work.
 
 ## Reproduced before-state
 
@@ -33,3 +33,14 @@ Primary references: [Next.js icon conventions](https://nextjs.org/docs/app/api-r
 The isolated release passes **696 application tests**, full ESLint, TypeScript, production build, the dated release-note check, and the client-secret audit. The full HTTP search audit passes 37 routes, two resources, and 21 crawler-user-agent probes. The branding audit finds seven correctly referenced head icons, ten working icon/manifest/share assets, and 33 successful Googlebot/Googlebot-Image/bingbot requests. ICO frames and PNG dimensions/pixels are verified, not merely filename extensions. All 37 server trace manifests exclude environment files, local debug/research, and private evaluation captures.
 
 A fresh signed-out browser runs the existing bundled sample, loads working Desmos entries, shows the checked 248 readout, and opens sign-in when saving. No paid model request occurs. This is a rendering/auth regression check, not a new authenticated model solve or accuracy benchmark. Deployment/live results remain pending until recorded below.
+
+## Production verification
+
+Commit `fe2cc14` was deployed through the existing Vercel CLI workflow to `dpl_4Eeue2rrvUNwomFiACXfUAbNPiEk` (`https://solveplot-rd0zmhqum-sri7979.vercel.app`), confirmed Ready and aliased to `https://solveplot.com`. The preceding `dpl_F9oed5VsPaZUmhEnkrbRLz5YZXNU` remains available as the rollback target. Live checks pass; no rollback was needed.
+
+- The live homepage includes seven icon head tags and a manifest link, consistent SolvePlot title/site-name metadata, the intended canonical, WebSite alternative name `solveplot.com`, and the dimensioned official Organization logo. No unconfirmed social profiles were added.
+- All ten icon/manifest/share resources return 200. Nine logo/icon/share binaries match the release byte for byte. The favicon includes four actual PNG-backed ICO frames; public PNGs are square and Apple/share dimensions remain 180×180 / 1200×630.
+- All 33 Googlebot, Googlebot-Image, and bingbot homepage/asset requests pass. The full live search audit passes 37 routes, robots/sitemap, and 21 further public-page user-agent requests; it preserves anonymous solver indexability and private-page exclusions. Auth-cookie solver responses remain noindex/private-no-store, and signed-out solve/tricks/progress API requests return 401 with noindex.
+- A fresh signed-out production browser loads the working bundled Desmos sample and checked 248 readout, with no page exceptions or paid model request. Saving opens sign-in. The new public release note loads successfully and appears in the live sitemap.
+
+Evidence: `.solveplot-debug/brand-release-20261029/`. These results verify the deployed resources and normal HTTP accessibility, not Google's current favicon choice, real crawler-IP/firewall access, Google/Bing index membership, brand-query ranking, or a search-account owner status. Those external decisions remain unverified. Follow the owner instructions in `docs/search-console-setup.md` for homepage recrawl/indexing requests and Bing diagnostics.
