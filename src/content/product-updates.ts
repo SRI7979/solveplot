@@ -9,10 +9,24 @@ export type ProductUpdate = {
   metrics?: readonly { value: string; label: string }[];
   link?: { href: string; label: string };
   comparison?: "luna-single-problem";
-  visual: "solver" | "lesson" | "free" | "tabs" | "progress" | "catalog" | "loading" | "benchmark" | "guides";
+  visual: "solver" | "lesson" | "free" | "tabs" | "progress" | "catalog" | "loading" | "benchmark" | "guides" | "brand";
 };
 
 export const PRODUCT_UPDATES: readonly ProductUpdate[] = [
+  {
+    id: "solveplot-search-branding",
+    date: "2026-10-29",
+    category: "Workspace",
+    title: "The SolvePlot icon across browsers and search",
+    summary: "Our existing logo now has dedicated browser icons and a web manifest, with clearer site-name metadata.",
+    changes: [
+      "Added a multi-size favicon and square PNG icons using the existing SolvePlot artwork. The Apple touch icon and sharing image stay available.",
+      "The site-name metadata consistently identifies SolvePlot and solveplot.com, with a larger official logo for search engines to read.",
+      "These changes help search engines recognize the site. Displaying the logo, indexing pages, and choosing search positions remain their decisions.",
+    ],
+    visual: "brand",
+    link: { href: "/", label: "Open SolvePlot" },
+  },
   {
     id: "public-desmos-guides",
     date: "2026-10-28",

@@ -21,6 +21,16 @@ export function isIndexableDeployment(environment = process.env.VERCEL_ENV): boo
 export const SITE_METADATA = {
   metadataBase: new URL(SITE_ORIGIN),
   applicationName: BRAND.name,
+  icons: {
+    icon: [
+      { url: "/icons/solveplot-96.png", sizes: "96x96", type: "image/png" },
+      { url: "/icons/solveplot-48.png", sizes: "48x48", type: "image/png" },
+      { url: "/icons/solveplot-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icon.svg", sizes: "any", type: "image/svg+xml" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
+  },
   description: SITE_DESCRIPTION,
   robots: { index: isIndexableDeployment(), follow: isIndexableDeployment() },
   openGraph: {
@@ -62,13 +72,22 @@ export const PRODUCT_STRUCTURED_DATA = {
       "@id": `${SITE_ORIGIN}/#organization`,
       name: BRAND.name,
       url: SITE_ORIGIN,
-      logo: { "@type": "ImageObject", url: `${SITE_ORIGIN}/apple-icon.png` },
+      logo: {
+        "@type": "ImageObject",
+        "@id": `${SITE_ORIGIN}/#logo`,
+        url: `${SITE_ORIGIN}/icons/solveplot-512.png`,
+        contentUrl: `${SITE_ORIGIN}/icons/solveplot-512.png`,
+        width: 512,
+        height: 512,
+        caption: BRAND.name,
+      },
     },
     {
       "@type": "WebSite",
       "@id": `${SITE_ORIGIN}/#website`,
       url: SITE_ORIGIN,
       name: BRAND.name,
+      alternateName: BRAND.domain,
       description: SITE_DESCRIPTION,
       inLanguage: "en-US",
       publisher: { "@id": `${SITE_ORIGIN}/#organization` },

@@ -14,6 +14,13 @@ const screenshots = {
 } as const;
 
 export function UpdateVisual({ kind }: { kind: ProductUpdate["visual"] }) {
+  if (kind === "brand") return <figure className={styles.visual}>
+    <div className={styles.chart}>
+      <div className={styles.chartHeading}><strong>SolvePlot</strong><span>The existing official icon</span></div>
+      <Image src="/icons/solveplot-192.png" alt="SolvePlot's blue graph mark on its existing rounded square background" width={96} height={96} />
+    </div>
+    <figcaption>The same SolvePlot artwork, now provided in square PNG sizes and a multi-size browser favicon.</figcaption>
+  </figure>;
   if (kind === "benchmark") return <figure className={styles.visual}>
     <div className={styles.chart} role="img" aria-label="Single-request completion times: Sol Low 6.006 seconds, Luna Low 6.819 seconds, Luna Medium 9.764 seconds, Mini Low 17.322 seconds. Mini's answer was incorrect.">
       <div className={styles.chartHeading}><strong>Same problem. Four requests.</strong><span>Request completion time · seconds</span></div>

@@ -45,6 +45,18 @@ Open [Bing Webmaster Tools](https://www.bing.com/webmasters/). If Google verific
 
 Submit `https://solveplot.com/sitemap.xml` under Sitemaps and check read/errors. Inspect the homepage and guides with Bing's URL Inspection and Site Explorer. [Bing's setup help](https://www.bing.com/webmasters/help/add-and-verify-site-12184f8b) covers the account steps. If an AI Performance report is available in the account, it measures citations on supported Microsoft surfaces, not all ChatGPT usage or customer conversions.
 
+### Brand and favicon follow-up, October 29
+
+After the branding release is verified, use Google URL Inspection on `https://solveplot.com/`: run Test live URL, check the intended canonical, and request indexing once. The homepage references the official favicon, square PNGs, and Apple touch icon. `/favicon.ico` includes 16, 32, 48, and 64px frames; `/icons/solveplot-96.png` is a larger square search icon. These URLs are stable. Favicons do not need separate sitemap entries.
+
+Google must recrawl and process the homepage and icon before a search-result icon can change. A compliant icon is not guaranteed to appear, and processing can take days to weeks. [Google's favicon guidance](https://developers.google.com/search/docs/appearance/favicon-in-search) explains the distinction. Do not keep changing the icon URL or repeatedly requesting indexing while waiting.
+
+In Bing, use the existing verified property if available, or import the verified Google property / complete Bing's DNS verification. Submit the live sitemap, inspect the homepage, and request indexing where offered. Read the reported crawl/indexing reason if it remains absent. Public HTTP and crawler-user-agent checks cannot reveal Bing's chosen canonical, last real crawl, indexing decision, or search positions; those need the owner dashboard. A domain-only search result also does not establish consistent ranking for the brand name.
+
+Only owner-confirmed official social profile URLs should be linked in `sameAs` or social-account metadata. The repository currently has no confirmed brand profiles; personal, third-party license, and similarly named accounts must not be substituted.
+
+IndexNow remains disabled for this release. Its [protocol](https://www.indexnow.org/documentation) requires a publicly retrievable verification-token file. No IndexNow token was generated, no credential was exposed, and no automated notification was submitted under the request to keep verification secrets private. Manual Bing Webmaster Tools submission remains available. A later opt-in could use a dedicated IndexNow-only proof, never an existing Google/Bing verification value, Supabase credential, or deployment token. Acceptance would still not prove indexing.
+
 ## 6. Review results without daily maintenance
 
 Before November 1: verify both properties, submit the sitemap, inspect the seven URLs, and confirm the app's existing Vercel Web Analytics dashboard is enabled. The production analytics script responds successfully; dashboard ownership and reporting still need your review. During November, set aside roughly 15 minutes each week:
