@@ -44,3 +44,9 @@ Commit `fe2cc14` was deployed through the existing Vercel CLI workflow to `dpl_4
 - A fresh signed-out production browser loads the working bundled Desmos sample and checked 248 readout, with no page exceptions or paid model request. Saving opens sign-in. The new public release note loads successfully and appears in the live sitemap.
 
 Evidence: `.solveplot-debug/brand-release-20261029/`. These results verify the deployed resources and normal HTTP accessibility, not Google's current favicon choice, real crawler-IP/firewall access, Google/Bing index membership, brand-query ranking, or a search-account owner status. Those external decisions remain unverified. Follow the owner instructions in `docs/search-console-setup.md` for homepage recrawl/indexing requests and Bing diagnostics.
+
+## Follow-up: confirmed social profiles
+
+The owner subsequently confirmed the exact Instagram, YouTube channel, and TikTok URLs. Commit `86b4c59` puts them in one `BRAND.socialProfiles` list used by the homepage footer and Organization `sameAs`, and adds a dated release note. No X/Twitter identity is inferred. Third-party automated profile inspection was throttled/unavailable, so ownership is owner-confirmed rather than independently certified; the published URLs match the owner's input exactly.
+
+The isolated follow-up passes 696 tests, lint, typecheck, production build, release-note check, and client-secret audit. Vercel deployment `dpl_Fg6RtZ16fUxkjoK2xt8rUfKt8kNd` is Ready and aliased to solveplot.com. Live checks confirm all three exact footer anchors and JSON-LD values, the new note and sitemap entry, 38 route checks, 21 crawler-user-agent checks, mobile/desktop layout, and the working guest sample with zero paid requests or page exceptions. Unrelated local theme/button work remains outside the release. Evidence is `.solveplot-debug/social-profiles-20261029/`. Search engines' processing and the profiles' website-link fields remain external follow-up work.

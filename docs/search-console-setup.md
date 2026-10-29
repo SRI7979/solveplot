@@ -1,6 +1,6 @@
 # Search setup for SolvePlot
 
-Updated October 29, 2026 after the authorized production branding release. The SEO and icon changes are live at `https://solveplot.com` (branding commit `fe2cc14`, following the guide release `079fea7`). No Search Console or Bing account has been registered or verified by this work. No sitemap or indexing request has been submitted by this work. All steps below are free; do not buy a search package or analytics upgrade for this setup.
+Updated October 29, 2026 after the authorized production branding releases. The SEO, icon, and confirmed social-profile changes are live at `https://solveplot.com` (profiles `86b4c59`, icons `fe2cc14`, following the guide release `079fea7`). No Search Console or Bing account has been registered or verified by this work. No sitemap or indexing request has been submitted by this work. All steps below are free; do not buy a search package or analytics upgrade for this setup.
 
 ## 1. Review the live update
 
