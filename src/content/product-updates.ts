@@ -14,6 +14,19 @@ export type ProductUpdate = {
 
 export const PRODUCT_UPDATES: readonly ProductUpdate[] = [
   {
+    id: "official-solveplot-profiles",
+    date: "2026-10-29",
+    category: "Workspace",
+    title: "Find SolvePlot on Instagram, YouTube, and TikTok",
+    summary: "The homepage footer now links to our three official social profiles.",
+    changes: [
+      "Added the owner-confirmed Instagram, YouTube channel, and TikTok links to the footer.",
+      "The same exact profile URLs are included in SolvePlot's organization metadata, connecting the website to its official accounts.",
+    ],
+    visual: "brand",
+    link: { href: "/", label: "Open SolvePlot" },
+  },
+  {
     id: "solveplot-search-branding",
     date: "2026-10-29",
     category: "Workspace",

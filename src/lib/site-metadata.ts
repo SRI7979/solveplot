@@ -72,6 +72,7 @@ export const PRODUCT_STRUCTURED_DATA = {
       "@id": `${SITE_ORIGIN}/#organization`,
       name: BRAND.name,
       url: SITE_ORIGIN,
+      sameAs: BRAND.socialProfiles.map(profile => profile.href),
       logo: {
         "@type": "ImageObject",
         "@id": `${SITE_ORIGIN}/#logo`,

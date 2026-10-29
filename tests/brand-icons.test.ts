@@ -43,7 +43,7 @@ test("public PNG icons match their dimensions and preserve the official artwork;
   assert.equal(social.height, 630);
 });
 
-test("manifest, homepage metadata and structured data use one consistent brand without unverified social profiles", () => {
+test("manifest, homepage metadata and structured data use one brand and the owner-confirmed social profiles", () => {
   const app = manifest();
   assert.equal(app.name, BRAND.name);
   assert.equal(app.short_name, BRAND.name);
@@ -60,5 +60,11 @@ test("manifest, homepage metadata and structured data use one consistent brand w
   assert.equal(website.alternateName, BRAND.domain);
   assert.equal(website.url, SITE_ORIGIN);
   assert.equal(organization.logo?.url, `${SITE_ORIGIN}/icons/solveplot-512.png`);
-  assert.ok(!("sameAs" in organization), "only owner-confirmed profile URLs may be added");
+  const officialProfiles = [
+    "https://www.instagram.com/solveplot/",
+    "https://www.youtube.com/channel/UCoKUGCYBftdoaTkxzgyPK_Q",
+    "https://www.tiktok.com/@solveplot",
+  ];
+  assert.deepEqual(BRAND.socialProfiles.map(profile => profile.href), officialProfiles);
+  assert.deepEqual(organization.sameAs, officialProfiles);
 });
