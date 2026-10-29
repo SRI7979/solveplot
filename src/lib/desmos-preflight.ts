@@ -1,6 +1,7 @@
-import { applyAnswerState, type RowEvaluation } from "./answer-consistency";
+import { applyAnswerState, numbersMatch, type RowEvaluation } from "./answer-consistency";
 import { normalizeDesmosExpressions } from "./desmos-latex";
-import type { AnswerState } from "./solver-schema";
+import type { AnswerState, SolutionResult } from "./solver-schema";
+import { isNumericResult } from "./result-contract";
 
 /**
  * Pre-flight: before any row reaches the student, the exact batch the visible
@@ -9,12 +10,12 @@ import type { AnswerState } from "./solver-schema";
  * solver-rules) catch known patterns cheaply; only the engine itself can say
  * "this row errors", so only a batch the engine reports fully clean is shown.
  *
- * This module is the environment-independent part: the payload both
- * calculators receive, how an analysis becomes a verdict, and the rank-order
+ * This module is the environment-independent part: explicit discovery and
+ * answer-check payloads, how an analysis becomes a verdict, and the rank-order
  * promotion rule. desmos-engine.ts runs it against a real calculator.
  */
 
-export const ROW_ID_PREFIX = "desmo_";
+export const ROW_ID_PREFIX = "solveplot_";
 const EXPRESSION_COLORS = ["#169ed5", "#8a5ce6", "#e78a29", "#229b6b"];
 
 type SliderBounds = { min: number; max: number; step: number };
@@ -31,15 +32,23 @@ export type CalculatorPayload = { key: string; items: CalculatorItem[] };
 
 type RowInput = { latex: string; slider?: SliderBounds | null };
 
-/**
- * Exactly what the visible calculator inserts: normalized LaTeX, the slider
- * moved to the answer state, and valid slider bounds. The hidden pre-flight
- * instance and the visible calculator both build their batch here, so what
- * was checked is, by construction, what is shown.
- */
-export function calculatorPayload(rows: readonly RowInput[], answerState: AnswerState | null | undefined): CalculatorPayload {
+/** Build an explicitly selected state. Hidden verification may use the answer
+ * state; visible teaching starts at the authored discovery state. */
+export function sliderDiscoveryRows<T extends RowInput>(rows: readonly T[], state: AnswerState | null | undefined): T[] {
+  if (!state) return [...rows];
+  return rows.map(row => {
+    const sides = row.latex.replace(/\s+/g, "").split("=");
+    if (!row.slider || sides[0] !== state.param || !numbersMatch(Number(sides[1]), state.value)) return row;
+    const {min,max,step} = row.slider;
+    const start = !numbersMatch(min,state.value) ? min : min + step;
+    return Number.isFinite(start) && start <= max && !numbersMatch(start,state.value)
+      ? {...row,latex:`${state.param}=${start}`} : row;
+  });
+}
+
+export function calculatorPayload(rows: readonly RowInput[], answerState: AnswerState | null | undefined, mode: "answer" | "discovery" = "answer"): CalculatorPayload {
   const normalized = normalizeDesmosExpressions(rows.map(({ latex, slider }) => ({ latex, purpose: "", ...(slider ? { slider } : {}) })));
-  const loaded = applyAnswerState(normalized, answerState);
+  const loaded = mode === "answer" ? applyAnswerState(normalized, answerState) : sliderDiscoveryRows(normalized, answerState);
   const items = loaded.map((row, index) => ({
     id: `${ROW_ID_PREFIX}${index + 1}`,
     latex: row.latex,
@@ -105,7 +114,25 @@ export type Checkable = {
   id: string;
   rows: ReadonlyArray<{ latex: string; slider: SliderBounds | null }>;
   answerState: AnswerState | null;
+  result?: SolutionResult | null;
 };
+
+/** Syntax acceptance is not readout agreement. Missing/graphical evaluations stay unverified.
+ * This compares only the declared readout, not the original problem's proof or constraints.
+ * Do not store it in the expression-only engine cache: identical rows can have different claims.
+ */
+export function checkMethodReadout(result: SolutionResult | null | undefined, verdict: PreflightVerdict): PreflightVerdict {
+  if (verdict.status !== "clean" || !result || !isNumericResult(result) || result.row === null || result.value === null || result.answerFrom === "reasoning") return verdict;
+  const evaluation = verdict.evaluations[result.row];
+  if (!evaluation) return verdict;
+  const observed = evaluation.type === "Number" && result.listIndex === null ? evaluation.value
+    : evaluation.type === "ListOfNumber" && result.listIndex !== null ? evaluation.value[result.listIndex - 1] : undefined;
+  if (observed !== undefined && Number.isFinite(observed) && numbersMatch(observed, result.value)) return verdict;
+  return {
+    status: "error", rows: verdict.rows,
+    errors: [{ row: result.row, message: `The calculator readout ${observed === undefined ? "has a different shape or missing list entry" : `is ${observed}`} instead of the claimed ${result.value}. This method needs correction.` }],
+  };
+}
 
 export type PreflightRun<M> = {
   verdicts: Map<string, PreflightVerdict>;
@@ -138,11 +165,12 @@ export async function preflightInRankOrder<M extends Checkable>(
   for (const method of methods) {
     if (options.isCancelled?.()) break;
     const trusted = method.rows.length === 0 || Boolean(options.trusted?.(method));
-    const verdict = method.rows.length === 0
+    const engineVerdict = method.rows.length === 0
       ? emptyVerdict()
       : trusted
         ? ({ status: "clean", rows: method.rows.length, evaluations: {} } as const)
         : await check(calculatorPayload(method.rows, method.answerState));
+    const verdict = checkMethodReadout(method.result, engineVerdict);
     if (options.isCancelled?.()) break;
     verdicts.set(method.id, verdict);
     options.onVerdict?.(method, verdict, !trusted);

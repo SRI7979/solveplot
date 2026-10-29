@@ -488,6 +488,35 @@ function describeReadout(
     : `${shows}; the answer is ${answer}.`;
 }
 
+/**
+ * A filtered list of original choice numbers may display [2] as its first
+ * entry, meaning choice B rather than choice A. The source may be written
+ * inline or assigned to a single Desmos variable on an earlier row. Verify
+ * that source is exactly 1..N; other filtered lists can contain choice values.
+ */
+function isFilteredChoiceIndexList(
+  latex: string,
+  choiceCount: number,
+  priorRows: readonly { latex: string }[] = [],
+): boolean {
+  const compact = latex.replace(/\\(?:left|right)/g, "").replace(/\s+/g, "");
+  const isChoiceNumbers = (source: string) => {
+    if (source === `[1...${choiceCount}]`) return true;
+    const explicit = /^\[([\d,]+)\]$/.exec(source);
+    const numbers = explicit?.[1].split(",").map(Number);
+    return numbers?.length === choiceCount && numbers.every((value, index) => value === index + 1);
+  };
+  const inline = /^(\[[^\]]+\])\[/.exec(compact);
+  if (inline) return isChoiceNumbers(inline[1]);
+  const named = /^([A-Za-z](?:_\{[^{}]+\}|_\d+)?)\[/.exec(compact);
+  if (!named) return false;
+  for (let index = priorRows.length - 1; index >= 0; index -= 1) {
+    const row = priorRows[index].latex.replace(/\\(?:left|right)/g, "").replace(/\s+/g, "");
+    if (row.startsWith(`${named[1]}=`)) return isChoiceNumbers(row.slice(named[1].length + 1));
+  }
+  return false;
+}
+
 /** The choice or value the readout selects. Throws when nothing matches. */
 function deriveAnswer(
   result: SolutionResult,
@@ -559,6 +588,18 @@ function deriveAnswer(
     return { answer: formatChoice(selected), choice: selected };
   }
 
+  if (result.answerFrom === "choice_index") {
+    if (!choices || result.value === null || !Number.isInteger(result.value) ||
+        result.value < 1 || result.value > choices.length) {
+      throw new AnswerConsistencyError("The filtered list must display an original answer-choice number.");
+    }
+    const selected = choices[result.value - 1];
+    if (claimed && claimed.label !== selected.label) {
+      repairs.push(`Line ${result.row} displays choice number ${result.value}, choice ${selected.label}, not ${claimed.label}.`);
+    }
+    return { answer: formatChoice(selected), choice: selected };
+  }
+
   // "reasoning", or a value-based readout the model could not reduce to one
   // number (an intersection it reads by clicking): the letter must be valid.
   if (choices) {
@@ -583,6 +624,8 @@ export function deriveConsistentSolution(input: {
   answer: string;
   readAnswer: string;
   expressionCount: number;
+  /** Supplied rows allow the filtered-index list to be distinguished from an aligned choice list. */
+  expressions?: readonly { latex: string }[];
   /** The question asks for an estimate (isApproximationQuestion): the nearest clear choice is its answer. */
   approximate?: boolean;
   /** The question asks for a whole number (isWholeNumberQuestion). */
@@ -601,6 +644,20 @@ export function deriveConsistentSolution(input: {
   // detail is prose the student reads ("r + s", "a + b"); it is never LaTeX.
   try { result = { ...result, detail: sanitizeProse(result.detail.trim(), "result.detail") }; }
   catch (error) { if (error instanceof ProseLatexError) throw new AnswerConsistencyError(error.message, "prose_text"); throw error; }
+  const resultLatex = result.row !== null ? input.expressions?.[result.row - 1]?.latex : undefined;
+  const priorRows = result.row !== null ? input.expressions?.slice(0, result.row - 1) : undefined;
+  if (result.answerFrom === "choice_index" &&
+      (!choices || !resultLatex || !isFilteredChoiceIndexList(resultLatex, choices.length, priorRows))) {
+    throw new AnswerConsistencyError("A choice-index readout requires a filtered [1...N] choice-number list.");
+  }
+  if (
+    result.answerFrom === "choice_position" && result.listIndex !== null &&
+    result.value !== null && choices && resultLatex &&
+    isFilteredChoiceIndexList(resultLatex, choices.length, priorRows)
+  ) {
+    result = { ...result, answerFrom: "choice_index" };
+    repairs.push(`Line ${result.row} filters original choice numbers; entry ${result.listIndex} displays choice number ${result.value}.`);
+  }
   // "Entry 3 of the list is 0" names a position, not a value, even when the
   // model labels it answerFrom "value": the zero selects choice 3.
   if (
@@ -783,7 +840,7 @@ export function validateAnswerState(
 
 /**
  * Overrides the slider row's own written value with the answer's value, so
- * the calculator opens already at the answer instead of at whatever
+ * the hidden verification calculator checks the target instead of whatever
  * non-answer starting point the row's own latex declared. Every other row is
  * untouched; the model's original latex is kept for the written explanation.
  */
@@ -819,12 +876,18 @@ function observedValue(
  * from the calculator's number so the student never sees a stale letter.
  */
 export function reconcileWithCalculator(
-  solution: Pick<Solution, "choices" | "result" | "answer" | "expressions">,
+  solution: Pick<Solution, "choices" | "result" | "answer" | "expressions"> & Partial<Pick<Solution, "answerState">>,
   evaluation: RowEvaluation | null | undefined,
 ): CalculatorCheck {
   const result = solution.result;
+  // A live exploratory state can legitimately differ from the answer. A scalar
+  // evaluation alone cannot establish that the slider condition was reached.
   if (!result || !evaluation || !isNumericResult(result) || result.row === null || result.answerFrom === "reasoning" || result.value === null) {
     return { status: "unverified" };
+  }
+  if (solution.answerState) {
+    const observed = observedValue(result, evaluation);
+    if (observed === null || !numbersMatch(observed, result.value)) return { status: "unverified" };
   }
   // A slider row (b=1) shows wherever the student dragged it, not the answer.
   const row = solution.expressions[result.row - 1];
@@ -835,8 +898,14 @@ export function reconcileWithCalculator(
   } catch {
     return { status: "unverified" };
   }
+  // Old saved solutions may still carry the positional label from before the
+  // server distinguished a filtered index list from an aligned choice list.
+  const filteredChoiceIndices = Boolean(
+    choices && row && result.listIndex !== null &&
+    isFilteredChoiceIndexList(row.latex, choices.length, solution.expressions.slice(0, result.row - 1)),
+  );
 
-  if (result.answerFrom === "choice_position") {
+  if (result.answerFrom === "choice_position" && !filteredChoiceIndices) {
     if (evaluation.type !== "ListOfNumber" || result.value === null || !choices) {
       return { status: "unverified" };
     }
@@ -863,6 +932,30 @@ export function reconcileWithCalculator(
       answer,
       readAnswer: describeReadout(corrected, matches[0].entry, answer, selected),
       message: `Desmos shows ${formatNumber(result.value)} at entry ${matches[0].index} of line ${result.row}. That is choice ${answer}, not the stated ${solution.answer}.`,
+    };
+  }
+
+  if (result.answerFrom === "choice_index" || filteredChoiceIndices) {
+    if (evaluation.type !== "ListOfNumber" || !choices || result.listIndex === null) {
+      return { status: "unverified" };
+    }
+    const observed = evaluation.value[result.listIndex - 1];
+    if (!Number.isInteger(observed) || observed < 1 || observed > choices.length) {
+      return { status: "unverified" };
+    }
+    const selected = choices[observed - 1];
+    const answer = formatChoice(selected);
+    if (observed === result.value && answer === solution.answer) {
+      return {
+        status: "verified", observed,
+        message: `Desmos confirms entry ${result.listIndex} of line ${result.row} displays choice number ${observed}.`,
+      };
+    }
+    const corrected = { ...result, value: observed, choiceLabel: selected.label };
+    return {
+      status: "contradicted", observed, answer,
+      readAnswer: describeReadout(corrected, observed, answer, selected),
+      message: `Desmos shows choice number ${observed} at entry ${result.listIndex} of line ${result.row}. That is choice ${answer}, not the stated ${solution.answer}.`,
     };
   }
 

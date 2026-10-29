@@ -1,0 +1,34 @@
+.explorer { overflow:hidden; margin:28px auto 0; border:1px solid var(--learn-accent-border); border-radius:20px; background:var(--paper); }
+.ruleHeading { display:grid; justify-items:center; gap:9px; padding:27px 24px 0; font-size:29px; }
+.ruleHeading > span:last-child { color:var(--muted); font-size:12px; }
+.visual { display:grid; grid-template-columns:1fr 1fr; align-items:center; gap:20px; padding:17px 24px 18px; }
+.machine { display:grid; grid-template-columns:1fr 16px 50px 16px 1fr; align-items:center; gap:9px; }
+.value { display:grid; justify-items:center; gap:13px; }
+.value > span { color:var(--muted); font-size:12px; font-weight:500; }
+.value > strong { display:grid; place-items:center; width:66px; height:72px; border:1px solid var(--selection-border); border-radius:15px; color:var(--selection-accent); background:var(--selection-soft); font-size:33px; font-weight:600; font-variant-numeric:tabular-nums; letter-spacing:-.04em; animation:number-enter 190ms ease-out; }
+.value[data-output] > strong { color:var(--learn-accent); background:var(--learn-accent-soft); border-color:var(--learn-accent-border); }
+.arrow { margin-top:30px; color:var(--subtle); }
+.operations { display:grid; gap:9px; margin-top:31px; }
+.operations > span { display:grid; place-items:center; min-height:31px; border:1px solid var(--border); border-radius:8px; color:var(--foreground); font-size:12px; font-weight:550; }
+.plot { display:block; width:100%; overflow:visible; }
+.grid line { stroke:var(--border); stroke-width:.75; }
+.axes { fill:none; stroke:var(--subtle); stroke-width:1.2; }
+.labels { fill:var(--muted); font:11px var(--font-sans); }
+.line { fill:none; stroke:var(--learn-accent); stroke-width:2.5; stroke-linecap:round; stroke-dasharray:330; animation:draw-line 650ms ease-out both; }
+.guides { fill:none; stroke:var(--learn-accent); stroke-width:1; stroke-dasharray:4 4; opacity:.5; }
+.point { fill:var(--learn-accent-strong); stroke:var(--paper); stroke-width:2.5; transition:cx 220ms ease-out,cy 220ms ease-out; }
+.halo { fill:var(--learn-glow); transition:cx 220ms ease-out,cy 220ms ease-out; }
+.pointLabel { transition:transform 220ms ease-out; }.pointLabel rect { fill:var(--paper); stroke:var(--border); }.pointLabel text { fill:var(--foreground); font:12px var(--font-sans); }
+.controls { padding:20px 27px 26px; border-top:1px solid var(--border); background:var(--surface); }
+.controls label { display:flex; align-items:center; justify-content:space-between; gap:20px; margin-bottom:24px; color:var(--foreground); font-size:13px; font-weight:550; }
+.controls label > span { color:var(--learn-accent); font-size:19px; }
+.range { display:flex; align-items:center; gap:17px; color:var(--subtle); font-size:12px; }
+.range input { appearance:none; flex:1; min-width:0; height:7px; border:0; border-radius:999px; background:linear-gradient(to right,var(--learn-accent-strong) var(--range-progress),var(--border) var(--range-progress)); cursor:ew-resize; }
+.range input::-webkit-slider-thumb { appearance:none; width:23px; height:23px; border:3px solid var(--paper); border-radius:50%; background:var(--learn-accent-strong); box-shadow:0 0 0 1px var(--learn-accent-border),0 2px 6px #0002; transition:box-shadow 150ms; }
+.range input::-moz-range-thumb { width:17px; height:17px; border:3px solid var(--paper); border-radius:50%; background:var(--learn-accent-strong); box-shadow:0 0 0 1px var(--learn-accent-border); }
+.range input:hover::-webkit-slider-thumb { box-shadow:0 0 0 var(--learn-hover-spread) var(--learn-hover-glow),0 2px 6px #0002; }
+.range input:focus-visible { outline:2px solid var(--learn-accent); outline-offset:8px; }
+@keyframes number-enter { from { opacity:.6; transform:translateY(3px); } to { opacity:1; transform:translateY(0); } }
+@keyframes draw-line { from { stroke-dashoffset:330; } to { stroke-dashoffset:0; } }
+@media(max-width:700px) { .visual { grid-template-columns:1fr; gap:5px; padding-inline:26px; }.machine { max-width:330px; width:100%; margin:15px auto 0; }.plot { max-width:320px; margin:0 auto; }.ruleHeading { padding-top:24px; font-size:27px; }.controls { padding-inline:22px; }.controls label > span { font-size:17px; } }
+@media(prefers-reduced-motion:reduce) { .explorer * { animation:none!important; transition:none!important; } }

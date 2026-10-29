@@ -120,9 +120,9 @@ test("regression test 6: badges discriminate: the winner shows only Recommended,
   const formula = rankable("quadratic-formula", { rows: 0, ...none, derivationSteps: 4, oneOffFacts: 1 }, 2);
   const ranked = [formula, slider, discriminant, vertex, derivative].sort(compareMethods);
   const badges = assignBadges(ranked);
-  assert.equal(ranked[0].id, "vertex-of-difference");
+  assert.equal(ranked[0].id, "slider-condition", "zero student math precedes the shorter derived vertex method");
   assertBadgesDiscriminate(ranked, badges);
-  assert.deepEqual(badges.get("slider-condition"), ["Least math"], "no derivation and no memorized fact");
+  assert.deepEqual(badges.get("slider-condition"), ["Recommended"], "no derivation and no memorized fact");
   assert.deepEqual(badges.get("derivative-regression"), ["Most Desmos"], "the highest rung among calculator methods");
   assert.deepEqual(badges.get("quadratic-formula"), ["Most algebra"], "the most written steps");
   assert.deepEqual(badges.get("discriminant"), []);
@@ -135,8 +135,8 @@ test("regression test 6: a badge the winner would lead is suppressed, not handed
   const ranked = [cheapest, leastMath, paper].sort(compareMethods);
   const badges = assignBadges(ranked);
   assertBadgesDiscriminate(ranked, badges);
-  // Least math: graph-both-sides and parameter-regression tie at 0; the lower-cost one is the winner, so it is suppressed.
-  assert.deepEqual(badges.get("parameter-regression"), ["Most Desmos"]);
+  // One graph plus one interaction is less work than three equally mathematical rows.
+  assert.deepEqual(badges.get("graph-both-sides"), ["Recommended"]);
   // Fewest steps: substitution's 2 ties graph-both-sides' 1 row + 1 drag; the winner is lower-cost, so suppressed.
   assert.deepEqual(badges.get("substitution"), ["Most algebra"]);
 });
@@ -152,13 +152,13 @@ test("regression test 6: an unbreakable tie awards no one, and a method leading 
   assert.deepEqual(tiedBadges.get("elimination"), []);
   assert.deepEqual(tiedBadges.get("substitution"), []);
 
-  // The short fit wins on total; the graph method leads both Least math and Most Desmos but shows one badge.
+  // The longer graph removes the mathematical fact; total cost cannot override that.
   const formula = rankable("derivative-regression", { rows: 1, ...none, oneOffFacts: 1 }, 2);
   const graph = rankable("intercept-read", { rows: 6, ...none }, 3);
   const split = [formula, graph].sort(compareMethods);
   const splitBadges = assignBadges(split);
   assertBadgesDiscriminate(split, splitBadges);
-  assert.deepEqual(splitBadges.get("intercept-read"), ["Least math"]);
+  assert.deepEqual(splitBadges.get("intercept-read"), ["Recommended"]);
   // A math way never outranks a Desmos way, whatever its total.
   const paper = rankable("quadratic-formula", { rows: 0, ...none, oneOffFacts: 1 }, 2);
   assert.deepEqual([paper, graph].sort(compareMethods).map((method) => method.id), ["intercept-read", "quadratic-formula"]);

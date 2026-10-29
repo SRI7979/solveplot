@@ -33,6 +33,8 @@ export function recordRun(item: ScorableCase, runIndex: number, outcome: { resul
     stages: trace?.stages,
     candidateOutputs: trace?.candidateOutputs,
     library: trace?.library,
+    retrieval: trace?.retrieval,
+    coverage: trace?.coverage,
   };
   if (outcome.error !== undefined || !outcome.result) {
     const message = outcome.error instanceof Error ? `${outcome.error.name}: ${outcome.error.message}` : String(outcome.error);
@@ -47,12 +49,25 @@ export function recordRun(item: ScorableCase, runIndex: number, outcome: { resul
   const legacy = CLASSIFIERS[item.id];
   const verdict = legacy ? legacy(result.solution) : null;
   const rubric = scoreExplanation(result.solution, item.problem);
+  const outputs = (trace?.candidateOutputs ?? []).map((entry) => {
+    const output = entry.output as { candidates?: unknown } | null;
+    return Array.isArray(output?.candidates)
+      ? output.candidates.filter((candidate) => candidate && typeof candidate === "object") as Array<{ techniqueId?: string; rows?: Array<{ latex?: string }> }>
+      : [];
+  });
+  const firstPassTechniques = (outputs[0] ?? []).flatMap((candidate) => typeof candidate.techniqueId === "string" ? [candidate.techniqueId] : []);
+  const sameRows = (rows: Array<{ latex?: string }> = []) => JSON.stringify(rows.map((row) => row.latex)) === JSON.stringify(result.method.rows.map((row) => row.latex));
   return {
     ...base,
     ok: true,
     answer: result.solution.answer,
     answerCorrect: answerMatches(result.solution.answer, item.correctAnswer, item.choices),
     winner,
+    discovery: {
+      firstPassTechniques,
+      rawGoldProposed: firstPassTechniques.some((id) => (item.gold as string[]).includes(id)),
+      selectedRowsInRawOutput: outputs.some((candidates) => candidates.some((candidate) => candidate.techniqueId === result.method.techniqueId && Array.isArray(candidate.rows) && sameRows(candidate.rows))),
+    },
     strategyClass: classifyStrategy(result.method.techniqueId, item),
     methods,
     goldListed: methods.some((method) => (item.gold as string[]).includes(method.techniqueId)),

@@ -15,35 +15,33 @@ import { candidatesResponseSchema } from "../src/lib/strategy-selection";
 import { explanationSchema } from "../src/lib/solve-cache";
 import { loadGoldSolutions } from "../src/lib/gold-solutions";
 import { buildCandidatePrompt, CANDIDATE_INSTRUCTIONS, EXPLANATION_INSTRUCTIONS, GOLD_SOLUTION_INSTRUCTIONS } from "../src/lib/solver-instructions";
-import { TECHNIQUE_ANNOTATION } from "../src/lib/technique-vocabulary";
+import { buildRetrievalIndex } from "../src/lib/strategy-retrieval";
 
 const tokens = (text: string) => encode(text).length;
 const library = await readFile(path.join(process.cwd(), "src/content/desmos-tricks.md"), "utf8");
 const gold = await loadGoldSolutions();
-const candidateSchema = JSON.stringify(zodTextFormat(candidatesResponseSchema, "desmo_candidates"));
-const explanationSchemaText = JSON.stringify(zodTextFormat(explanationSchema, "desmo_explanation"));
+const candidateSchema = JSON.stringify(zodTextFormat(candidatesResponseSchema, "solveplot_candidates"));
+const explanationSchemaText = JSON.stringify(zodTextFormat(explanationSchema, "solveplot_explanation"));
 
-// Library sections: the policy preamble, then one block per numbered strategy.
-const lines = library.split("\n");
-const strategyStarts = lines.flatMap((line, index) => (/^\d{1,2}\. \S/.test(line) && !/^\d\. [a-z_]/.test(line) ? [index] : []));
-const preamble = lines.slice(0, strategyStarts[0]).join("\n");
-const strategies = strategyStarts.map((start, index) => {
-  const body = lines.slice(start, strategyStarts[index + 1] ?? lines.length).join("\n");
-  const technique = body.split("\n").map((line) => TECHNIQUE_ANNOTATION.exec(line.trim())?.[1]).find(Boolean) ?? "(untagged)";
-  return { title: lines[start].slice(0, 70), technique, tokens: tokens(body) };
-});
+// Share the production parser: numbered safety rules are not extra strategies.
+const index = buildRetrievalIndex(library);
+const strategies = index.strategies.map(item => ({
+  title: `${item.number}. ${item.title}`.slice(0, 70),
+  technique: item.techniques.join(", ") || "(untagged)", tokens: tokens(item.body),
+}));
 
 const parts = {
   "candidate instructions (rules, cost model, syntax)": tokens(CANDIDATE_INSTRUCTIONS),
-  "strategy library: policy preamble": tokens(preamble),
+  "strategy library: policy preamble": tokens(index.preamble),
   "strategy library: numbered strategies": strategies.reduce((sum, item) => sum + item.tokens, 0),
+  "strategy library: global safety rules": tokens(index.footer),
   "gold-solution instructions": tokens(GOLD_SOLUTION_INSTRUCTIONS),
   "gold solutions": tokens(gold.prompt),
   "per-request user text": tokens(buildCandidatePrompt()),
   "candidates output schema (structured outputs)": tokens(candidateSchema),
 };
 const total = Object.values(parts).reduce((sum, value) => sum + value, 0);
-console.log("CALL 1 (candidates) input, excluding the image (~1,100-1,500 tokens at detail high for a 1600 px screenshot):\n");
+console.log("CALL 1 (candidates) input, excluding image tokens and API framing:\n");
 console.log("| Part | Tokens | Share |\n|---|---|---|");
 for (const [name, count] of Object.entries(parts)) console.log(`| ${name} | ${count} | ${((count / total) * 100).toFixed(1)}% |`);
 console.log(`| **total** | **${total}** | |`);

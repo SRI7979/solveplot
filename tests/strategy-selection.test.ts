@@ -4,6 +4,7 @@ import { test } from "node:test";
 import {
   candidatesResponseSchema,
   continuousInterval,
+  desmosRescueTarget,
   isRepresentationQuestion,
   questionCondition,
   questionIntegerParameters,
@@ -56,6 +57,30 @@ test("the model's own row count and totals are never trusted", () => {
   assert.equal(candidatesResponseSchema.safeParse({ ...candidatesResponse(), candidates: [{ ...graphCandidate(), cost: { ...zeroCost, rows: 1 } }] }).success, false, "rows is not a reportable cost");
 });
 
+test("a drawn polygon cannot masquerade as an area readout", () => {
+  const question = "Triangle ABC has vertices A(2,-3), B(2,5), and C(8,1). What is its area?";
+  const choices = ["16", "24", "32", "48"].map((text, index) => ({ label: "ABCD"[index], text }));
+  const result = { type: "numeric" as const, relatedRows: [], value: 24, listIndex: null, answerFrom: "value" as const, choiceLabel: "B", detail: "area" };
+  const polygon = graphCandidate({
+    techniqueId: "polygon-area",
+    rows: [
+      { latex: "\\operatorname{polygon}((2,-3),(2,5),(8,1))", slider: null, copiesRow: null },
+      { latex: "\\frac{1}{2}(5-(-3))(8-2)", slider: null, copiesRow: null },
+    ],
+    answer: "B) 24",
+    result: { ...result, row: 2 },
+  });
+  const formula = graphCandidate({
+    techniqueId: "reference-formula",
+    rows: [{ latex: "\\frac{1}{2}(5-(-3))(8-2)", slider: null, copiesRow: null }],
+    answer: "B) 24",
+    result: { ...result, row: 1 },
+  });
+  const selection = select(candidatesResponse([polygon, formula], { question, choices }));
+  assert.equal(selection.winnerId, "reference-formula");
+  assert.equal(selection.methods.find((method) => method.techniqueId === "polygon-area")?.rejected?.rule, "polygon-has-no-area-readout");
+});
+
 test("selection is identical whatever order the candidates arrive in", () => {
   const slider = graphCandidate({
     techniqueId: "slider-condition",
@@ -72,6 +97,40 @@ test("selection is identical whatever order the candidates arrive in", () => {
   const backward = select(candidatesResponse([slider, paperCandidate(), graphCandidate()]));
   assert.deepEqual(forward.methods.map((method) => method.id), backward.methods.map((method) => method.id));
   assert.equal(forward.winnerId, backward.winnerId);
+});
+
+test("an explicitly printed calculation needs no speculative Desmos rescue", () => {
+  const question = "What is 18(540)/(3^2)?";
+  const choices = ["$360", "$1,080", "$3,240", "$9,720"].map((text, index) => ({ label: "ABCD"[index], text }));
+  const calculation = graphCandidate({
+    techniqueId: "calculator-arithmetic",
+    rows: [{ latex: "18(540)/(3^2)", slider: null, copiesRow: null }],
+    answer: "B) $1,080",
+    result: { type: "numeric", row: 1, relatedRows: [], value: 1080, listIndex: null, answerFrom: "value", choiceLabel: "B", detail: "total cost" },
+    cost: { ...zeroCost, derivationSteps: 1 },
+  });
+  const input = { question, choices };
+  const direct = select(candidatesResponse([calculation], input));
+  assert.equal(direct.winnerId, "calculator-arithmetic");
+  assert.equal(desmosRescueTarget(direct), null);
+  const wordProblem = select(candidatesResponse([calculation], { ...input,
+    question: "A floor is 540 square feet. Carpet costs $18 per square yard, and 1 yard is 3 feet. What is the total cost?" }));
+  assert.ok(desmosRescueTarget(wordProblem), "literal numbers in a derived formula do not prove trivial setup");
+
+  const repairableGraph = graphCandidate({
+    techniqueId: "graph-both-sides",
+    rows: [{ latex: "Click the intersection to find the cost", slider: null, copiesRow: null }],
+    answer: "B) $1,080",
+    result: { type: "numeric", row: 1, relatedRows: [], value: 1080, listIndex: null, answerFrom: "value", choiceLabel: "B", detail: "total cost" },
+  });
+  const withRejectedDesmos = select(candidatesResponse([calculation, repairableGraph], input));
+  assert.equal(withRejectedDesmos.methods.find((method) => method.techniqueId === "graph-both-sides")?.rejected?.rule, "row-fails-to-insert");
+  assert.equal(desmosRescueTarget(withRejectedDesmos)?.candidates.length, 1,
+    "a Desmos method with a fixable contract slip still gets a rescue attempt");
+
+  const moreWork = graphCandidate({ ...calculation, cost: { ...zeroCost, derivationSteps: 2 } });
+  assert.ok(desmosRescueTarget(select(candidatesResponse([moreWork], input))),
+    "a calculation with nontrivial setup is still eligible for a better Desmos method");
 });
 
 test("regression test 5: two candidates with the same techniqueId → the costlier one is rejected", () => {
@@ -479,6 +538,176 @@ test("one identity-regression factorization cannot establish a maximum over inte
     result: { type: "numeric", row: 3, relatedRows: [], value: 47, listIndex: null, answerFrom: "value", choiceLabel: null, detail: "one fitted k" },
   });
   assert.throws(() => select(candidatesResponse([fit], { question, choices: null })), /unproven-extremum/);
+});
+
+test("one identity fit cannot prove a symbolic choice must be integer for every factorization", () => {
+  const question = "The expression 9x^2 - ax - 44, where a is a constant, can be rewritten as (bx + c)(x + d), where b, c, and d are integer constants. Which of the following must be an integer?";
+  const choices = [
+    { label: "A", text: "a/b" },
+    { label: "B", text: "a/d" },
+    { label: "C", text: "(a+c)/b" },
+    { label: "D", text: "a/c" },
+  ];
+  const fit = graphCandidate({
+    techniqueId: "identity-regression",
+    rung: 4,
+    rows: [
+      { latex: "x_{1}=[1...4]", slider: null, copiesRow: null },
+      { latex: "9x_{1}^2-ax_{1}-44\\sim(bx_{1}+c)(x_{1}+d)", slider: null, copiesRow: null },
+      { latex: "(a+c)/b", slider: null, copiesRow: null },
+    ],
+    answer: "C) (a+c)/b",
+    result: { type: "visual_choice", row: 3, relatedRows: [2], value: null, listIndex: null, answerFrom: "reasoning", choiceLabel: "C", detail: "(a+c)/b is an integer" },
+  });
+  const coefficientProof = paperCandidate({
+    techniqueId: "direct-arithmetic",
+    answer: "C) (a+c)/b",
+    result: { type: "written", row: null, relatedRows: [], value: null, listIndex: null, answerFrom: "reasoning", choiceLabel: "C", detail: "The x coefficient gives -a=bd+c, so (a+c)/b=-d, an integer." },
+    cost: { ...zeroCost, derivationSteps: 1 },
+  });
+  const illustrativeList = graphCandidate({
+    techniqueId: "integer-list-filter",
+    rows: [
+      { latex: "C=[-44,-22,-11,-4,-2,-1,1,2,4,11,22,44]", slider: null, copiesRow: null },
+      { latex: "D=-44/C", slider: null, copiesRow: null },
+      { latex: "b=9", slider: null, copiesRow: null },
+      { latex: "a_{1}=-(bD+C)", slider: null, copiesRow: null },
+      { latex: "(a_{1}+C)/b", slider: null, copiesRow: null },
+    ],
+    answer: "C) (a+c)/b",
+    result: { type: "written", row: 5, relatedRows: [1, 2, 3, 4], value: null, listIndex: null, answerFrom: "reasoning", choiceLabel: "C", detail: "The list suggests every factor pair gives an integer." },
+  });
+  const input = candidatesResponse([fit, illustrativeList, coefficientProof], { question, choices });
+  const selection = select(input);
+  assert.equal(rejectedRule(input, "identity-regression"), "unproven-universal");
+  assert.equal(rejectedRule(input, "integer-list-filter"), "unproven-universal");
+  assert.equal(selection.winnerId, "direct-arithmetic");
+  assert.equal(desmosRescueTarget(selection), null, "a second call cannot turn one fit into a universal proof");
+  assert.throws(() => select(candidatesResponse([fit, illustrativeList], { question, choices })), /unproven-universal/);
+  const uncertainProof = paperCandidate({
+    ...coefficientProof,
+    result: { ...coefficientProof.result, detail: "-a=bd+c, so (a+c)/b=-(bd+c+c)/b? The answer is C." },
+  });
+  assert.throws(
+    () => select(candidatesResponse([fit, illustrativeList, uncertainProof], { question, choices })),
+    /uncertain-written-proof/,
+    "a correct answer choice does not certify a proof that marks its algebra as uncertain",
+  );
+});
+
+test("a concise coefficient identity outranks an exhaustive factor-list check for a universal claim", () => {
+  const question = "The expression 9x^2 - ax - 44 can be rewritten as (bx+c)(x+d), where b, c, and d are integer constants. Which of the following must be an integer?";
+  const choices = ["a/b", "a/d", "(a+c)/b", "a/c"].map((text, index) => ({ label: "ABCD"[index], text }));
+  const enumeration = graphCandidate({
+    techniqueId: "identity-regression",
+    rows: [
+      { latex: "D=[-44,-22,-11,-4,-2,-1,1,2,4,11,22,44]", slider: null, copiesRow: null },
+      { latex: "C=-44/D", slider: null, copiesRow: null },
+      { latex: "A=-9D-C", slider: null, copiesRow: null },
+      { latex: "[\\operatorname{count}(D[\\operatorname{mod}(A/9,1)\\ne0]),\\operatorname{count}(D[\\operatorname{mod}(A/D,1)\\ne0]),\\operatorname{count}(D[\\operatorname{mod}((A+C)/9,1)\\ne0]),\\operatorname{count}(D[\\operatorname{mod}(A/C,1)\\ne0])]", slider: null, copiesRow: null },
+    ],
+    answer: "C) (a+c)/b",
+    result: { type: "list_entry", row: 4, relatedRows: [], value: 0, listIndex: 3, answerFrom: "choice_position", choiceLabel: "C", detail: "the third choice has zero noninteger cases" },
+    cost: { ...zeroCost, derivationSteps: 3, newPrimitives: 1 },
+  });
+  const proof = paperCandidate({
+    answer: "C) (a+c)/b",
+    result: { type: "written", row: null, relatedRows: [], value: null, listIndex: null, answerFrom: "reasoning", choiceLabel: "C", detail: "Compare the x coefficients: -a=bd+c, so (a+c)/b=-d, an integer." },
+    cost: { ...zeroCost, derivationSteps: 2 },
+  });
+  const selection = select(candidatesResponse([enumeration, proof], { question, choices }));
+  assert.equal(selection.winnerId, "factoring");
+  assert.equal(selection.methods.find((method) => method.techniqueId === "identity-regression")?.rejected, null,
+    "the exhaustive calculator check remains a usable alternative");
+  assert.equal(select(candidatesResponse([enumeration], { question, choices })).winnerId, "identity-regression",
+    "a general readout is still usable when no written identity is available");
+  const uncertain = paperCandidate({ ...proof, result: { ...proof.result, detail: "The coefficients give (a+c)/b=-d?" } });
+  assert.equal(select(candidatesResponse([enumeration, uncertain], { question, choices })).winnerId, "identity-regression",
+    "an uncertain written identity cannot displace a complete enumeration");
+  const falseProof = paperCandidate({ ...proof,
+    result: { ...proof.result, detail: "Compare the x coefficients: -a=bd+c, so (a+c)/b=-c, an integer." },
+    cost: { ...zeroCost, derivationSteps: 8 },
+  });
+  assert.equal(select(candidatesResponse([enumeration, falseProof], { question, choices })).winnerId, "identity-regression",
+    "a false equality to a declared integer parameter gets no proof-ranking bonus");
+  const unfinishedEquality = paperCandidate({ ...proof,
+    result: { ...proof.result, detail: "Compare coefficients: (a+c)/b=-d+c, an integer." },
+    cost: { ...zeroCost, derivationSteps: 8 },
+  });
+  assert.equal(select(candidatesResponse([enumeration, unfinishedEquality], { question, choices })).winnerId, "identity-regression",
+    "an expression that merely starts with -d is not the verified identity");
+  const fractionChoices = choices.map((choice) => choice.label === "C" ? { ...choice, text: "\\frac{a+c}{b}" } : choice);
+  const writtenFraction = paperCandidate({ ...proof, answer: "C) \\frac{a+c}{b}" });
+  const enumeratedFraction = graphCandidate({ ...enumeration, answer: "C) \\frac{a+c}{b}" });
+  assert.equal(select(candidatesResponse([enumeratedFraction, writtenFraction], { question, choices: fractionChoices })).winnerId, "factoring",
+    "a simple fraction transcribed from a screenshot matches the same written identity");
+});
+
+
+function factorProofPreference(question: string, detail: string, targetPosition = 2, fraction = false) {
+  const texts = ["a/b", "a/d", "a/c"];
+  texts.splice(targetPosition, 0, fraction ? "\\frac{a+c}{b}" : "(a+c)/b");
+  const choices = texts.map((text, index) => ({ label: "ABCD"[index], text }));
+  const target = choices[targetPosition];
+  const common = {
+    answer: `${target.label}) ${target.text}`,
+    result: { type: "written" as const, row: null, relatedRows: [], value: null, listIndex: null,
+      answerFrom: "reasoning" as const, choiceLabel: target.label, detail },
+  };
+  // The lower-cost paper method wins unless the other method's specific
+  // universal identity is independently certified by the question's family.
+  const cheaper = paperCandidate({ ...common, techniqueId: "direct-arithmetic",
+    result: { ...common.result, detail: "The target is an integer." }, cost: { ...zeroCost, derivationSteps: 1 } });
+  const proof = paperCandidate({ ...common, techniqueId: "factoring", cost: { ...zeroCost, derivationSteps: 8 } });
+  return select(candidatesResponse([cheaper, proof], { question, choices })).winnerId;
+}
+
+const factorIdentityQuestion = (leading: string, constant: string) =>
+  `The expression ${leading}x^2-ax${constant}, where a is a constant, can be rewritten as (bx+c)(x+d), where b, c, and d are integer constants. Which of the following must be an integer?`;
+
+test("verified factor identities generalize across coefficients, signs, and choice positions", () => {
+  const detail = "Compare the x coefficients: -a=bd+c, so (a+c)/b=-d, an integer.";
+  for (const [leading, constant] of [["7", "-30"], ["-5", "+14"], ["12", "+35"]]) {
+    for (const targetPosition of [0, 1, 2, 3]) {
+      assert.equal(factorProofPreference(factorIdentityQuestion(leading, constant), detail, targetPosition), "factoring");
+    }
+  }
+  assert.equal(factorProofPreference(factorIdentityQuestion("7", "-30"), detail, 1, true), "factoring");
+});
+
+test("the factor proof preference declines false equalities and unsupported or extra assumptions", () => {
+  const question = factorIdentityQuestion("7", "-30");
+  for (const detail of [
+    "Compare coefficients: (a+c)/b=-c, an integer.",
+    "Compare coefficients: (a+c)/b=-d+c, an integer.",
+    "Compare coefficients: 2(a+c)/b=-d, an integer.",
+    "It is not true that (a+c)/b=-d.",
+  ]) assert.equal(factorProofPreference(question, detail), "direct-arithmetic", detail);
+  const proof = "The x coefficient gives -a=bd+c, so (a+c)/b=-d, an integer.";
+  for (const unsupported of [
+    question + " Also d is positive.",
+    "Suppose x is 1. " + question,
+    question.replace("can be rewritten as", "equals at x=1"),
+    question.replace("-ax", "+ax"),
+    factorIdentityQuestion("0", "-30"),
+    factorIdentityQuestion("9007199254740993", "-30"),
+    factorIdentityQuestion("7", "+9007199254740993"),
+  ]) assert.equal(factorProofPreference(unsupported, proof), "direct-arithmetic", unsupported);
+});
+
+test("the universal-integer guard leaves determined numeric identity regressions alone", () => {
+  const question = "The equation (2x + 3)(ax - 4) = 14x^2 + bx - 12 is true for all x, where a and b are constants. What is b?";
+  const fit = graphCandidate({
+    techniqueId: "identity-regression",
+    rows: [
+      { latex: "x_{1}=[1...4]", slider: null, copiesRow: null },
+      { latex: "(2x_{1}+3)(a x_{1}-4)\\sim14x_{1}^2+b x_{1}-12", slider: null, copiesRow: null },
+      { latex: "b", slider: null, copiesRow: null },
+    ],
+    answer: "13",
+    result: { type: "numeric", row: 3, relatedRows: [2], value: 13, listIndex: null, answerFrom: "value", choiceLabel: null, detail: "the fitted value of b" },
+  });
+  assert.equal(select(candidatesResponse([fit], { question })).winnerId, "identity-regression");
 });
 
 test("a LaTeX square-root readout label is repaired to readable prose", () => {

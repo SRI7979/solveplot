@@ -7,10 +7,12 @@ import {
   ProseLatexError,
   sanitizeSolutionProse,
 } from "./answer-consistency";
+import { repairGraphGuidance } from "./graph-guidance";
 import { methodApproach } from "./method-scoring";
 import type { CacheEntry, Explanation } from "./solve-cache";
 import type { Solution, SolutionMethod } from "./solver-schema";
 import type { Method } from "./strategy-selection";
+import { unknownGeometryLabels } from "./geometry-grounding";
 
 export class ExplanationError extends Error {
   constructor(message: string, readonly stage = "explanation") {
@@ -28,7 +30,6 @@ export function solutionMethodFor(method: Method): SolutionMethod {
   return "algebra";
 }
 
-/** The per-request input for the explanation call: facts only, all already verified. */
 /**
  * A calculator method that still asks for hand work names it: the student
  * should always know exactly which part is math and which part is Desmos. A
@@ -39,10 +40,9 @@ export function needsHandMath(method: Pick<Method, "rows" | "cost">): boolean {
 }
 
 /**
- * Decimals a row types that the question never states, after an earlier row
- * graphs something: the student clicked that point (5.20526, the x-intercept
- * of 3x^2-16x+2) and typed what Desmos showed. Telling the explanation call
- * keeps it from describing a click as a hand computation.
+ * Flag non-given decimals after graph rows for provenance checks. They might
+ * be clicked coordinates, calculations, or guesses; a graph does not establish
+ * their source. The historical export name is retained for existing callers.
  */
 export function clickedValues(question: string, rows: readonly { latex: string }[]): { row: number; value: string }[] {
   const stated = new Set((question.replace(/[\u2212\u2013]/g, "-").match(/\d+(?:\.\d+)?/g) ?? []).map((value) => Number(value)));
@@ -92,11 +92,12 @@ export function explanationInput(entry: CacheEntry, method: Method): string {
     entry.structure ? `Structure the student should recognize: ${entry.structure}` : null,
     `Technique: ${method.name}`,
     `Answer: ${method.answer}`,
-    `Readout: ${readout}`,
+    `Expected readout (candidate claim, NOT an observed engine result): ${readout}`,
+    "Evidence boundary: these rows passed server checks; no live calculator evaluation is supplied to this explanation call. Describe the intended operation, not a test you performed. A numeric readout alone does not prove geometry, uniqueness, a domain condition, or a universal identity. Separate stated givens, justified deductions, and calculator operations. Do not add a point, angle marking, circle, or perpendicular relationship that the question does not supply or the method does not justify.",
     `Calculator rows:\n${rows}`,
-    method.answerState ? `The calculator opens with ${method.answerState.param} = ${method.answerState.value}.` : null,
+    method.answerState ? `The answer condition occurs at ${method.answerState.param} = ${method.answerState.value}. The visible calculator starts from the slider row, not the answer. Explain how to adjust it and recognize the condition; never claim the slider automatically solved it.` : null,
     ...clickedValues(entry.question, method.rows).map(({ row, value }) =>
-      `Line ${row} types ${value}, a number the question does not state: the student reads it by clicking the matching point (an intercept, intersection, or vertex) on the graph of an earlier line. Say that in line ${row}'s purpose; it is never a hand computation.`),
+      `Line ${row} types ${value}, a decimal the question does not state. Identify its actual source: a named earlier calculator readout, a justified calculation (disclose it in handMath), or an approximation. An earlier graph alone is NOT evidence that this number was obtained by clicking it. If it is a clicked value, name the feature and retain adequate precision.`),
     method.conditionType ? `The question asks when the system has ${method.conditionType === "no-solution" ? "no solution" : "infinitely many solutions"}; explain how this method tells that case apart from the opposite one.` : null,
     needsHandMath(method)
       ? `Besides typing the rows, this method asks the student for ${method.cost.derivationSteps} hand step(s) and ${method.cost.oneOffFacts} memorized fact(s). Return handMath naming each one in plain words and why it is needed.`
@@ -205,11 +206,29 @@ export function validateExplanationQuality(method: Method, explanation: Explanat
 }
 
 /**
- * Merges a method with its explanation into the solution shape the calculator
- * and history render. Rows, readout, and answer come from the verified method;
- * only prose comes from the explanation. Throws ExplanationError on a mismatch.
+ * Narrow, deterministic checks on explanation claims. These reject observed
+ * failure patterns; passing them is not a proof of the explanation's meaning.
  */
+export function explanationGroundingIssues(question: string, method: { rows: readonly { latex: string }[] }, explanation: Explanation): string[] {
+  const prose = [explanation.why, ...explanation.purposes, ...explanation.steps, explanation.readAnswer ?? "", explanation.handMath ?? ""].join(" ");
+  const issues: string[] = [];
+  const unknown = unknownGeometryLabels(question, method.rows, prose);
+  if (unknown.length) issues.push(`The explanation uses geometric point(s) ${unknown.join(", ")} absent from the question and calculator construction. Use the actual named points; do not invent a vertex.`);
+  if (/\bDesmos\s+(?:will\s+)?(?:says?|tells? you|reports?|announces?)\s+(?:that\s+|[“"'])*(?:the (?:lines|graphs) (?:are )?)?(?:parallel|no solutions?|infinitely many solutions?)\b/i.test(prose) ||
+      /\bDesmos\s+(?:then\s+)?(?:reports?|announces?)\s+when\s+(?:the\s+)?(?:two\s+)?(?:graphed\s+)?(?:lines|graphs)\s+are\s+parallel\b/i.test(prose) ||
+      /\bDesmos\s+(?:will\s+)?(?:displays?|shows?)\s+(?:the\s+)?(?:message|text|words|status)\b[^.]*\b(?:parallel|no solution|infinitely many)\b/i.test(prose)) {
+    issues.push("Desmos does not display a textual parallel/no-solution status. Explain the observable graph relationship and the mathematical deduction separately.");
+  }
+  if (/\b(?:verified|tested|confirmed)\s+(?:this |these |the )?(?:answer|method|rows?|expressions?)?\s*(?:in|using|with|by)\s+(?:the (?:live |real )?)?Desmos\b|\b(?:we|I)\s+(?:ran|tested|checked)\s+[^.]*\b(?:live|real) Desmos\b/i.test(prose)) {
+    issues.push("No live-engine evidence was supplied to the explanation call. Do not claim the method was tested or verified in Desmos.");
+  }
+  return issues;
+}
+
+/** Merge selected rows/readout with prose; browser verification happens later. */
 export function presentMethod(entry: CacheEntry, method: Method, explanation: Explanation): Solution {
+  const grounding = explanationGroundingIssues(entry.question, method, explanation);
+  if (grounding.length) throw new ExplanationError(grounding.join(" "), "explanation_grounding");
   if (method.rows.length > 0 && explanation.purposes.length !== method.rows.length) {
     throw new ExplanationError(
       `purposes must have exactly one entry per calculator row: expected ${method.rows.length}, got ${explanation.purposes.length}.`,
@@ -226,6 +245,7 @@ export function presentMethod(entry: CacheEntry, method: Method, explanation: Ex
       answer: method.answer,
       readAnswer: explanation.readAnswer ?? "",
       expressionCount: method.rows.length,
+      expressions: method.rows,
       approximate: isApproximationQuestion(entry.question),
       wholeNumber: isWholeNumberQuestion(entry.question),
     });
@@ -259,7 +279,7 @@ export function presentMethod(entry: CacheEntry, method: Method, explanation: Ex
     clarification: null,
   };
   try {
-    return sanitizeSolutionProse(solution);
+    return repairGraphGuidance(sanitizeSolutionProse(solution));
   } catch (error) {
     if (error instanceof ProseLatexError) throw new ExplanationError(error.message, "prose_text");
     throw error;

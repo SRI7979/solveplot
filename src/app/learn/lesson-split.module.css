@@ -1,0 +1,25 @@
+.divider { display:none; }
+@media (min-width:801px) {
+  .split.split { grid-template-columns:minmax(0,calc((100% - 36px) * var(--lesson-ratio) / 100)) 36px minmax(0,1fr); gap:0; }
+  .split > :first-child { padding-right:22px; }
+  .split > aside { padding-left:22px; }
+  .split[data-calculator-collapsed="true"] { grid-template-columns:minmax(0,1fr) 36px; }
+  .split[data-calculator-collapsed="true"] > aside { display:none; }
+  .split[data-calculator-collapsed="true"] > :first-child { width:100%; max-width:780px; margin-inline:auto; }
+  .split[data-single-panel="true"] { grid-template-columns:minmax(0,1fr); max-width:720px; }
+  .split[data-single-panel="true"] > :first-child { padding-right:0; }
+  .divider { display:block; position:relative; min-width:0; align-self:stretch; }
+  .rail { position:sticky; top:20px; height:clamp(480px,calc(100dvh - 200px),740px); }
+  .handle { position:absolute; inset:0; display:grid; place-items:center; cursor:col-resize; touch-action:none; outline:none; }
+  .handle::before { content:""; position:absolute; top:0; bottom:0; left:calc(50% - .5px); width:1px; background:var(--border); transition:background 160ms,box-shadow 160ms; }
+  .handle > span { position:relative; display:grid; place-items:center; width:24px; height:46px; border:1px solid var(--control-border); border-radius:9px; background:var(--paper); color:var(--subtle); transition:background 160ms,color 160ms,border-color 160ms; }
+  .handle:hover::before,.handle:focus-visible::before,.split[data-resizing="true"] .handle::before { background:var(--selection-accent); box-shadow:0 0 6px color-mix(in srgb,var(--selection-accent) 24%,transparent); }
+  .handle:hover > span,.handle:focus-visible > span,.split[data-resizing="true"] .handle > span { background:var(--selection-soft); color:var(--selection-accent); border-color:var(--selection-border); }
+  .handle:focus-visible > span { outline:2px solid var(--selection-accent); outline-offset:3px; }
+  .split[data-resizing="true"] { user-select:none; cursor:col-resize; }
+  .split[data-resizing="true"] > aside { pointer-events:none; }
+}
+@media (min-width:801px) and (max-width:1100px) {
+  .split > :first-child { padding-right:12px; }.split > aside { padding-left:12px; }
+}
+@media (prefers-reduced-motion:reduce) { .handle::before,.handle > span { transition:none; } }

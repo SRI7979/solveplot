@@ -1,15 +1,15 @@
 /**
  * Replays recorded benchmark runs through the CURRENT server-side validation
  * and selection, without any model call: every run of `npm run bench:solver`
- * saves its raw call-1 output, so a change to rejection rules, cost weights,
+ * saves its raw candidate outputs, so a change to rejection rules, cost weights,
  * or ranking can be measured on the same model outputs before spending
  * credits on a new live run. Free.
  *
  *   npm run bench:replay -- <recorded-label> [--out=<label>]
  *
  * Reports how many recorded defaults change and how the strategy metrics
- * move. A Desmos rescue cannot be replayed (it needs a new model call); runs
- * where it WOULD now trigger are counted instead.
+ * move. A recorded Desmos rescue can be replayed from its saved second output;
+ * a newly triggered rescue still needs a model call and is counted instead.
  */
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -21,7 +21,8 @@ import { metricsTable } from "./benchmark/report";
 import { classifyStrategy, summarizeByGroup, type RunRecord } from "./benchmark/score";
 import { validateCandidatesResponse } from "../src/lib/solve-output";
 import { repairIntegerFactorExtremum, repairQuadraticRationalIntercept } from "../src/lib/semantic-repairs";
-import { desmosRescueTarget, selectMethods, StrategySelectionError } from "../src/lib/strategy-selection";
+import { repairDesmosNativePlans } from "../src/lib/desmos-native-plans";
+import { desmosRescueTarget, mergeSelections, selectMethods, StrategySelectionError } from "../src/lib/strategy-selection";
 
 const args = process.argv.slice(2);
 const label = args.find((arg) => !arg.startsWith("--"));
@@ -38,16 +39,34 @@ let unreplayable = 0;
 const transitions: string[] = [];
 const replayed: RunRecord[] = (recorded.records as RunRecord[]).map((record) => {
   const item = cases.get(record.caseId);
-  // The first recorded output is what the pipeline selected from (a later one is a retry or rescue).
-  const first = record.candidateOutputs?.[0] as { output?: unknown } | undefined;
-  if (!item || !record.ok || record.clarification || !first) {
+  const outputs = (record.candidateOutputs ?? []) as { output?: unknown; rejection?: unknown }[];
+  const accepted = outputs.filter((candidate) => candidate.output !== undefined && !candidate.rejection);
+  if (!item || !record.ok || record.clarification || accepted.length === 0) {
     unreplayable += 1;
     return record;
   }
   try {
-    const { parsed } = validateCandidatesResponse({ status: "completed", output: [{ type: "message", content: [{ type: "output_text", text: JSON.stringify(first.output) }] }] });
-    const selection = selectMethods(repairIntegerFactorExtremum(repairQuadraticRationalIntercept(parsed)));
-    if (desmosRescueTarget(selection)) wouldRescue += 1;
+    const parse = (output: unknown) =>
+      validateCandidatesResponse({ status: "completed", output: [{ type: "message", content: [{ type: "output_text", text: JSON.stringify(output) }] }] }).parsed;
+    // A failed first validation was retried; the last accepted main output is
+    // the one the live pipeline selected. A successful recorded rescue has a
+    // second accepted output that must be merged with the primary selection.
+    const hadRescue = (record.rescue === "applied" || record.rescue === "kept") && accepted.length > 1;
+    const primaryOutput = hadRescue ? accepted[accepted.length - 2] : accepted[accepted.length - 1];
+    const primary = parse(primaryOutput.output);
+    let selection = selectMethods(repairDesmosNativePlans(repairIntegerFactorExtremum(repairQuadraticRationalIntercept(primary))));
+    const rescueTarget = desmosRescueTarget(selection);
+    if (rescueTarget && hadRescue) {
+      const secondary = parse(accepted[accepted.length - 1].output);
+      const corrected = selectMethods(repairIntegerFactorExtremum(repairQuadraticRationalIntercept({
+        ...secondary,
+        question: selection.question,
+        choices: selection.choices,
+      })));
+      selection = mergeSelections(selection, corrected);
+    } else if (rescueTarget) {
+      wouldRescue += 1;
+    }
     const eligible = selection.methods.filter((method) => !method.rejected);
     const winner = eligible.find((method) => method.id === selection.winnerId)!;
     if (winner.techniqueId !== record.winner?.techniqueId) {

@@ -247,12 +247,12 @@ export function tutorInput(context: TutorContext, selection: VerifiedSelection, 
   return lines.filter((line) => line !== null).join("\n");
 }
 
-function isGpt5(model: string) {
-  return model.startsWith("gpt-5");
+function supportsReasoningControls(model: string) {
+  return model.startsWith("gpt-5") || model.startsWith("gpt-6");
 }
 
 export function tutorModel(): string {
-  return process.env.OPENAI_MODEL?.trim() || "gpt-5-mini";
+  return process.env.OPENAI_MODEL?.trim() || "gpt-6-luna";
 }
 
 export function tutorRequest(input: string, practice: boolean, model = tutorModel()): Record<string, unknown> {
@@ -261,8 +261,8 @@ export function tutorRequest(input: string, practice: boolean, model = tutorMode
     prompt_cache_key: TUTOR_CACHE_KEY,
     instructions: TUTOR_INSTRUCTIONS,
     input: [{ role: "user", content: [{ type: "input_text", text: input }] }],
-    text: { format: tutorFormat, ...(isGpt5(model) ? { verbosity: "low" } : {}) },
-    ...(isGpt5(model) ? { reasoning: { effort: "low" } } : {}),
+    text: { format: tutorFormat, ...(supportsReasoningControls(model) ? { verbosity: "low" } : {}) },
+    ...(supportsReasoningControls(model) ? { reasoning: { effort: "low" } } : {}),
     max_output_tokens: practice ? TUTOR_MAX_OUTPUT_TOKENS.practice : TUTOR_MAX_OUTPUT_TOKENS.explain,
     store: false,
   };

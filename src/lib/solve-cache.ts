@@ -62,10 +62,10 @@ export function cacheKeyFor(key: string, promptConfigVersion: string): string {
 }
 
 /** The exact submitted input: image bytes, or the problem text and choices. */
-export function inputHash(input: Uint8Array | { problem: string; choices: readonly string[] | null }): string {
+export function inputHash(input: Uint8Array | { problem: string; choices?: readonly string[] | null }): string {
   const hash = createHash("sha256");
   if (input instanceof Uint8Array) hash.update("image:").update(input);
-  else hash.update(`text:${JSON.stringify([input.problem, input.choices])}`);
+  else hash.update(`text:${JSON.stringify([input.problem, input.choices === undefined ? "embedded" : input.choices])}`);
   return hash.digest("hex");
 }
 
@@ -85,6 +85,10 @@ export function promptConfigVersion(parts: {
   vocabulary: unknown;
   schemas: unknown;
   model: string;
+  candidateReasoningEffort: string;
+  explanationReasoningEffort: string;
+  /** Bump when deterministic verification or native-plan semantics change. */
+  validationVersion?: string;
 }): string {
   return sha256(JSON.stringify(parts)).slice(0, 24);
 }
@@ -156,8 +160,8 @@ export function findMethod(entry: CacheEntry, methodId: string): Method | null {
 }
 
 /**
- * Writes are first-writer-wins: two concurrent solves of the same problem
- * both end up returning whichever entry (or explanation) was stored first.
+ * Entries and explanations are first-writer-wins. Calculator errors override
+ * an earlier clean verdict; a later clean report cannot resurrect bad rows.
  */
 export interface SolveCache {
   lookupInput(inputHash: string, promptConfigVersion: string): Promise<string | null>;
@@ -230,7 +234,7 @@ export function createMemorySolveCache(options: { limit?: number } = {}): SolveC
     },
     async putPreflight(cacheKey, methodId, record) {
       const records = put(preflight, cacheKey, new Map<string, PreflightRecord>());
-      if (!records.has(methodId)) records.set(methodId, clone(record));
+      if (!records.has(methodId) || record.status === "error") records.set(methodId, clone(record));
       return clone(records.get(methodId)!);
     },
     size() {
@@ -324,7 +328,14 @@ export function createSupabaseSolveCache(client: { from(table: string): unknown 
       return records;
     },
     async putPreflight(cacheKey, methodId, record) {
-      await insert("solve_cache_preflight", { cache_key: cacheKey, method_id: methodId, verdict: record }, "cache_key,method_id");
+      // An error is stronger evidence than a previously cached clean result.
+      // Clean inserts ignore conflicts, so racing clean/error reports always
+      // end with an error regardless of which request arrives first.
+      const { error } = await db.from("solve_cache_preflight").upsert(
+        { cache_key: cacheKey, method_id: methodId, verdict: record },
+        { onConflict: "cache_key,method_id", ignoreDuplicates: record.status !== "error" },
+      );
+      if (error) throw new Error(`solve cache write failed (solve_cache_preflight): ${cause(error)}`);
       return (await this.getPreflight(cacheKey))[methodId] ?? record;
     },
   };
@@ -388,7 +399,7 @@ export function routeSolveCache(client: { from(table: string): unknown }): Solve
     createSupabaseSolveCache(client),
     (operation, error) =>
       console.warn(
-        `[desmo:cache] ${operation} failed; using this server's in-memory cache. ${error instanceof Error ? error.message : ""}`.trim(),
+        `[solveplot:cache] ${operation} failed; using this server's in-memory cache. ${error instanceof Error ? error.message : ""}`.trim(),
       ),
     processSolveCache,
   );

@@ -1,0 +1,40 @@
+{
+  "group": "hard",
+  "source": "user-screenshot",
+  "domain": "Advanced Math",
+  "topic": "Which factor expression must be an integer",
+  "problem": "The expression 9x^2 - ax - 44, where a is a constant, can be rewritten as (bx + c)(x + d), where b, c, and d are integer constants. Which of the following must be an integer?",
+  "choices": ["a/b", "a/d", "(a+c)/b", "a/c"],
+  "correctAnswer": "(a+c)/b",
+  "expectedResultType": "written",
+  "gold": ["direct-arithmetic"],
+  "acceptable": [],
+  "bad": [
+    {
+      "technique": "identity-regression",
+      "why": "One fitted factorization cannot prove that the expression is an integer for every allowed factorization."
+    },
+    {
+      "technique": "strategic-value-test",
+      "why": "Checking examples does not prove the expression must be an integer for every integer b, c, and d."
+    }
+  ],
+  "goldRows": [],
+  "burden": {
+    "gold": { "manualMath": 1, "hiddenDerivation": 0 },
+    "algebraFirst": {
+      "manualMath": 2,
+      "hiddenDerivation": 0,
+      "description": "Expand the product and match the x coefficient: -a = bd + c, so (a+c)/b = -d, an integer."
+    }
+  },
+  "routing": {
+    "representation": false,
+    "condition": null,
+    "integerParameters": ["b", "c", "d"],
+    "continuousInterval": false,
+    "integerFactorExtremum": false
+  },
+  "explanationNotes": "The required result follows from the x coefficient for every factorization, not from fitting one example. Expand only the x terms: bd+c=-a. Then (a+c)/b=-d, and d is given as an integer. The leading coefficient also gives b=9, so division by b is valid.",
+  "notes": "Transcribed from the user-provided screenshot in the latency request. The image is not itself benchmarked. The label deliberately treats one-fit identity regression as insufficient evidence for a universal must-be-integer question."
+}

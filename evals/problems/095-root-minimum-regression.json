@@ -1,0 +1,55 @@
+{
+  "group": "hard",
+  "source": "user-screenshot",
+  "domain": "Advanced Math",
+  "topic": "Approved root constraints regression minimum",
+  "problem": "The function f is defined by f(x) = ax^2 + bx + c, where a, b, and c are constants. The equation f(x) = 0 has solutions x = 1 and x = -7. If a is an integer greater than 1, what is the least possible value of a + b?",
+  "choices": null,
+  "correctAnswer": "14",
+  "expectedResultType": "numeric",
+  "gold": [
+    "bracket-regression"
+  ],
+  "acceptable": [
+    "function-evaluation"
+  ],
+  "bad": [],
+  "goldRows": [
+    "a=2",
+    "[a(1)^2+b(1)+c,a(-7)^2+b(-7)+c]\\sim[0,0]",
+    "a+b"
+  ],
+  "burden": {
+    "gold": {
+      "manualMath": 0,
+      "hiddenDerivation": 0
+    },
+    "algebraFirst": {
+      "manualMath": 2,
+      "hiddenDerivation": 1,
+      "description": "A manual route derives parameter relations before evaluating the requested quantity."
+    }
+  },
+  "routing": {
+    "representation": false,
+    "condition": null,
+    "integerParameters": [
+      "a"
+    ],
+    "continuousInterval": false,
+    "integerFactorExtremum": false
+  },
+  "explanationNotes": "The roots imply b=6a and a+b=7a, increasing over a>1. Set a=2, fit b and c directly from both zero conditions, then read a+b=14. Desmos determines b=12,c=-14.",
+  "labelProvenance": "human_verified_gold",
+  "notes": "User-approved regression in reliability brief. Not added to model prompt; evaluates family behavior.",
+  "humanReview": {
+    "source": "user-provided-worked-example",
+    "reference": "2026-10-25 Desmos-first reliability brief, approved root regression",
+    "example": "root-minimum",
+    "reviewedFields": [
+      "problem",
+      "correctAnswer",
+      "gold"
+    ]
+  }
+}

@@ -1,0 +1,40 @@
+.dialog {
+  position:fixed;
+  inset:0;
+  width:min(600px,calc(100% - 40px));
+  max-width:none;
+  max-height:calc(100dvh - 48px);
+  margin:auto;
+  padding:28px 30px 32px;
+  overflow:auto;
+  overscroll-behavior:contain;
+  border:1px solid var(--control-border);
+  border-radius:24px;
+  background:var(--surface);
+  color:var(--foreground);
+  font-family:var(--font-sans);
+  box-shadow:0 24px 90px #0004;
+  animation:help-enter 180ms cubic-bezier(.2,.7,.2,1);
+}
+.dialog::backdrop { background:#07100fc2; backdrop-filter:blur(5px); animation:backdrop-enter 180ms ease-out; }
+.header { display:flex; align-items:center; gap:12px; margin-bottom:22px; }
+.icon { display:grid; place-items:center; flex-shrink:0; width:40px; height:40px; border-radius:50%; color:var(--learn-accent); background:var(--learn-accent-soft); }
+.header h2 { margin:0; font-size:21px; font-weight:650; line-height:1.35; letter-spacing:-.025em; }
+.close { display:grid; place-items:center; flex-shrink:0; width:40px; height:40px; margin-left:auto; padding:0; border:1px solid var(--control-border); border-radius:12px; background:transparent; color:var(--muted); cursor:pointer; transition:background 160ms,color 160ms; }
+.close:hover { color:var(--foreground); background:var(--hover); }
+.close svg { transition:transform 180ms; }.close:hover svg { transform:rotate(90deg); }
+.close:focus-visible { outline:2px solid var(--learn-accent); outline-offset:4px; }
+.body { color:var(--foreground); font-size:16px; font-weight:500; line-height:1.75; overflow-wrap:anywhere; }
+.body p { margin:0 0 16px; }.body p:last-child { margin-bottom:0; }
+.body ol { display:grid; gap:12px; margin:20px 0 0; padding-left:24px; }
+.body li { padding-left:4px; }.body li::marker { color:var(--learn-accent); font-weight:650; }
+.body small { display:block; margin-top:20px; color:var(--muted); font-size:12px; line-height:1.6; }
+@keyframes help-enter { from { opacity:0; transform:translateY(9px) scale(.985); } to { opacity:1; transform:translateY(0) scale(1); } }
+@keyframes backdrop-enter { from { opacity:0; } to { opacity:1; } }
+@media(max-width:600px) {
+  .dialog { width:calc(100% - 32px); max-height:calc(100dvh - 32px); padding:22px 22px 26px; border-radius:21px; }
+  .header { gap:10px; margin-bottom:20px; }.header h2 { font-size:20px; }
+  .icon { width:35px; height:35px; }.close { width:36px; height:36px; border-radius:11px; }
+  .body { font-size:15px; line-height:1.75; }
+}
+@media(prefers-reduced-motion:reduce) { .dialog,.dialog::backdrop,.close,.close svg { animation:none!important; transition:none!important; } }

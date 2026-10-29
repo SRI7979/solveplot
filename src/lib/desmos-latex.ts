@@ -403,7 +403,10 @@ export function findUndefinedVariables(
     if (row.isRegression) return;
     const variables = [...row.names].filter(
       (name) =>
-        !isKnown(name) &&
+        // A graph equation does not bind its coordinates inside a function.
+        // y=20-2x followed by f(x)=x+y is invalid in the 2D engine: y must
+        // be an explicit argument. Leave calculus binders to engine checking.
+        (!isKnown(name) || (row.isFunction && COORDINATES.has(name) && !/\\(?:int|frac\{d\})/.test(row.latex))) &&
         !defined.has(name) &&
         !fitted.has(name) &&
         !row.args.has(name),

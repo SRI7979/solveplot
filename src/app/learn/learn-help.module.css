@@ -1,0 +1,9 @@
+.help { position:relative; flex-shrink:0; align-self:flex-start; }
+.help > button { display:grid; place-items:center; width:36px; height:36px; padding:0; border:1px solid transparent; border-radius:50%; background:transparent; color:var(--subtle); cursor:help; transition:background 160ms,color 160ms,border-color 160ms; }
+.help > button:hover,.help > button:focus-visible { color:var(--learn-accent); border-color:var(--learn-accent-border); background:var(--learn-accent-soft); }
+.tooltip { position:absolute; z-index:10; top:calc(100% + 9px); right:0; width:min(350px,calc(100vw - 64px)); padding:20px 21px; border:1px solid var(--control-border); border-radius:17px; background:var(--surface); color:var(--foreground); box-shadow:0 12px 36px #0002; cursor:default; animation:help-reveal 140ms ease-out; }
+.tooltip::before { content:""; position:absolute; right:12px; top:-5px; width:8px; height:8px; border-top:1px solid var(--control-border); border-left:1px solid var(--control-border); background:var(--surface); transform:rotate(45deg); }
+.tooltip::after { content:""; position:absolute; inset:-12px 0 auto; height:12px; }
+.tooltip strong { font-size:14px; font-weight:650; line-height:1.5; }.tooltip p { margin:9px 0 0; color:var(--muted); font-size:13px; font-weight:500; line-height:1.75; }
+@keyframes help-reveal { from { opacity:0; transform:translateY(-3px); } to { opacity:1; transform:translateY(0); } }
+@media(prefers-reduced-motion:reduce) { .tooltip { animation:none; }.help > button { transition:none; } }

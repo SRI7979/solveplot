@@ -1,0 +1,21 @@
+# Local state, credentials, and generated artifacts
+.git/
+.vercel/
+.next/
+node_modules/
+.env*
+!.env.example
+.DS_Store
+*.tsbuildinfo
+.solveplot-debug/
+.desmo-debug/
+.playwright-mcp/
+.claude/
+
+# Private evaluation captures and local design reviews
+evals/private/
+evals/results/
+evals/reports/
+prototypes/
+docs/
+/*.png

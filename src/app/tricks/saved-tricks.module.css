@@ -1,0 +1,20 @@
+.emptyState {
+  display:flex;
+  align-items:center;
+  gap:18px;
+  width:100%;
+  min-height:140px;
+  padding:27px 29px;
+  border:1px solid var(--control-border);
+  border-radius:22px;
+  background:radial-gradient(ellipse at 0% 0%,color-mix(in srgb,var(--selection-soft) 62%,transparent),transparent 58%),var(--paper);
+  animation:arrive 240ms cubic-bezier(.2,.75,.25,1) both;
+}
+.emptyIcon { display:grid; place-items:center; width:52px; height:52px; flex:0 0 auto; border:1px solid var(--selection-border); border-radius:17px; background:var(--selection-soft); color:var(--selection-accent); }
+.emptyCopy { min-width:0; flex:1; }
+.emptyCopy h2 { margin:0; color:var(--foreground); font-size:18px; font-weight:650; letter-spacing:-.025em; line-height:1.4; }
+.emptyCopy p { max-width:45ch; margin:6px 0 0; color:var(--muted); font-size:13px; line-height:1.65; }
+.emptyAction { flex:0 0 auto; white-space:nowrap; border-radius:999px !important; }
+@keyframes arrive { from {opacity:0; transform:translateY(6px);} to {opacity:1; transform:translateY(0);} }
+@media (max-width:620px) { .emptyState { align-items:flex-start; flex-wrap:wrap; gap:14px; padding:22px 20px; }.emptyCopy { flex-basis:calc(100% - 68px); padding-top:3px; }.emptyAction { margin-left:66px; }.emptyCopy h2 { font-size:17px; }.emptyCopy p { font-size:12px; } }
+@media (prefers-reduced-motion:reduce) { .emptyState {animation:none;} }

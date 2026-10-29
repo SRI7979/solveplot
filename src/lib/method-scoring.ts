@@ -164,6 +164,8 @@ export type Rankable = {
   rows?: readonly Row[];
   /** Set by selection, which can see that a plan only does arithmetic; derived from the technique otherwise. */
   approach?: Approach;
+  result?: { type?: string; row?: number | null };
+  answerState?: { param: string; value: number } | null;
 };
 
 /** The technique a distinctive primitive teaches by name; generic graphs and lists name none. */
@@ -188,15 +190,9 @@ function nameMismatch(method: Rankable): number {
   return primitive !== null && PRIMITIVE_TECHNIQUE[primitive] === method.techniqueId ? 0 : 1;
 }
 
-/**
- * Deterministic order: cheapest total first, then least math, then a method
- * that works without the answer choices (PHILOSOPHY.md: at equal effort the
- * generalizable method transfers to the next problem), then the lower
- * simplicity-ladder rung, then fewer rows, then the technique its rows
- * visibly use (mean(L) - median(L) is the statistics built-in, not "evaluate
- * over a list"), then the technique id. The same candidate set always sorts
- * the same way regardless of emission order.
- */
+/** Selection first compares the student’s mathematical burden. Weighted total
+ * remains diagnostic only: no number of saved rows can buy more student math.
+ * Safety is enforced before this comparator and by the browser engine gate. */
 export const APPROACHES = ["desmos", "math"] as const;
 export type Approach = (typeof APPROACHES)[number];
 
@@ -207,7 +203,7 @@ const CALCULATOR_ONLY_TECHNIQUES: ReadonlySet<TechniqueId> = new Set<TechniqueId
  * The Desmos way lets Desmos do the math (a graph feature, a regression, a
  * slider, a list); the math way is paper work, or Desmos as a calculator over
  * a formula the student recalls (a typed discriminant is calculator
- * arithmetic). Desmos ways always rank ahead of math ways. A Desmos way may
+ * arithmetic). Preserve the native-method pool before the paper fallback. Within that pool, student math precedes practical effort. A Desmos way may
  * still rest on a small fact or step ("tangent means equal slopes"): its cost
  * counts it and its explanation names it, but it stays a Desmos way.
  */
@@ -218,14 +214,43 @@ export function methodApproach(method: { techniqueId: TechniqueId; approach?: Ap
 
 const approachRank = (method: Rankable) => Number(methodApproach(method) === "math");
 
+/** Last-resort effort comparison, after mathematical work and row count.
+ * Normalize presentation commands so equivalent LaTeX does not gain a bonus.
+ * Original long expressions remain valid and are never rejected for length. */
+export function typingBurden(rows: readonly Row[] = []): number {
+  return rows.reduce((sum, row) => sum + row.latex
+    .replace(/\\(?:left|right)(?![A-Za-z])|\s+/g, "")
+    .replace(/\\operatorname\{([^}]+)\}/g, "$1")
+    .replace(/\\[A-Za-z]+/g, "#")
+    .replace(/[{}]/g, "").length, 0);
+}
+
+/** Measurable workflow floors, not a ranking of technique families. A slider
+ * used only to explore a given value has no search burden; an answer-dependent
+ * slider does. Graph reads remain useful but require a click/interpretation. */
+export function workflowEffort(method: Rankable) {
+  const search = Boolean(method.answerState && method.rows?.some(row => row.slider));
+  const type = method.result?.type;
+  const readout = method.result?.row ? method.rows?.[method.result.row - 1]?.latex ?? "" : "";
+  const graphRow = /[=<>]/.test(readout) && !/~|\\sim/.test(readout) && /(?:^|[^A-Za-z_])[xy](?![A-Za-z_])/.test(readout);
+  const visual = graphRow || Boolean(type && ["intersection", "x_intercept", "y_intercept", "vertex", "graph_overlap", "slider_condition", "visual_choice"].includes(type));
+  return {
+    interactions: Math.max(method.cost.manualIterations, search ? 1 : 0) + Number(visual),
+    readout: Number(visual),
+  };
+}
+
 export function compareMethods(left: Rankable, right: Rankable): number {
   return (
     approachRank(left) - approachRank(right) ||
-    left.total - right.total ||
     left.mathScore - right.mathScore ||
+    left.cost.derivationSteps - right.cost.derivationSteps ||
+    left.cost.newPrimitives - right.cost.newPrimitives ||
+    left.cost.setupConstructions - right.cost.setupConstructions ||
+    (left.cost.rows + workflowEffort(left).interactions) - (right.cost.rows + workflowEffort(right).interactions) ||
     Number(ANSWER_CHOICE_TECHNIQUES.has(left.techniqueId)) - Number(ANSWER_CHOICE_TECHNIQUES.has(right.techniqueId)) ||
-    left.rung - right.rung ||
     left.cost.rows - right.cost.rows ||
+    typingBurden(left.rows) - typingBurden(right.rows) ||
     nameMismatch(left) - nameMismatch(right) ||
     (left.techniqueId < right.techniqueId ? -1 : left.techniqueId > right.techniqueId ? 1 : 0)
   );

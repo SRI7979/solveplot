@@ -12,7 +12,9 @@
  * strategy teaches is a library miss: the visible sign of a solve that went
  * to ordinary math without consulting the trick that fits.
  */
+import { needsSystemRegression, parseLinearSystem } from "./linear-system-plan";
 import type { AnswerChoice } from "./solver-schema";
+import { hasKnownRootCue, hasSimilarityCue } from "./geometry-grounding";
 import {
   continuousInterval,
   isIntegerFactorExtremumQuestion,
@@ -64,8 +66,10 @@ const SINGLE_LETTER = /(?:^|[^a-z])[a-z](?:[^a-z]|$)/i;
  * detector would bury real library misses.
  */
 export const STRUCTURE_DETECTORS: readonly Detector[] = [
+  { id: "similarity-proportions", techniques: ["parameter-regression", "bracket-regression", "story-system"], test: hasSimilarityCue },
+  { id: "known-roots-coefficients", techniques: ["bracket-regression", "parameter-regression"], test: hasKnownRootCue },
   {
-    // "One solution is (a+√b)/6": click the root, fit the unknown (strategy 78).
+    // "One solution is (a+√b)/6": click both roots and fit both unknowns (strategy 78).
     id: "radical-form-root",
     techniques: ["parameter-regression"],
     test: (question) => /\b(?:solutions?|roots?|zeros?)\b/i.test(question) && (RADICAL_FORM.test(question) || (STATED_FORM.test(question) && new RegExp(ROOT, "i").test(question))),
@@ -111,6 +115,17 @@ export const STRUCTURE_DETECTORS: readonly Detector[] = [
     test: (question) => /\bconstants?\b/i.test(question) && coordinatePairs(question) >= 2,
   },
   {
+    // 7x+4y+8z=61 and 4x+y+5z=37: three unknowns cannot be graphed in 2D, so
+    // one bracket regression and a combination line answer it (strategy 79).
+    // Two equations in two unknowns stay with graphing (strategy 5).
+    id: "system-in-own-unknowns",
+    techniques: ["bracket-regression"],
+    test: (question) => {
+      const system = parseLinearSystem(question);
+      return system !== null && needsSystemRegression(system);
+    },
+  },
+  {
     // Not on a "which equation represents" question: translating the words is the task there.
     id: "symbolic-choices",
     techniques: ["strategic-value-test"],
@@ -126,6 +141,8 @@ export function detectStructures(question: string, choices: AnswerChoice[] | nul
 }
 
 export type LibraryTrace = {
+  /** Hypotheses compared against actual rows, never covered by a claimed library match alone. */
+  shortcutAudit: { detector: string; proposed: string[]; retained: string[]; outcome: "not-proposed" | "rejected-or-replaced" | "alternative" | "recommended" | "added-after-generation" }[];
   /** Every strategy number the solve referenced: matched, skipped, or cited by a candidate. */
   considered: number[];
   /** Strategies the model said fit the recognized structure. */
@@ -198,7 +215,19 @@ export function libraryTrace(response: Pick<CandidatesResponse, "library" | "can
     ...new Set([...response.library.matched, ...response.library.skipped.map((item) => item.strategy), ...candidates.flatMap((item) => (item.strategy !== null ? [item.strategy] : []))]),
   ].sort((a, b) => a - b);
 
+  const shortcutAudit: LibraryTrace["shortcutAudit"] = detected.map(item => {
+    const proposed = response.candidates.filter(candidate => candidate.rows.length > 0 && item.techniques.includes(candidate.techniqueId));
+    const retained = selection.methods.filter(method => !method.rejected && method.rows.length > 0 && item.techniques.includes(method.techniqueId));
+    const sameRows = (candidate: (typeof proposed)[number], method: (typeof retained)[number]) =>
+      JSON.stringify(candidate.rows.map(row => row.latex)) === JSON.stringify(method.rows.map(row => row.latex));
+    const outcome = retained.some(method => !proposed.some(candidate => sameRows(candidate, method))) ? "added-after-generation"
+      : proposed.length === 0 ? "not-proposed" : retained.length === 0 ? "rejected-or-replaced"
+      : retained.some(method => method.id === selection.winnerId) ? "recommended" : "alternative";
+    return { detector: item.detector, proposed: proposed.map(candidate => candidate.techniqueId), retained: retained.map(method => method.id), outcome };
+  });
+
   return {
+    shortcutAudit,
     considered,
     matched: response.library.matched.map((number) => ({ number, title: byNumber.get(number)?.title ?? null })),
     skipped: response.library.skipped.map((item) => ({ number: item.strategy, reason: item.reason })),

@@ -1,25 +1,47 @@
+import { cache } from "react";
+import { solverPageMetadata } from "@/lib/solver-page-metadata";
 import AccountNav from "@/components/account-nav";
-import { requireUser } from "@/lib/auth";
-import { Atkinson_Hyperlegible } from "next/font/google";
+import { getCurrentUser } from "@/lib/auth";
+import { GuestAuthScope } from "@/components/guest-auth-provider";
+import { desmosScriptUrl } from "@/lib/desmos-loader";
 import SolverWorkspace from "./solver-workspace";
 
-const solverFont = Atkinson_Hyperlegible({
-  weight: ["400", "700"],
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-solver",
-});
-
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Solver | Desmo", robots: { index: false, follow: false } };
+// Reuse the same authoritative identity result for metadata and page rendering.
+// React's cache is request-scoped; identities are never shared across visitors.
+const getSolverUser = cache(getCurrentUser);
 
-export default async function SolverPage() {
-  const user = await requireUser("/solve");
+export async function generateMetadata() {
+  return solverPageMetadata(Boolean(await getSolverUser()));
+}
+
+export default async function SolverPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ new?: string }>;
+}) {
+  const query = await searchParams;
+  const user = await getSolverUser();
+  const apiKey = process.env.NEXT_PUBLIC_DESMOS_API_KEY?.trim();
   return (
-    <div className={solverFont.variable}>
-      <SolverWorkspace
-        accountNav={<AccountNav email={user.email} avatarUrl={user.avatarUrl} active="solve" />}
-      />
-    </div>
+    <>
+      <link rel="preconnect" href="https://www.desmos.com" />
+      {apiKey && (
+        <link rel="preload" as="script" href={desmosScriptUrl(apiKey)} />
+      )}
+      <GuestAuthScope authenticated={Boolean(user)}><SolverWorkspace
+        key={user?.id ?? "guest"}
+        userId={user?.id}
+        startFresh={query.new === "1"}
+        accountNav={
+          <AccountNav
+            email={user?.email}
+            avatarUrl={user?.avatarUrl}
+            name={user?.name}
+            active="solve"
+          />
+        }
+      /></GuestAuthScope>
+    </>
   );
 }

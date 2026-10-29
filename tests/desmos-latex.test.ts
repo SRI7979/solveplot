@@ -16,6 +16,14 @@ function normalize(...latex: string[]) {
   );
 }
 
+test("a graph relation cannot silently bind a coordinate inside a function", () => {
+  assert.deepEqual(findUndefinedVariables(expressions("y=20-2x", "f(x)=8x^3+12x^2y+6xy^2+y^3", "f(1)")), [{ row: 2, variables: ["y"] }]);
+  assert.deepEqual(findUndefinedVariables(expressions("f(a)=ax", "f(2)")), [{ row: 1, variables: ["x"] }]);
+  assert.deepEqual(findUndefinedVariables(expressions("f(x,y)=x+y", "f(1,2)")), []);
+  assert.deepEqual(findUndefinedVariables(expressions("g(x)=20-2x", "f(x)=8x^3+12x^2g(x)+6xg(x)^2+g(x)^3", "f(1)")), []);
+  assert.deepEqual(findUndefinedVariables(expressions(String.raw`f(a)=\int_{0}^{a}t^2 dt`)), []);
+});
+
 test("plain declared lists and implicit multiplication references become valid subscripts", () => {
   assert.deepEqual(
     normalize("x1=[-6,0]", "y1=[0,-9]", "y1~m*x1+b", "y1~mx1+b"),

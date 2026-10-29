@@ -8,6 +8,7 @@
  * earlier recorded run.
  */
 import type { LibraryTrace } from "../../src/lib/library-trace";
+import type { CoverageTrace, RetrievalTrace } from "../../src/lib/solve-pipeline";
 import { getTechnique, type TechniqueId } from "../../src/lib/technique-vocabulary";
 import type { LoadedCase, ScorableCase } from "./case-schema";
 
@@ -58,15 +59,31 @@ export type RunRecord = {
   structural?: { acceptable: boolean; forbidden: boolean; reason?: string };
   methodsMs?: number;
   completeMs?: number;
+  /** Sum of OpenAI's reported usage at the service tier actually applied. */
+  costUsd?: number;
+  /** True for a timeout or unpriced model, where the cost is an estimate. */
+  costEstimated?: boolean;
+  billing?: { call: string; serviceTier: string | null; status: string; costUsd: number; estimated: boolean }[];
+  /** Public-fixture teaching text and rows, saved only with --capture-solution. */
+  capturedSolution?: unknown;
+  coverage?: CoverageTrace;
+  capturedMethods?: import("../../src/lib/strategy-selection").Method[];
   stages?: StageRecord[];
   /** Raw call-1 outputs, so selection can be replayed offline (evals/replay.mts). */
   candidateOutputs?: unknown[];
   rescue?: string | null;
   /** Which library strategies the solve matched and used (fresh solves only). */
   library?: LibraryTrace;
+  retrieval?: RetrievalTrace;
+  discovery?: {
+    firstPassTechniques: string[];
+    rawGoldProposed: boolean;
+    /** Exact LaTeX-row match, not proof the raw answer or plan was valid. */
+    selectedRowsInRawOutput: boolean;
+  };
 };
 
-const INFRA = /\b429\b|credits?|quota|rate.?limit|timed? ?out|timeout|ECONN|ENOTFOUND|EAI_AGAIN|socket|network|fetch failed|50[234]\b|overloaded|APIConnection/i;
+const INFRA = /BenchmarkBudgetError|\b429\b|credits?|quota|rate.?limit|timed? ?out|timeout|ECONN|ENOTFOUND|EAI_AGAIN|socket|network|fetch failed|50[234]\b|overloaded|APIConnection/i;
 
 export function isInfraFailure(message: string): boolean {
   return INFRA.test(message);

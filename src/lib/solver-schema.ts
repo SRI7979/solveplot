@@ -23,7 +23,7 @@ const legacyResultSchema = z.object({
   row: z.number().int().min(1).max(MAX_EXPRESSIONS),
   value: z.number().nullable(),
   listIndex: z.number().int().min(1).max(64).nullable(),
-  answerFrom: z.enum(["value", "choice_position", "reasoning"]),
+  answerFrom: z.enum(["value", "choice_position", "choice_index", "reasoning"]),
   choiceLabel: z.string().max(4).nullable(),
   detail: z.string().min(1).max(200),
 }).strict();
@@ -45,9 +45,9 @@ export const resultSchema = z.union([typedResultSchema, legacyResultSchema]);
  * {param: "k", value: 3} for a plan whose row 1 is a slider "k=2" and whose
  * reported result only reads correctly once k is set to 3. Null for methods
  * that do not depend on a slider. See PHILOSOPHY.md / A1 in the task history:
- * without this, the app has no way to know the calculator must be moved off
- * whatever value the slider's own row happened to start at before the answer
- * row is read or verified.
+ * the hidden verification instance checks this target state. The visible
+ * calculator keeps the authored starting value so the student can discover
+ * the condition instead of opening at the supplied answer.
  */
 export const answerStateSchema = z
   .object({

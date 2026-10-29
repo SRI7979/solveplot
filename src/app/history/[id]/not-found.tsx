@@ -1,12 +1,21 @@
 import Link from "next/link";
-import styles from "../page.module.css";
+import { WorkspaceAppearance } from "@/components/appearance-provider";
+import SolvePlotLogo from "@/components/solveplot-logo";
+import styles from "@/app/login/page.module.css";
 
 export default function ProblemNotFound() {
   return (
-    <main className={styles.empty}>
-      <h1>Problem not found</h1>
-      <p>This problem isn’t in your history.</p>
-      <Link href="/history" className={styles.button}>Back to history</Link>
-    </main>
+    <WorkspaceAppearance className={styles.entry}>
+      <main className={styles.page}>
+        <SolvePlotLogo centered variant="workspace" />
+        <section className={`${styles.card} appPageEnter`}>
+          <h1>Problem not found</h1>
+          <p className={styles.subtitle}>This problem isn’t in your history.</p>
+          <Link href="/history" className={`${styles.button} secondaryButton`}>
+            Back to history
+          </Link>
+        </section>
+      </main>
+    </WorkspaceAppearance>
   );
 }

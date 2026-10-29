@@ -1,0 +1,26 @@
+.scope {
+  --learn-accent: var(--learn-light-accent);
+  --learn-accent-strong: var(--learn-light-strong);
+  --learn-on-accent: var(--learn-light-on-accent);
+  --learn-accent-soft: color-mix(in srgb, var(--learn-accent) 10%, var(--paper));
+  --learn-accent-border: color-mix(in srgb, var(--learn-accent) 42%, var(--border));
+  --learn-glow: color-mix(in srgb, var(--learn-accent-strong) 22%, transparent);
+  --learn-hover-glow: var(--learn-glow);
+  --learn-hover-radius: 18px;
+  --learn-hover-spread: 5px;
+  min-width: 0;
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+.scope[data-learn-palette="candy"] {
+  --learn-hover-glow: color-mix(in srgb, var(--learn-accent-strong) 12%, transparent);
+  --learn-hover-radius: 10px;
+  --learn-hover-spread: 3px;
+}
+:global(html[data-theme="dark"]) .scope {
+  --learn-accent: var(--learn-dark-accent);
+  --learn-accent-strong: var(--learn-dark-strong);
+  --learn-on-accent: var(--learn-dark-on-accent);
+  --learn-accent-soft: color-mix(in srgb, var(--learn-accent) 10%, var(--paper));
+}

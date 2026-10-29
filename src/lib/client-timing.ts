@@ -4,7 +4,7 @@
  * upload plus everything the server did before the calculator rows) →
  * "methods" event → rows shown in the calculator (after the Desmos
  * pre-flight) → explanation. The server's own stages arrive in the
- * Server-Timing header. Results collect on window.__desmoTimings (read by
+ * Server-Timing header. Results collect on window.__solveplotTimings (read by
  * benchmark scripts) and are logged in development. Nothing is sent anywhere.
  */
 export type SolveTiming = {
@@ -16,7 +16,7 @@ export type SolveTiming = {
 
 declare global {
   interface Window {
-    __desmoTimings?: SolveTiming[];
+    __solveplotTimings?: SolveTiming[];
   }
 }
 
@@ -51,8 +51,8 @@ export function startSolveTiming(now: () => number = () => performance.now()): S
     finish() {
       if (finished || typeof window === "undefined") return timing;
       finished = true;
-      (window.__desmoTimings ??= []).push(timing);
-      if (process.env.NODE_ENV === "development") console.info("[desmo:timing]", JSON.stringify(timing));
+      (window.__solveplotTimings ??= []).push(timing);
+      if (process.env.NODE_ENV === "development") console.info("[solveplot:timing]", JSON.stringify(timing));
       return timing;
     },
   };

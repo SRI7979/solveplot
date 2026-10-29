@@ -30,7 +30,7 @@ import {
   type CandidatesResponse,
   type CandidatesResponseInput,
 } from "../src/lib/strategy-selection";
-import { candidatesResponse, explanation, graphCandidate, mockModel, providerBody } from "./method-fixtures";
+import { candidatesResponse, explanation, graphCandidate, mockModel, providerBody, zeroCost } from "./method-fixtures";
 
 const fixture = (name: string) => JSON.parse(readFileSync(new URL(`./fixtures/${name}`, import.meta.url), "utf8"));
 
@@ -85,7 +85,11 @@ test("074: an unrepairable transcription is corrected by call 1, not failed at t
 test("074: the recorded arc-length output solves with one explanation call, and the fallback cannot fail", async () => {
   const recorded = fixture("arc-length-pi-candidates.json");
   const winner = selectMethods(recorded as CandidatesResponse).methods[0];
-  const { requests } = mockModel({ candidates: recorded, explanation: explanation(winner.rows.length) });
+  const { requests } = mockModel({ candidates: recorded, explanation: explanation(winner.rows.length, {
+    why: "Divide the arc length by the radius to find the central angle in radians, then convert it to degrees.",
+    handMath: "Use the arc-length relationship to decide to divide length by radius, then multiply by 180/pi for degrees.",
+    readAnswer: "Read 150 degrees from the final row.",
+  }) });
   const result = await solveProblem(deps(), { kind: "text", problem: ARC_PROBLEM, choices: null });
   assert.equal(result.kind, "solved");
   assert.ok(result.kind === "solved");
@@ -339,4 +343,41 @@ test("063: a choice list does not make the computation it wraps free", () => {
   // the same setup now costs the same, and the lookup's extra rows lose.
   const selection = eligible(selectMethods(validateCandidatesResponse(providerBody(secondRun["063-square-feet-to-square-yards-cost#ab-1"])).parsed));
   assert.equal(selection[0].techniqueId, "calculator-arithmetic");
+});
+
+test("063: subtracting one scalar calculation from every choice is still calculator arithmetic", () => {
+  const question = "A floor is 540 square feet. Carpet costs $18 per square yard, and 1 yard = 3 feet. What is the total cost?";
+  const choices = ["$360", "$1,080", "$3,240", "$9,720"].map((text, index) => ({ label: "ABCD"[index], text }));
+  const direct = graphCandidate({
+    techniqueId: "calculator-arithmetic",
+    rows: [{ latex: "18\\left(\\frac{540}{3^2}\\right)", slider: null, copiesRow: null }],
+    answer: "B) $1,080",
+    result: { type: "numeric", row: 1, relatedRows: [], value: 1080, listIndex: null, answerFrom: "value", choiceLabel: "B", detail: "the total cost" },
+    cost: { ...zeroCost, derivationSteps: 1 },
+  });
+  const wrapped = graphCandidate({
+    techniqueId: "answer-choice-list",
+    rows: [
+      { latex: "A=[360,1080,3240,9720]", slider: null, copiesRow: null },
+      { latex: "A-18\\left(\\frac{540}{3^2}\\right)", slider: null, copiesRow: null },
+    ],
+    answer: "B) $1,080",
+    result: { type: "list_entry", row: 2, relatedRows: [1], value: 0, listIndex: 2, answerFrom: "choice_position", choiceLabel: "B", detail: "the choice with zero difference" },
+    cost: { ...zeroCost },
+  });
+  const selection = selectMethods(candidatesResponse([wrapped, direct], { question, choices }) as CandidatesResponse);
+  assert.equal(selection.winnerId, "calculator-arithmetic");
+  const choiceList = selection.methods.find((method) => method.techniqueId === "answer-choice-list")!;
+  assert.equal(choiceList.approach, "math");
+  assert.equal(choiceList.cost.derivationSteps, 1, "the wrapped scalar computation still has its setup step");
+  const genuinelyEvaluatesChoices = selectMethods(candidatesResponse([graphCandidate({
+    techniqueId: "answer-choice-list",
+    rows: [
+      { latex: "A=[2,4,6,8]", slider: null, copiesRow: null },
+      { latex: "A^2-36", slider: null, copiesRow: null },
+    ],
+    answer: "C) 6",
+    result: { type: "list_entry", row: 2, relatedRows: [1], value: 0, listIndex: 3, answerFrom: "choice_position", choiceLabel: "C", detail: "the choice that makes the equation zero" },
+  })], { question: "Which positive choice solves x^2=36?", choices: ["2", "4", "6", "8"].map((text, index) => ({ label: "ABCD"[index], text })) }) as CandidatesResponse);
+  assert.equal(genuinelyEvaluatesChoices.methods[0].approach, "desmos");
 });

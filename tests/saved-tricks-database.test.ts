@@ -3,8 +3,8 @@ import { readdir, readFile } from "node:fs/promises";
 import { after, before, test } from "node:test";
 import { PGlite } from "@electric-sql/pglite";
 
-// Execute every migration in order with PostgreSQL, ending with the tutor and
-// saved-tricks migration: row-level security, uniqueness, and the widened
+// Execute every migration in order with PostgreSQL, including the tutor and
+// account-progress migrations: row-level security, uniqueness, and the widened
 // model_usage call check. Only Supabase's managed auth/storage schemas are
 // minimal local fixtures (as in account-database.test.ts).
 const db = new PGlite();
@@ -35,7 +35,7 @@ before(async () => {
     $$;
   `);
   const files = (await readdir(migrations)).filter((name) => name.endsWith(".sql")).sort();
-  assert.equal(files.at(-1), "202610040001_tutor_and_saved_tricks.sql", "the tutor migration runs after every earlier migration");
+  assert.equal(files.at(-1), "202610260001_learning_progress.sql", "the full migration chain also includes account-scoped learning progress");
   for (const file of files) await db.exec(await readFile(new URL(file, migrations), "utf8"));
   await db.query("insert into auth.users(id) values ($1),($2)", [alice, bob]);
   await db.query(

@@ -21,7 +21,7 @@ export function validateResultContract(result: SolutionResult, expressionCount: 
     if (result.type === "numeric" && result.listIndex !== null) throw new ResultContractError("A numeric scalar result cannot have listIndex; use list_entry.");
   } else {
     if (result.listIndex !== null) throw new ResultContractError("Graphical results cannot have listIndex.");
-    if (result.answerFrom === "choice_position") throw new ResultContractError("Graphical results cannot select a choice by list position.");
+    if (result.answerFrom === "choice_position" || result.answerFrom === "choice_index") throw new ResultContractError("Graphical results cannot select a choice by list position.");
     if (["intersection", "graph_overlap"].includes(result.type) && new Set(rows).size < 2) throw new ResultContractError(`${result.type} must identify both graph rows.`);
   }
 }

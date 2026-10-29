@@ -1,175 +1,283 @@
 "use client";
 
-import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import { signOut } from "@/app/auth/actions";
+import Link, { useLinkStatus } from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import {
+  BookOpen,
+  Bookmark,
+  History,
+  Menu,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Plus,
+  ScanLine,
+  Settings,
+  UserRound,
+  X,
+} from "lucide-react";
 import { NEW_PROBLEM_EVENT } from "@/lib/workspace-events";
-import DesmoLogo from "./desmo-logo";
-import { ThemeToggle } from "./theme-toggle";
+import SolvePlotLogo from "./solveplot-logo";
+import WorkspacePlaceholder from "./workspace-placeholder";
 import styles from "./account-nav.module.css";
+import { useWorkspaceAccount } from "./workspace-account-provider";
+import { useGuestAuth } from "./guest-auth-provider";
 
-type View = "solve" | "history" | "tricks" | "settings";
-type IconName = "solve" | "history" | "tricks" | "plus";
+type View = "solve" | "learn" | "history" | "tricks" | "settings" | "profile";
+const STORAGE_KEY = "solveplot-sidebar-collapsed";
+const CHANGE_EVENT = "solveplot-sidebar-change";
+let memoryCollapsed = false;
+function subscribe(callback: () => void) {
+  window.addEventListener(CHANGE_EVENT, callback);
+  window.addEventListener("storage", callback);
+  return () => {
+    window.removeEventListener(CHANGE_EVENT, callback);
+    window.removeEventListener("storage", callback);
+  };
+}
+function snapshot() {
+  try {
+    return window.localStorage.getItem(STORAGE_KEY) === "true";
+  } catch {
+    return memoryCollapsed;
+  }
+}
+const links = [
+  { href: "/solve", label: "Solver", view: "solve", icon: ScanLine },
+  { href: "/learn", label: "Learn", view: "learn", icon: BookOpen },
+  { href: "/history", label: "History", view: "history", icon: History },
+  { href: "/tricks", label: "Saved tricks", view: "tricks", icon: Bookmark },
+  { href: "/settings", label: "Settings", view: "settings", icon: Settings },
+] as const;
 
-const links: { href: string; label: string; view: View; icon: IconName }[] = [
-  { href: "/solve", label: "Solver", view: "solve", icon: "solve" },
-  { href: "/history", label: "History", view: "history", icon: "history" },
-  { href: "/tricks", label: "Saved tricks", view: "tricks", icon: "tricks" },
-];
-
-function Icon({ name }: { name: IconName }) {
+function NavigationPending({ onSettled }: { onSettled: () => void }) {
+  const { pending } = useLinkStatus();
+  const wasPending = useRef(false);
+  useEffect(() => {
+    if (wasPending.current && !pending) onSettled();
+    wasPending.current = pending;
+  }, [pending, onSettled]);
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      {name === "solve" && <><path d="M8 3H5a2 2 0 0 0-2 2v3m13-5h3a2 2 0 0 1 2 2v3M3 16v3a2 2 0 0 0 2 2h3m13-5v3a2 2 0 0 1-2 2h-3" /><path d="m8 12 2.5 2.5L16 9" /></>}
-      {name === "history" && <><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3.5 2" /></>}
-      {name === "tricks" && <path d="M6 4.5A1.5 1.5 0 0 1 7.5 3h9A1.5 1.5 0 0 1 18 4.5V21l-6-4-6 4z" />}
-      {name === "plus" && <path d="M12 5v14M5 12h14" />}
-    </svg>
+    <span
+      hidden
+      data-pending={pending || undefined}
+      aria-hidden="true"
+    />
   );
 }
 
-function AccountMenu({ email, avatarUrl, active, placement }: { email?: string; avatarUrl?: string; active: View; placement: "sidebar" | "header" }) {
+export default function AccountNav({
+  email,
+  avatarUrl,
+  name,
+  active,
+  loading = false,
+}: {
+  email?: string;
+  avatarUrl?: string;
+  name?: string;
+  active: View;
+  loading?: boolean;
+}) {
+  const { account, rememberAccount } = useWorkspaceAccount();
+  const { isGuest, requestSignIn } = useGuestAuth();
+  useEffect(() => {
+    if (!loading) rememberAccount({ email, name, avatarUrl, authenticated: !isGuest });
+  }, [loading, email, name, avatarUrl, rememberAccount, isGuest]);
+  const showGuest = loading ? account?.authenticated === false : isGuest;
+  const displayAccount = loading ? account : { email, name, avatarUrl };
+  const displayEmail = displayAccount?.email;
+  const displayAvatar = displayAccount?.avatarUrl;
+  const collapsed = useSyncExternalStore(subscribe, snapshot, () => false);
   const [open, setOpen] = useState(false);
   const [photoFailed, setPhotoFailed] = useState(false);
-  const accountRef = useRef<HTMLDivElement>(null);
-  const openedOnHoverOrFocus = useRef(false);
-  const avatarInitial = email?.trim().charAt(0).toUpperCase();
-  const menuId = "account-menu-" + placement;
-
+  const [destination, setDestination] = useState<{
+    href: string;
+    label: string;
+  } | null>(null);
+  const pathname = usePathname();
+  const router = useRouter();
+  const dialog = useRef<HTMLDialogElement>(null);
+  const opener = useRef<HTMLButtonElement>(null);
+  const displayName = displayAccount?.name || displayEmail?.split("@")[0] || "Your profile";
   useEffect(() => {
-    if (!open) return;
-    function closeOnOutsideClick(event: PointerEvent) {
-      if (!accountRef.current?.contains(event.target as Node)) {
-        openedOnHoverOrFocus.current = false;
-        setOpen(false);
-      }
-    }
-    document.addEventListener("pointerdown", closeOnOutsideClick);
-    return () => document.removeEventListener("pointerdown", closeOnOutsideClick);
+    if (open && !dialog.current?.open) dialog.current?.showModal();
+    else if (!open && dialog.current?.open) dialog.current.close();
   }, [open]);
-
-  return (
-    <div
-      ref={accountRef}
-      className={[styles.account, placement === "sidebar" ? styles.sidebarAccount : styles.headerAccount].join(" ")}
-      onPointerEnter={(event) => {
-        if (event.pointerType === "mouse") {
-          openedOnHoverOrFocus.current = true;
-          setOpen(true);
-        }
-      }}
-      onPointerLeave={(event) => {
-        if (event.pointerType === "mouse") {
-          openedOnHoverOrFocus.current = false;
-          setOpen(false);
-        }
-      }}
-      onFocusCapture={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) {
-          openedOnHoverOrFocus.current = true;
-          setOpen(true);
-        }
-      }}
-      onBlurCapture={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) {
-          openedOnHoverOrFocus.current = false;
-          setOpen(false);
-        }
-      }}
-      onKeyDown={(event) => {
-        if (event.key === "Escape") {
-          openedOnHoverOrFocus.current = false;
-          setOpen(false);
-          accountRef.current?.querySelector("button")?.focus();
-        }
-      }}
-    >
-      <button
-        type="button"
-        className={styles.avatarButton}
-        aria-label="Account menu"
-        aria-expanded={open}
-        aria-controls={menuId}
-        onClick={() => {
-          if (openedOnHoverOrFocus.current) {
-            openedOnHoverOrFocus.current = false;
-            setOpen(true);
-          } else {
-            setOpen((current) => !current);
-          }
-        }}
-      >
-        <span className={styles.avatar} aria-hidden="true">
-          {avatarUrl && !photoFailed ? (
-            // Google's OAuth profile image uses a remote host outside image optimization.
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={avatarUrl} alt="" className={styles.avatarImage} referrerPolicy="no-referrer" onError={() => setPhotoFailed(true)} />
-          ) : avatarInitial || (
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" focusable="false">
-              <circle cx="12" cy="8" r="3.5" stroke="currentColor" strokeWidth="1.8" />
-              <path d="M5.25 20c.6-3.3 3-5 6.75-5s6.15 1.7 6.75 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-            </svg>
+  useEffect(() => {
+    if (dialog.current?.open) dialog.current.close();
+  }, [pathname]);
+  function toggleSidebar() {
+    memoryCollapsed = !collapsed;
+    try {
+      window.localStorage.setItem(STORAGE_KEY, String(memoryCollapsed));
+    } catch {
+      /* In-memory preference remains usable. */
+    }
+    window.dispatchEvent(new Event(CHANGE_EVENT));
+  }
+  function close() {
+    setOpen(false);
+  }
+  function sidebar(mobile = false) {
+    return (
+      <>
+        <div className={styles.brandRow}>
+          <SolvePlotLogo variant="workspace" />
+          {mobile ? (
+            <button
+              type="button"
+              className={`${styles.iconButton} iconControl`}
+              aria-label="Close navigation"
+              onClick={close}
+            >
+              <X size={20} />
+            </button>
+          ) : (
+            <button
+              type="button"
+              className={`${styles.collapse} iconControl`}
+              aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+              onClick={toggleSidebar}
+              title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            >
+              {collapsed ? (
+                <PanelLeftOpen size={18} />
+              ) : (
+                <PanelLeftClose size={18} />
+              )}
+            </button>
           )}
-        </span>
-      </button>
-      <div id={menuId} className={styles.menu} aria-label="Account options" hidden={!open}>
-        {email ? (
-          <>
-            <div className={styles.identity}>
-              <span>Signed in as</span>
-              <strong title={email}>{email}</strong>
-            </div>
-            <Link href="/settings" aria-current={active === "settings" ? "page" : undefined} onClick={() => setOpen(false)}>Settings</Link>
-            <form action={signOut}><button type="submit">Sign out</button></form>
-          </>
-        ) : <Link href="/login" onClick={() => setOpen(false)}>Sign in</Link>}
-      </div>
-    </div>
-  );
-}
-
-export default function AccountNav({ email, avatarUrl, active }: { email?: string; avatarUrl?: string; active: View }) {
-  const title = active === "solve" ? "Solver" : active === "history" ? "History" : active === "tricks" ? "Saved tricks" : "Settings";
-  return (
-    <div className={styles.root}>
-      <aside className={styles.desktopSidebar} aria-label="Workspace sidebar">
-        <div className={styles.sidebarBrand}><DesmoLogo /></div>
-        <a
-          className={styles.newProblem}
-          href="/solve"
+        </div>
+        <Link
+          href="/solve?new=1"
+          prefetch={null}
+          className={`${styles.newProblem} wsNewProblem`}
+          aria-label="New problem"
+          title="New problem (N)"
           onClick={(event) => {
-            // On the solver, start over in place instead of reloading the page and Desmos.
-            if (active !== "solve") return;
-            event.preventDefault();
-            window.dispatchEvent(new Event(NEW_PROBLEM_EVENT));
+            close();
+            if (active === "solve") {
+              event.preventDefault();
+              window.dispatchEvent(new Event(NEW_PROBLEM_EVENT));
+            }
           }}
         >
-          <Icon name="plus" />New problem
-          {active === "solve" && <kbd className={styles.shortcut} aria-label="Shortcut: N">N</kbd>}
-        </a>
-        <nav className={styles.sidebarLinks} aria-label="Main navigation">
-          <span className={styles.sidebarLabel}>Workspace</span>
-          {links.map((item) => (
-            <Link key={item.href} href={item.href} aria-current={active === item.view ? "page" : undefined}>
-              <Icon name={item.icon} />{item.label}
+          <Plus size={19} />
+          <span className={styles.navText}>New problem</span>
+        </Link>
+        <nav
+          className={styles.links}
+          aria-label={mobile ? "Mobile workspace" : "Main navigation"}
+        >
+          {links.map(({ href, label, view, icon: Icon }) => (
+            <Link
+              href={href}
+              prefetch={null}
+              onNavigate={() => {
+                if (pathname !== href) setDestination({ href, label });
+              }}
+              onMouseEnter={() => router.prefetch(href)}
+              onFocus={() => router.prefetch(href)}
+              onTouchStart={() => router.prefetch(href)}
+              key={href}
+              data-section={view}
+              aria-label={label}
+              title={collapsed && !mobile ? label : undefined}
+              aria-current={active === view ? "page" : undefined}
+              onClick={close}
+            >
+              <Icon size={20} strokeWidth={1.8} />
+              <span className={styles.navText}>{label}</span>
+              <NavigationPending
+                onSettled={() =>
+                  setDestination((current) =>
+                    current?.href === href ? null : current,
+                  )
+                }
+              />
             </Link>
           ))}
         </nav>
-        <div className={styles.sidebarFooter}><AccountMenu email={email} avatarUrl={avatarUrl} active={active} placement="sidebar" /></div>
+        {showGuest ? <button
+          type="button"
+          className={`${styles.profile} appProfile`}
+          title={collapsed && !mobile ? "Sign in" : undefined}
+          onClick={() => { close(); requestSignIn("account", "/profile"); }}
+        >
+          <span className={styles.avatar}><UserRound size={21} strokeWidth={1.6} /></span>
+          <span className={styles.navText}><strong>Sign in</strong><small>Save your progress</small></span>
+        </button> : <Link
+          href="/profile"
+          prefetch={null}
+          className={`${styles.profile} appProfile`}
+          aria-label="Your profile"
+          aria-current={active === "profile" ? "page" : undefined}
+          onClick={close}
+          title={collapsed && !mobile ? displayName : undefined}
+        >
+          <span className={styles.avatar}>
+            {displayAvatar && !photoFailed ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={displayAvatar}
+                alt=""
+                referrerPolicy="no-referrer"
+                onError={() => setPhotoFailed(true)}
+              />
+            ) : (
+              <UserRound size={21} strokeWidth={1.6} />
+            )}
+          </span>
+          <span className={`${styles.navText}${loading && !account ? ` ${styles.profileSkeleton}` : ""}`}>
+            <strong>{loading && !account ? "\u00a0" : displayName}</strong>
+            <small>{loading && !account ? "\u00a0" : displayEmail || "Account settings"}</small>
+          </span>
+        </Link>}
+      </>
+    );
+  }
+  return (
+    <div className={styles.root} data-sidebar-collapsed={collapsed}>
+      {destination && (
+        <div
+          className={styles.destination}
+        >
+          <WorkspacePlaceholder title={destination.label} variant={links.find((item) => item.href === destination.href)?.view ?? "profile"} />
+        </div>
+      )}
+      <aside
+        className={`${styles.sidebar}${collapsed ? ` ${styles.collapsed}` : ""}`}
+        aria-label="Workspace sidebar"
+      >
+        {sidebar()}
       </aside>
-
-      <div className={styles.breadcrumb}><span>Workspace</span><span aria-hidden="true">/</span><strong>{title}</strong></div>
-      <div className={styles.headerActions}>
-        <ThemeToggle />
-        <AccountMenu email={email} avatarUrl={avatarUrl} active={active} placement="header" />
-      </div>
-      <nav className={styles.mobileNavigation} aria-label="Main navigation">
-        {links.map((item) => (
-          <Link key={item.href} href={item.href} aria-current={active === item.view ? "page" : undefined}>
-            <Icon name={item.icon} /><span>{item.label === "Saved tricks" ? "Tricks" : item.label}</span>
-          </Link>
-        ))}
-      </nav>
+      <button
+        type="button"
+        className={`${styles.mobileMenu} wsMobileMenu`}
+        ref={opener}
+        aria-label="Open navigation"
+        aria-expanded={open}
+        aria-controls="mobile-workspace-navigation"
+        onClick={() => setOpen(true)}
+      >
+        <Menu size={21} />
+      </button>
+      <dialog
+        id="mobile-workspace-navigation"
+        ref={dialog}
+        className={styles.mobileNavigation}
+        aria-label="Workspace navigation"
+        onClose={() => {
+          setOpen(false);
+          opener.current?.focus();
+        }}
+        onClick={(event) => {
+          if (event.target === event.currentTarget) close();
+        }}
+      >
+        <div className={styles.mobileSidebar}>{sidebar(true)}</div>
+      </dialog>
     </div>
   );
 }

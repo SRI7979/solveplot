@@ -17,9 +17,14 @@ next-env.d.ts
 .vercel/
 .playwright-mcp/
 .desmo-debug/
+.solveplot-debug/
 
 # Licensed benchmark problems (e.g. Bedrock Prep) stay local; see evals/private.example
 evals/private/
 
 # Agent worktrees
 .claude/worktrees/
+
+# Reliability runs contain the local Bedrock sample; keep raw transcripts local.
+evals/results/reliability-*.json
+.vercel

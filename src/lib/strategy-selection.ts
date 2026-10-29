@@ -1,12 +1,18 @@
+import { sliderDiscoveryRows } from "./desmos-preflight";
+import { factorConstructionBurden, identityInsightBurden, identityPlanIssue } from "./polynomial-identity";
 import { z } from "zod";
+import { constrainedRewriteBurden } from "./constrained-polynomial";
 
 import {
   AnswerConsistencyError,
   deriveConsistentSolution,
   isApproximationQuestion,
   isWholeNumberQuestion,
+  numbersMatch,
   normalizeChoices,
+  parseNumber,
   ProseLatexError,
+  roundsTo,
   sanitizeProse,
   validateAnswerState,
 } from "./answer-consistency";
@@ -37,6 +43,10 @@ import {
   type Approach,
 } from "./method-scoring";
 import { hasUnnecessaryCoefficientLists } from "./regression-workflow";
+import { scalarAffineXIntercept } from "./affine-intercept";
+import { similarityReadoutConflict } from "./similarity-validation";
+import { exactLinearTableIntercept, graphsExactLinearTableFit, plottedLinearTableInterceptRow, type LinearTableIntercept } from "./linear-table-intercept";
+import { exactQuadraticProductTable, fitsExactQuadraticProductTable, type QuadraticProductTable } from "./quadratic-product-table";
 import {
   answerChoiceSchema,
   answerStateSchema,
@@ -56,6 +66,7 @@ import {
   findIntegerParameterViolations,
   findListShapeViolations,
   findRegressionDeterminacyViolations,
+  findUnsupportedDesmosOperations,
 } from "./solver-rules";
 import { getTechnique, LIBRARY_STRATEGY_COUNT, TECHNIQUE_IDS, techniqueName, type TechniqueId } from "./technique-vocabulary";
 
@@ -207,6 +218,11 @@ export function isRepresentationQuestion(question: string): boolean {
   );
 }
 
+/** Interpret a supplied model, rather than solve for an unknown value. */
+export function isInterpretationQuestion(question: string): boolean {
+  return /\bwhat does [^?]{1,100}\b(?:represent|mean)\b|\b(?:best|correct) interpretation of\b|\b(?:meaning|interpretation) of (?:the )?(?:constant|coefficient|slope|y-intercept|x-intercept|parameter)\b/i.test(question.replace(/\s+/g, " "));
+}
+
 /**
  * A question asking for a value that makes a system have no solution. Rule 3
  * must apply to every candidate for such a question, including one whose
@@ -224,6 +240,61 @@ export function questionCondition(question: string): ConditionType | null {
   return null;
 }
 
+type ExactParallelSystem = { parameter: string; value: number; distinct: boolean; equations: [string, string] };
+
+/**
+ * Only the literal two-line form A x ± k y = C, B x ± D y = E. The determinant
+ * gives the one coefficient value that makes the lines parallel; unequal
+ * constants under the same scale ensure they are distinct, not coincident.
+ * Other systems are left to the usual validator rather than guessed at.
+ */
+function exactNoSolutionParallelSystem(question: string): ExactParallelSystem | null {
+  if (questionCondition(question) !== "no-solution") return null;
+  const [first, second] = question.replace(/−/g, "-").split(/\r?\n/).map((line) => line.replace(/\s+/g, ""));
+  const left = first?.match(/^([+-]?\d+(?:\.\d+)?)x([+-])([a-z])y=([+-]?\d+(?:\.\d+)?)$/i);
+  const right = second?.match(/^([+-]?\d+(?:\.\d+)?)x([+-])(\d+(?:\.\d+)?)y=([+-]?\d+(?:\.\d+)?)$/i);
+  if (!left || !right) return null;
+  const [a, c, b, d, e] = [left[1], left[4], right[1], right[3], right[4]].map(Number);
+  const leftSign = left[2] === "+" ? 1 : -1;
+  const rightSign = right[2] === "+" ? 1 : -1;
+  if (![a, b, c, d, e].every(Number.isFinite) || a === 0 || b === 0) return null;
+  const value = (a * rightSign * d) / (b * leftSign);
+  if (!Number.isFinite(value)) return null;
+  return { parameter: left[3], value, distinct: !numbersMatch(c * b, e * a), equations: [first, second] };
+}
+
+/** Correct a literal, graphed slider plan from the printed coefficients. */
+function repairExactParallelSlider(candidate: Candidate, exact: ExactParallelSystem | null): { candidate: Candidate; repair: string | null } {
+  if (!exact?.distinct || !["slider-condition", "slider-parallel"].includes(candidate.techniqueId) ||
+      !candidate.answerState || candidate.answerState.param !== exact.parameter ||
+      candidate.result.type !== "slider_condition" || candidate.result.value !== null ||
+      candidate.rows.length !== 3) return { candidate, repair: null };
+  const sliderRow = candidate.rows.find((row) => row.slider !== null &&
+    row.latex.replace(/\s+/g, "").match(/^([A-Za-z])=/)?.[1] === exact.parameter);
+  if (!sliderRow?.slider) return { candidate, repair: null };
+  const graphs = candidate.rows.filter((row) => row !== sliderRow).map((row) => row.latex.replace(/\s+/g, ""));
+  if (graphs[0] !== exact.equations[0] || graphs[1] !== exact.equations[1]) return { candidate, repair: null };
+  const { min, max, step } = sliderRow.slider;
+  const stops = (exact.value - min) / step;
+  if (exact.value < min || exact.value > max || Math.abs(stops - Math.round(stops)) > 1e-6) {
+    return { candidate, repair: null };
+  }
+  const answer = String(exact.value);
+  const detail = `At ${exact.parameter} = ${answer}, the graphed lines are parallel and distinct.`;
+  if (numbersMatch(candidate.answerState.value, exact.value) &&
+      numbersMatch(parseNumber(candidate.answer) ?? Number.NaN, exact.value) &&
+      candidate.result.detail === detail) return { candidate, repair: null };
+  return {
+    candidate: {
+      ...candidate,
+      answer,
+      answerState: { ...candidate.answerState, value: exact.value },
+      result: { ...candidate.result, detail },
+    },
+    repair: `Verified ${exact.parameter} = ${answer} from the printed line coefficients, corrected the slider or answer if needed, and checked that the parallel lines have different constants.`,
+  };
+}
+
 /**
  * The question fixes how many solutions an equation or system has (none,
  * infinitely many, exactly one) and asks for the value that does it. A paper
@@ -235,6 +306,83 @@ export function isSolutionCountCondition(question: string): boolean {
   const text = question.replace(/\s+/g, " ");
   if (!/\bvalues?\b|\bconstants?\b|\bwhat is [a-z]\b/i.test(text)) return false;
   return /\b(?:no|infinitely many|exactly one|exactly two|only one)\s+(?:real\s+)?solutions?\b|\binfinite (?:number of )?solutions\b|\bintersect\w*\s+(?:at\s+)?exactly (?:one|two) points?\b/i.test(text);
+}
+
+/**
+ * A tangent-line problem can be solved exactly by clicking the vertex of the
+ * parabola minus the line's x-term. A rounded slider cannot land on a
+ * fractional k, so replace that particular model slip only when the printed
+ * equations and the claimed answer independently agree with the vertex.
+ */
+function repairExactTangentVertex(candidate: Candidate, question: string): { candidate: Candidate; repair: string | null } {
+  if (candidate.techniqueId !== "vertex-of-difference" || candidate.rows.length !== 2 ||
+      candidate.result.type !== "vertex" || candidate.result.row !== 2 ||
+      candidate.result.answerFrom !== "reasoning" || !candidate.answerState ||
+      candidate.answerState.value === null || !/exactly\s+one\s+point/i.test(question)) {
+    return { candidate, repair: null };
+  }
+  const compact = question.replace(/\s+/g, "");
+  const givens = compact.match(/liney=([+-]?\d+(?:\.\d+)?)x-([a-z]).*parabolay=([+-]?\d+(?:\.\d+)?)x(?:\^2|\^\{2\})([+-]\d+(?:\.\d+)?)x([+-]\d+(?:\.\d+)?)/i);
+  if (!givens) return { candidate, repair: null };
+  const [, slopeText, parameter, aText, bText, cText] = givens;
+  if (candidate.answerState.param.toLowerCase() !== parameter.toLowerCase() ||
+      candidate.rows[0].latex.replace(/\s+/g, "") !== `${parameter}=0` || !candidate.rows[0].slider ||
+      candidate.rows[1].slider) return { candidate, repair: null };
+  const slider = candidate.rows[0].slider;
+  const stops = (candidate.answerState.value - slider.min) / slider.step;
+  if (Math.abs(stops - Math.round(stops)) <= 1e-6) return { candidate, repair: null };
+  const actualRow = candidate.rows[1].latex.replace(/\s+/g, "").replace(/\^\{2\}/g, "^2");
+  const expectedRow = `y=(${aText}x^2${bText}x${cText})-${slopeText}x+${parameter}`;
+  if (actualRow !== expectedRow) return { candidate, repair: null };
+  const [m, a, b, c] = [slopeText, aText, bText, cText].map(Number);
+  if (a === 0 || ![m, a, b, c].every(Number.isFinite)) return { candidate, repair: null };
+  const exactK = (b - m) ** 2 / (4 * a) - c;
+  const statedK = parseNumber(candidate.answer);
+  if (statedK === null || !numbersMatch(statedK, exactK) || !numbersMatch(candidate.answerState.value, exactK)) {
+    return { candidate, repair: null };
+  }
+  return {
+    candidate: {
+      ...candidate,
+      rows: [{ latex: `y=(${aText}x^2${bText}x${cText})-${slopeText}x`, slider: null, copiesRow: null }],
+      result: {
+        ...candidate.result,
+        row: 1,
+        relatedRows: [],
+        detail: "Click the vertex. Its y-coordinate is the opposite of the k that makes the line tangent.",
+      },
+      answerState: null,
+      cost: { ...candidate.cost, derivationSteps: Math.max(1, candidate.cost.derivationSteps), manualIterations: 0 },
+    },
+    repair: "Replaced an unreachable fractional slider stop with the exact vertex readout of the printed parabola minus the line's x-term.",
+  };
+}
+
+/**
+ * A list capped at an arbitrary round number can still be sound, but the cap
+ * trips the hidden-derivation guard. For a literal increasing cost model,
+ * the printed budget itself is a safe cap when its cost already exceeds that
+ * budget. Reuse that printed number instead of trusting the arbitrary cap.
+ */
+function repairBudgetListCap(rows: Array<{ latex: string; slider?: unknown }>, question: string): string | null {
+  const range = rows[0]?.latex.replace(/\s+/g, "").match(/^([A-Za-z])=\[0\.\.\.(\d+)\]$/);
+  if (!range) return null;
+  const [, miles, originalCap] = range;
+  const cost = rows[1]?.latex.replace(/\s+/g, "").match(/^([A-Za-z])=(\d+(?:\.\d+)?)\+(\d+(?:\.\d+)?)([A-Za-z])$/);
+  if (!cost || cost[4] !== miles) return null;
+  const [, costName, feeText, rateText] = cost;
+  const filter = rows[2]?.latex.replace(/\s+/g, "");
+  const match = filter?.match(/^(.+?)=([A-Za-z])\[([A-Za-z])\\le(\d+)\]$/);
+  if (!match || match[2] !== miles || match[3] !== costName || rows.length < 4 ||
+      rows[3].latex.replace(/\s+/g, "") !== `\\operatorname{max}(${match[1]})`) return null;
+  const budgetText = match[4];
+  const [fee, rate, budget] = [feeText, rateText, budgetText].map(Number);
+  if (!Number.isInteger(budget) || budget <= 0 || fee < 0 || rate <= 0 || fee + rate * budget <= budget) return null;
+  const literalInQuestion = (value: string) => new RegExp(`(?<![\\d.])${value.replace(/\./g, "\\.")}(?!\\d|\\.\\d)`).test(question);
+  if (![feeText, rateText, budgetText].every(literalInQuestion)) return null;
+  if (originalCap === budgetText) return null;
+  rows[0] = { ...rows[0], latex: `${miles}=[0...${budgetText}]` };
+  return `Used the printed budget ${budgetText} as the integer-list cap; the increasing cost is already above budget there.`;
 }
 
 const literal = String.raw`-?\d+(?:\.\d+)?`;
@@ -270,8 +418,35 @@ export function isLiteralArithmetic(latex: string): boolean {
   return (bare.match(/\d+(?:\.\d+)?/g) ?? []).length >= 2;
 }
 
+/** Only waive recovery for an explicitly requested calculation, not a formula
+ * derived from a word problem whose setup cost the model may under-report. */
+function isPrintedCalculation(question: string, latex: string): boolean {
+  const requested = question.trim().replace(/^Problem:\s*/i, "")
+    .match(/^(?:what is(?: the value of)?|evaluate|calculate|compute)\s+(.+?)[?.]?$/i)?.[1];
+  if (!requested || !isLiteralArithmetic(requested)) return false;
+  const normalize = (value: string) => value.replace(/\\left|\\right|\$|\s/g, "")
+    .replace(/\\(?:cdot|times)|×/g, "*");
+  return normalize(requested) === normalize(latex);
+}
+
 const LITERAL_LIST = /^\s*[A-Za-z](?:_\{[^{}]*\}|_[A-Za-z0-9])?\s*=\s*(?:\\left)?\[[^[\]A-Za-z]*\](?:\\right)?\s*$/;
 const LIST_LOOKUP = /^\s*[A-Za-z](?:_\{[^{}]*\}|_[A-Za-z0-9])?\s*(?:\\left)?\[[^[\]]*\](?:\\right)?\s*$/;
+
+/** A choice list minus one scalar calculation still makes the student set up that scalar calculation. */
+function wrapsScalarArithmeticInChoiceList(rows: readonly { latex: string }[]): boolean {
+  if (rows.length !== 2) return false;
+  const list = rows.find((row) => LITERAL_LIST.test(row.latex));
+  if (!list) return false;
+  const name = list.latex.match(/^\s*([A-Za-z](?:_\{[^{}]*\}|_[A-Za-z0-9])?)/)?.[1];
+  if (!name) return false;
+  const comparison = rows.find((row) => row !== list)?.latex.replace(/\s+/g, "") ?? "";
+  const arithmetic = comparison.startsWith(`${name}-`)
+    ? comparison.slice(name.length + 1)
+    : comparison.endsWith(`-${name}`)
+      ? comparison.slice(0, -name.length - 1)
+      : null;
+  return arithmetic !== null && isLiteralArithmetic(arithmetic);
+}
 
 /**
  * Desmos way or math way. Paper and calculator-only techniques are the math
@@ -281,7 +456,8 @@ const LIST_LOOKUP = /^\s*[A-Za-z](?:_\{[^{}]*\}|_[A-Za-z0-9])?\s*(?:\\left)?\[[^
  * technique is called.
  */
 export function planApproach(techniqueId: TechniqueId, rows: readonly { latex: string }[]): Approach {
-  if (methodApproach({ techniqueId }) === "math") return "math";
+  if (rows.length === 0 || methodApproach({ techniqueId }) === "math") return "math";
+  if (techniqueId === "answer-choice-list" && wrapsScalarArithmeticInChoiceList(rows)) return "math";
   const arithmeticOnly = rows.length > 0 && rows.some((row) => isLiteralArithmetic(row.latex)) &&
     rows.every((row) => isLiteralArithmetic(row.latex) || LITERAL_LIST.test(row.latex) || LIST_LOOKUP.test(row.latex));
   return arithmeticOnly ? "math" : "desmos";
@@ -303,10 +479,12 @@ const isLinearFit = (latex: string) => /^\s*[A-Za-z](?:_\{[^{}]*\}|_[A-Za-z0-9])
  * A relabel may duplicate another candidate's technique; selection keeps the
  * better of the two.
  */
-function relabel(candidate: Candidate, representation: boolean): { candidate: Candidate; repair: string | null } {
+function relabel(candidate: Candidate, representation: boolean, interpretation = false): { candidate: Candidate; repair: string | null } {
   const rows = candidate.rows;
   let techniqueId: TechniqueId | null = null;
-  if (candidate.techniqueId === "function-evaluation" && rows.length > 0 && !rows.some((row) => FUNCTION_DEFINITION.test(row.latex))) {
+  if (candidate.techniqueId === "translate-the-words" && !representation && !interpretation) {
+    techniqueId = rows.length ? "calculator-arithmetic" : "direct-arithmetic";
+  } else if (candidate.techniqueId === "function-evaluation" && rows.length > 0 && !rows.some((row) => FUNCTION_DEFINITION.test(row.latex))) {
     techniqueId = "calculator-arithmetic";
   } else if (candidate.techniqueId === "direct-arithmetic" && rows.length > 0) {
     techniqueId = "calculator-arithmetic";
@@ -451,6 +629,20 @@ export function isIntegerFactorExtremumQuestion(question: string): boolean {
     /\bintegers?\b/i.test(question);
 }
 
+/**
+ * A symbolic choice that must be an integer for every allowed assignment needs
+ * a general argument. Fitting one set of integer coefficients can illustrate
+ * the claim, but the fitted values are only one possible assignment.
+ */
+export function isUniversalSymbolicIntegerQuestion(question: string, choices: readonly AnswerChoice[] | null, integers: readonly Parameter[]): boolean {
+  if (!choices?.length || !integers.length) return false;
+  if (!/\b(?:must|always|necessarily)\b[^?.]{0,60}\b(?:integer|whole number)\b/i.test(question)) return false;
+  return integers.some(({ name }) => {
+    const symbol = new RegExp(`(?<![A-Za-z])${name}(?![A-Za-z])`, "i");
+    return choices.some(({ text }) => symbol.test(text));
+  });
+}
+
 type Interval = { low: number; high: number };
 
 /** A stated continuous domain such as 2 <= x <= 8 (not one restricted to integers). */
@@ -490,9 +682,13 @@ type CandidateContext = {
   condition: ConditionType | null;
   integers: Parameter[];
   integerFactorExtremum: boolean;
+  universalSymbolicInteger: boolean;
   solutionCount: boolean;
   approximate: boolean;
   wholeNumber: boolean;
+  linearTableIntercept: LinearTableIntercept | null;
+  quadraticProductTable: QuadraticProductTable | null;
+  exactParallelSystem: ExactParallelSystem | null;
 };
 
 type Validated = Omit<Method, "id" | "badges" | "rejected" | "total" | "mathScore" | "mathLevel" | "shape" | "cost" | "name"> & {
@@ -511,6 +707,34 @@ function reject(rule: string, reason: string, stage = "strategy_policy"): Reject
 function validateCandidate(candidate: Candidate, context: CandidateContext): Validated | Rejection {
   const { question, choices } = context;
   const repairs: string[] = [];
+  if (context.exactParallelSystem) {
+    const exact = context.exactParallelSystem;
+    if (!exact.distinct) {
+      return reject("linear-system-condition-impossible",
+        "At the only coefficient value that makes these printed lines parallel, their constants also scale together; the lines coincide, so no parameter value makes this system have no solution.",
+        "answer_consistency");
+    }
+    const stated = parseNumber(candidate.answer);
+    if (stated === null || !numbersMatch(stated, exact.value)) {
+      return reject("linear-system-answer-mismatch",
+        `The printed line coefficients give ${exact.parameter} = ${exact.value} for distinct parallel lines; this candidate states ${candidate.answer}.`,
+        "answer_consistency");
+    }
+    if (candidate.answerState?.param === exact.parameter && !numbersMatch(candidate.answerState.value, exact.value)) {
+      return reject("linear-system-answer-mismatch",
+        `The ${exact.parameter} slider opens at ${candidate.answerState.value}, but the printed lines are distinct and parallel at ${exact.value}.`,
+        "answer_consistency");
+    }
+    if (["slider-condition", "slider-parallel"].includes(candidate.techniqueId) &&
+        candidate.answerState?.param === exact.parameter) {
+      const graphs = candidate.rows.filter((row) => row.slider === null).map((row) => row.latex.replace(/\s+/g, ""));
+      if (graphs.length !== 2 || graphs[0] !== exact.equations[0] || graphs[1] !== exact.equations[1]) {
+        return reject("linear-system-plan-mismatch",
+          "This slider plan must graph both printed equations exactly before its parallel-lines readout can be verified.",
+          "answer_consistency");
+      }
+    }
+  }
   // For a stated infinitely-many condition, b/d-style ratio questions ask
   // for the common scale factor itself. A direct computation need not prove
   // that a separate parameter makes two graphed lines coincide.
@@ -528,8 +752,21 @@ function validateCandidate(candidate: Candidate, context: CandidateContext): Val
     })),
   );
 
+  if (candidate.techniqueId === "integer-list-filter") {
+    const budgetRepair = repairBudgetListCap(rows, question);
+    if (budgetRepair) repairs.push(budgetRepair);
+  }
+
   if (rows.some((row) => !row.latex.trim())) {
     return reject("row-fails-to-insert", "A calculator row normalizes to empty.", "desmos_syntax");
+  }
+  // Desmos plots polygon(), but its expression row has no numeric area
+  // readout. When the answer actually comes from a separate area formula,
+  // showing the polygon first only adds setup to that simpler calculation.
+  if (candidate.techniqueId === "polygon-area" && candidate.result.type === "numeric" &&
+      /\barea\b/i.test(context.question) &&
+      rows.some((row) => /\\operatorname\{polygon\}\s*\(/.test(row.latex))) {
+    return reject("polygon-has-no-area-readout", "polygon() draws the shape but does not display its area. Use the numeric area formula as the calculator method.", "desmos_result");
   }
   // A caption Desmos cannot define (\text{area}=, \tan S=) on a row nothing
   // else references: the row's computation is its right side.
@@ -555,6 +792,31 @@ function validateCandidate(candidate: Candidate, context: CandidateContext): Val
       "A regression gives one factorization, not the greatest or least value. Enumerate the allowed integer factors and take max or min of every resulting coefficient.",
     );
   }
+  if (context.universalSymbolicInteger &&
+      rows.some((row) => /\\sim(?![A-Za-z])|~/.test(row.latex) &&
+        context.integers.some(({ name }) => new RegExp(`(?<![A-Za-z])${name}(?![A-Za-z])`, "i").test(row.latex)))) {
+    return reject(
+      "unproven-universal",
+      "A regression finds one set of integer parameters, which cannot prove this symbolic expression is an integer for every allowed set. Use an exact coefficient identity in a written method, or a complete finite enumeration when the question permits one.",
+    );
+  }
+  if (context.universalSymbolicInteger && rows.length > 0 && candidate.result.answerFrom === "reasoning") {
+    return reject(
+      "unproven-universal",
+      "The calculator rows leave the universal integer claim to an unstated reasoning step. Give the exact argument as a written method, or use a complete finite check with a decisive calculator readout.",
+    );
+  }
+  // This only catches an explicit uncertainty marker in a claimed proof. It
+  // does not verify the symbolic algebra; a later explanation can still need
+  // mathematical review even when the answer choice is correct.
+  if (context.universalSymbolicInteger && candidate.result.type === "written" && /[?？]/.test(candidate.result.detail)) {
+    return reject(
+      "uncertain-written-proof",
+      "The written readout contains a question mark in its coefficient argument. State the exact equality confidently and check each algebraic step before presenting this as a universal proof.",
+    );
+  }
+  const identityIssue = identityPlanIssue(question, rows, candidate.result.row, candidate.answer);
+  if (identityIssue) return reject("identity-conditions", identityIssue);
   const proseRows = findProseRows(rows);
   if (proseRows.length) {
     return reject("row-fails-to-insert", `Line ${proseRows.join(", ")} contains prose instead of a Desmos expression.`, "desmos_syntax");
@@ -605,14 +867,40 @@ function validateCandidate(candidate: Candidate, context: CandidateContext): Val
       `Line ${untranscribed.map((item) => `${item.row} lists ${item.constants.join(", ")}`).join("; ")}: a data list must hold the question's numbers exactly as printed; let a Desmos row compute anything derived from them.`,
     );
   }
+  let result = candidate.result;
+  if (result.type === "slider_condition" && result.row === null && candidate.answerState) {
+    const sliderRow = rows.findIndex((row) => row.slider !== null &&
+      row.latex.replace(/\s+/g, "").startsWith(`${candidate.answerState!.param}=`));
+    if (sliderRow >= 0) {
+      result = { ...result, row: sliderRow + 1 };
+      repairs.push(`Read the condition from the existing ${candidate.answerState.param} slider on line ${sliderRow + 1}.`);
+    }
+  }
   let derivedDefinitions = findDerivedDefinitions(rows, question);
-  const resultRow = candidate.result.row;
+  let resultRow = result.row;
   if (resultRow !== null && candidate.result.answerFrom === "value" && derivedDefinitions.some(({ row }) => row === resultRow)) {
     const readout = rows[resultRow - 1] ? unwrapSyntheticResultAlias(rows[resultRow - 1].latex, question) : null;
     if (readout) {
       rows[resultRow - 1] = { ...rows[resultRow - 1], latex: readout };
       repairs.push(`Removed the synthetic result alias on line ${resultRow}; Desmos evaluates ${readout} directly.`);
       derivedDefinitions = findDerivedDefinitions(rows, question);
+    }
+  }
+  if (context.linearTableIntercept && choices === null && candidate.answerState === null &&
+      result.type === "numeric" && result.answerFrom === "value" && resultRow !== null &&
+      derivedDefinitions.some(({ row }) => row === resultRow)) {
+    const graphRow = plottedLinearTableInterceptRow(context.linearTableIntercept, rows, resultRow);
+    if (graphRow !== null) {
+      rows.pop();
+      resultRow = graphRow;
+      result = {
+        ...result,
+        type: "x_intercept",
+        row: graphRow,
+        detail: "x-coordinate of the fitted line's x-intercept",
+      };
+      derivedDefinitions = findDerivedDefinitions(rows, question);
+      repairs.push("Read the fitted line's x-intercept on its graph instead of defining the intercept from its fitted parameters.");
     }
   }
   if (derivedDefinitions.length) {
@@ -629,6 +917,8 @@ function validateCandidate(candidate: Candidate, context: CandidateContext): Val
       "desmos_syntax",
     );
   }
+  const unsupported = findUnsupportedDesmosOperations(rows);
+  if (unsupported.length) return reject("row-fails-to-insert", unsupported.map(item => `Line ${item.row}: ${item.reason}`).join("; "), "desmos_syntax");
   const integerViolations = findIntegerParameterViolations(rows, parameters, {
     fixedValuesAllowed: !DRAGGED_SLIDER_TECHNIQUES.has(candidate.techniqueId) && candidate.cost.manualIterations === 0,
     determinedValue: asksForDeterminedValue(question),
@@ -641,15 +931,18 @@ function validateCandidate(candidate: Candidate, context: CandidateContext): Val
         .join("; "),
     );
   }
-  const determinacy = findRegressionDeterminacyViolations(rows);
+  const determinacy = findRegressionDeterminacyViolations(rows, { readoutRow: resultRow });
   if (determinacy.length) {
     return reject(
       "underdetermined-regression",
       determinacy
         .map((violation) =>
           violation.kind === "underdetermined"
-            ? `Line ${violation.row} is an underdetermined regression: ${violation.freeParams} free parameters (${violation.params.join(", ")}) but only ${violation.constraints} data constraints.`
-            : `Line ${violation.row} fits lists of mismatched length (${Object.entries(violation.lengths).map(([name, length]) => `${name}: ${length}`).join(", ")}).`,
+            ? `Line ${violation.row} is an underdetermined regression: ${violation.freeParams} free parameters (${violation.params.join(", ")}) but only ${violation.constraints} data constraints, so its fitted values are not unique. ` +
+              "If the question asks for a combination those conditions fix (x+y+z from two equations in x, y, and z), read it on a later line that computes exactly that combination, such as x_{1}+y_{1}+z, and set the result row to that line; the server checks the value is fixed."
+            : violation.kind === "inconsistent"
+              ? `Line ${violation.row} has contradictory affine conditions, so no exact fit satisfies every equation.`
+              : `Line ${violation.row} fits lists of mismatched length (${Object.entries(violation.lengths).map(([name, length]) => `${name}: ${length}`).join(", ")}).`,
         )
         .join("; "),
     );
@@ -663,7 +956,6 @@ function validateCandidate(candidate: Candidate, context: CandidateContext): Val
   // result.detail is a short readout label; LaTeX there (\sqrt{...}) is a
   // formatting slip, not a method defect, so it gets a neutral label instead
   // of costing the student a valid technique. No LaTeX reaches the student.
-  let result = candidate.result;
   try {
     sanitizeProse(result.detail, "result.detail");
   } catch (error) {
@@ -675,6 +967,13 @@ function validateCandidate(candidate: Candidate, context: CandidateContext): Val
   if (candidate.answerState) {
     try {
       validateAnswerState(rows, candidate.answerState);
+      const discovery = sliderDiscoveryRows(rows, candidate.answerState);
+      discovery.forEach((row, index) => {
+        if (row.latex !== rows[index].latex) {
+          rows[index] = row;
+          repairs.push("Moved an answer-seeded slider to a neutral starting stop. The student must adjust it and observe the condition.");
+        }
+      });
     } catch (error) {
       if (error instanceof AnswerConsistencyError) return reject("answer-state", error.message, error.stage);
       throw error;
@@ -688,12 +987,116 @@ function validateCandidate(candidate: Candidate, context: CandidateContext): Val
       answer: candidate.answer,
       readAnswer: "",
       expressionCount: rows.length,
+      expressions: rows,
       approximate: context.approximate,
       wholeNumber: context.wholeNumber,
     });
   } catch (error) {
     if (error instanceof AnswerConsistencyError) return reject("answer-consistency", error.message, error.stage);
     throw error;
+  }
+  // Validate a necessary AA relation only when the transcription explicitly
+  // states every required incidence and angle fact. No solution is synthesized.
+  const claimedLength = parseNumber(consistent.answer.replace(/^[A-Z][).:]\s*/, ""));
+  const similarityConflict = claimedLength === null ? null : similarityReadoutConflict(question, claimedLength);
+  if (similarityConflict) return reject("similarity-correspondence", similarityConflict, "answer_consistency");
+  // A valid answer label cannot rescue a wrong graph (for example, graphing
+  // only the left side and claiming the original equation's solution as its
+  // zero). Reject a provable readout contradiction, leaving valid alternatives
+  // eligible. Rounded/estimated tasks and unsupported graph syntax stay on
+  // their existing validation path; never rewrite the question or graph.
+  if (!context.approximate && !context.wholeNumber && "type" in consistent.result &&
+      consistent.result.type === "x_intercept" && consistent.result.row !== null &&
+      consistent.result.value !== null) {
+    const graph = rows[consistent.result.row - 1];
+    const root = graph ? scalarAffineXIntercept(graph.latex) : null;
+    if (root !== null && !roundsTo(String(consistent.result.value), root)) {
+      return reject(
+        "affine-intercept-mismatch",
+        `The graph on row ${consistent.result.row} has x-intercept ${root}, not ${consistent.result.value}. Check that the row includes both sides of the original equation.`,
+        "answer_consistency",
+      );
+    }
+  }
+  const exactIntercept = context.linearTableIntercept;
+  if (exactIntercept) {
+    const stated = parseNumber(consistent.answer);
+    const answerMatches = stated !== null && (numbersMatch(stated, exactIntercept.value) || roundsTo(consistent.answer, exactIntercept.value));
+    const readoutMatches = consistent.result.value === null || numbersMatch(consistent.result.value, exactIntercept.value);
+    if (!answerMatches || !readoutMatches) {
+      // This line is fully determined by the printed table. Correct a mistaken
+      // clicked intercept only when the rows really fit and graph those points;
+      // a written calculation or a different graph must be regenerated.
+      const repairable = choices === null && "type" in consistent.result && consistent.result.type === "x_intercept" &&
+        consistent.result.answerFrom === "value" &&
+        graphsExactLinearTableFit(exactIntercept, rows, consistent.result.row) &&
+        Math.abs(Number(exactIntercept.value.toFixed(6)) - exactIntercept.value) <=
+          1e-12 * Math.max(1, Math.abs(exactIntercept.value));
+      if (!repairable) {
+        return reject(
+          "linear-table-intercept-mismatch",
+          `The printed linear table has x-intercept ${exactIntercept.value}, but this candidate states ${consistent.answer}. Check the table pairs, the fitted line, and the x-intercept readout.`,
+          "answer_consistency",
+        );
+      }
+      const correctedAnswer = String(exactIntercept.value);
+      try {
+        consistent = deriveConsistentSolution({
+          choices,
+          result: { ...consistent.result, value: exactIntercept.value },
+          answer: correctedAnswer,
+          readAnswer: "",
+          expressionCount: rows.length,
+          expressions: rows,
+          approximate: context.approximate,
+          wholeNumber: context.wholeNumber,
+        });
+      } catch (error) {
+        if (error instanceof AnswerConsistencyError) return reject("answer-consistency", error.message, error.stage);
+        throw error;
+      }
+      repairs.push(`Corrected the x-intercept from ${candidate.answer} to ${correctedAnswer} using the exact printed table and the candidate's fitted-line graph.`);
+    }
+  }
+  const exactProduct = context.quadraticProductTable;
+  if (exactProduct) {
+    const stated = parseNumber(consistent.answer);
+    const answerMatches = stated !== null && (numbersMatch(stated, exactProduct.value) || roundsTo(consistent.answer, exactProduct.value));
+    const readoutMatches = consistent.result.value === null || numbersMatch(consistent.result.value, exactProduct.value);
+    if (!answerMatches || !readoutMatches) {
+      // The zero-factor table cell is no evidence for f at that point. Three
+      // other exact rows determine f; only a regression that actually enters
+      // the printed pairs and the given product may have its readout repaired.
+      const repairable = choices === null && "type" in consistent.result && consistent.result.type === "numeric" &&
+        consistent.result.answerFrom === "value" &&
+        fitsExactQuadraticProductTable(exactProduct, rows, consistent.result.row) &&
+        Math.abs(Number(exactProduct.value.toFixed(6)) - exactProduct.value) <=
+          1e-12 * Math.max(1, Math.abs(exactProduct.value));
+      if (!repairable) {
+        return reject(
+          "quadratic-product-table-mismatch",
+          `The printed g-table and g(x)=(x${exactProduct.factor < 0 ? "" : "+"}${exactProduct.factor})f(x) determine f(${exactProduct.input})=${exactProduct.value}, but this candidate states ${consistent.answer}. Fit the original g-values against the full product, then read f at the requested input.`,
+          "answer_consistency",
+        );
+      }
+      const correctedAnswer = String(exactProduct.value);
+      try {
+        consistent = deriveConsistentSolution({
+          choices,
+          result: { ...consistent.result, value: exactProduct.value },
+          answer: correctedAnswer,
+          readAnswer: "",
+          expressionCount: rows.length,
+          expressions: rows,
+          approximate: context.approximate,
+          wholeNumber: context.wholeNumber,
+        });
+      } catch (error) {
+        if (error instanceof AnswerConsistencyError) return reject("answer-consistency", error.message, error.stage);
+        throw error;
+      }
+      repairs.push(`Corrected f(${exactProduct.input}) from ${candidate.answer} to ${correctedAnswer} using the exact g-table and the candidate's quadratic regression.`);
+    }
   }
   if (rows.length === 0 && "type" in consistent.result && consistent.result.type !== "written") {
     return reject("answer-consistency", "A technique without calculator rows must use the written result type.", "result_contract");
@@ -729,11 +1132,38 @@ function validateCandidate(candidate: Candidate, context: CandidateContext): Val
     factFloor = 1;
     repairs.push("Counted one memorized fact: a row types the quadratic formula's b^2-4ac over the given coefficients.");
   }
-  let derivationFloor = 0;
-  if (candidate.techniqueId === "answer-choice-list" && rows.some((row) => isLiteralArithmetic(row.latex))) {
+  let derivationFloor = constrainedRewriteBurden(question, rows);
+  if (derivationFloor) repairs.push(`Counted at least ${derivationFloor} construction steps: this function replaces original unknowns with derived expressions before Desmos evaluates the target.`);
+  // A fitted line does not make the root formula -intercept/slope a given.
+  // Charge this construction even when its row is labeled ordinary evaluation.
+  const readout = result.row ? rows[result.row - 1]?.latex.replace(/\\(?:left|right)/g, "").replace(/\s+/g, "") : "";
+  const rootFormula = readout?.match(/^-(?:([a-z])\/([a-z])|\\frac\{([a-z])\}\{([a-z])\})$/);
+  if (rootFormula && !question.replace(/\s+/g, "").includes(readout!)) {
+    const intercept = rootFormula[1] ?? rootFormula[3], slope = rootFormula[2] ?? rootFormula[4];
+    const fittedLine = rows.some(row => {
+      const text = row.latex.replace(/\s+/g, "");
+      return /=|~|\\sim/.test(text) && text.endsWith(`+${intercept}`) && text.includes(slope);
+    });
+    if (fittedLine) {
+      derivationFloor = Math.max(derivationFloor, 1);
+      repairs.push("Counted the root-formula construction from the line’s slope and intercept. A clicked graph root does not require that algebra.");
+    }
+  }
+  const cofactorBurden = factorConstructionBurden(question, rows);
+  if (cofactorBurden) {
+    derivationFloor = Math.max(derivationFloor, cofactorBurden);
+    repairs.push("Counted construction of a numeric cofactor not supplied by the factor statement. A fitted cofactor can outsource that derivation.");
+  }
+  const insight = identityInsightBurden(question, rows);
+  if (insight) {
+    derivationFloor = Math.max(derivationFloor, insight);
+    repairs.push("Counted the mathematical insight of selecting an input or constructing an evaluation to reveal unknown identity coefficients.");
+  }
+  if (candidate.techniqueId === "answer-choice-list" &&
+      (rows.some((row) => isLiteralArithmetic(row.latex)) || wrapsScalarArithmeticInChoiceList(rows))) {
     // A choice lookup does not make the computation it wraps free: the same
     // row alone is calculator arithmetic, which carries its setup step.
-    derivationFloor = 1;
+    derivationFloor = Math.max(derivationFloor, 1);
     repairs.push("Counted one derivation step: the list looks up a value its own row computes from the question's numbers, the setup calculator arithmetic carries.");
   }
   return {
@@ -759,6 +1189,7 @@ function scored(id: string, validated: Validated): Omit<Method, "badges" | "reje
   const derived = deriveCost(validated.rawCost, validated.rows.length, validated.techniqueId);
   const cost = {
     ...derived,
+    manualIterations: Math.max(derived.manualIterations, validated.answerState && validated.rows.some(row => row.slider) ? 1 : 0),
     derivationSteps: Math.max(derived.derivationSteps, validated.derivationFloor),
     oneOffFacts: Math.max(derived.oneOffFacts, validated.factFloor),
   };
@@ -815,13 +1246,58 @@ function rejectedMethod(id: string, candidate: Candidate, rejection: Rejection):
  * Every math way after the first, in rank order: the list offers the Desmos
  * ways and ONE math way, never several algebra variants of the same idea.
  */
-function extraMathWays<T extends Pick<Method, "techniqueId" | "approach">>(ranked: readonly T[]): T[] {
-  return ranked.filter((method) => methodApproach(method) === "math").slice(1);
+function extraMathWays<T extends Pick<Method, "techniqueId" | "approach" | "rows">>(ranked: readonly T[]): T[] {
+  const math = ranked.filter(method => methodApproach(method) === "math");
+  // When no native method survives, do not hide the only executable
+  // calculator workflow just because paper arithmetic ranks one row cheaper.
+  // This remains calculator-only coverage, not a claimed native shortcut.
+  const calculator = ranked.some(method => methodApproach(method) === "desmos")
+    ? null : math.find(method => method.rows.length > 0);
+  const written = calculator ? math.find(method => method.rows.length === 0) : null;
+  return math.slice(1).filter(method => method !== calculator && method !== written);
+}
+
+/** Prefer a written coefficient proof only when the printed factorization
+ * independently implies the claimed equality. An arbitrary model-written
+ * "choice = integer parameter" is not evidence of a valid identity. */
+function isWrittenUniversalIdentity(
+  method: Pick<Method, "rows" | "result">,
+  context: CandidateContext,
+): boolean {
+  if (!context.universalSymbolicInteger || method.rows.length || method.result.type !== "written") return false;
+  if (!["b", "c", "d"].every((name) => context.integers.some((parameter) => parameter.name === name))) return false;
+  // The screenshot may render a choice as \frac{a+c}{b}, while the proof
+  // writes (a+c)/b. Check the entire stated polynomial family: a rewrite is
+  // an identity, whereas an equality at only one x would not justify this.
+  const normalized = (value: string) => value
+    .replace(/\\(?:dfrac|tfrac|frac)\{([^{}]+)\}\{([^{}]+)\}/g, (_match, numerator: string, denominator: string) =>
+      `${/[+-]/.test(numerator) ? `(${numerator})` : numerator}/${denominator}`)
+    .replace(/\\left|\\right|\s+|\$/g, "")
+    .replace(/[−–]/g, "-");
+  const targetChoices = context.choices?.filter(({ text }) => normalized(text) === "(a+c)/b");
+  if (targetChoices?.length !== 1 || method.result.choiceLabel?.toUpperCase() !== targetChoices[0].label.toUpperCase()) return false;
+  const questionStem = normalized(context.question).replace(/²/g, "^2").replace(/\^\{2\}/g, "^2");
+  const family = questionStem.match(/^Theexpression([+-]?\d*)x\^2-ax([+-]\d+)(?:,whereaisaconstant,?)?canberewrittenas\(bx\+c\)\(x\+d\),whereb,c,(?:and)?dareintegerconstants\.Whichofthefollowingmustbeaninteger\?$/i);
+  if (!family) return false;
+  const leading = Number(family[1] === "" || family[1] === "+" ? "1" : family[1] === "-" ? "-1" : family[1]);
+  const constant = Number(family[2]);
+  if (!Number.isSafeInteger(leading) || leading === 0 || !Number.isSafeInteger(constant)) return false;
+  // Coefficients of x² and x give b=L≠0 and -a=bd+c. Therefore the exact
+  // target is -d for every allowed integer factorization, independently of K.
+  // This preference certifies that equality, not the uniqueness of other choices.
+  if (/\b(?:not|false|incorrect|invalid|cannot)\b/i.test(method.result.detail)) return false;
+  const detail = normalized(method.result.detail);
+  const equality = "(a+c)/b=-d";
+  const at = detail.indexOf(equality);
+  if (at < 0) return false;
+  const before = detail.slice(0, at);
+  const completeLeft = at === 0 || /[,;:.(]$/.test(before) || /(?:so|hence|therefore|gives|implies|shows|is)$/.test(before);
+  return completeLeft && (at + equality.length === detail.length || /[,;.:)]/.test(detail[at + equality.length]));
 }
 
 /**
  * Applies every hard rejection, scores the survivors, and takes the argmin of
- * total cost. The model's stated preference never selects; it is only kept so
+ * student-math burden before practical calculator effort. The model's stated preference never selects; it is only kept so
  * a disagreement can be logged. Throws when no candidate survives.
  */
 export function selectMethods(response: CandidatesResponse): MethodSelection {
@@ -862,28 +1338,36 @@ export function selectMethods(response: CandidatesResponse): MethodSelection {
       "transcription_conflict",
     );
   }
+  const integers = questionIntegerParameters(question);
   const context: CandidateContext = {
     question,
     choices,
     representation: isRepresentationQuestion(question),
     interval: continuousInterval(question),
     condition: questionCondition(question),
-    integers: questionIntegerParameters(question),
+    integers,
     integerFactorExtremum: isIntegerFactorExtremumQuestion(question),
+    universalSymbolicInteger: isUniversalSymbolicIntegerQuestion(question, choices, integers),
     solutionCount: isSolutionCountCondition(question),
     approximate: isApproximationQuestion(question),
     wholeNumber: isWholeNumberQuestion(question),
+    linearTableIntercept: choices === null ? exactLinearTableIntercept(question) : null,
+    quadraticProductTable: choices === null ? exactQuadraticProductTable(question) : null,
+    exactParallelSystem: choices === null ? exactNoSolutionParallelSystem(question) : null,
   };
 
   // Validate every candidate, then keep the best one per technique: two
   // candidates under one name (the model's, or one relabeled to it) list it
   // once, at its cheapest, rather than whichever came first.
   const outcomes = response.candidates.map((original, index) => {
-    const { candidate, repair } = relabel(original, context.representation);
+    const vertexRepair = repairExactTangentVertex(original, question);
+    const parallelRepair = repairExactParallelSlider(vertexRepair.candidate, context.exactParallelSystem);
+    const { candidate, repair } = relabel(parallelRepair.candidate, context.representation, isInterpretationQuestion(question));
     const outcome = validateCandidate(candidate, context);
     return "rule" in outcome
       ? { index, candidate, rejection: outcome }
-      : { index, candidate, method: scored(candidate.techniqueId, repair ? { ...outcome, repairs: [repair, ...outcome.repairs] } : outcome) };
+      : { index, candidate, method: scored(candidate.techniqueId,
+        repair || vertexRepair.repair || parallelRepair.repair ? { ...outcome, repairs: [repair, vertexRepair.repair, parallelRepair.repair, ...outcome.repairs].filter((value): value is string => value !== null) } : outcome) };
   });
   const best = new Map<TechniqueId, Omit<Method, "badges" | "rejected">>();
   for (const { method } of outcomes) {
@@ -919,7 +1403,11 @@ export function selectMethods(response: CandidatesResponse): MethodSelection {
   // intercepts"): only the cheaper listing stays.
   const ranked: typeof eligible = [];
   const signatures = new Map<string, string>();
-  for (const method of [...eligible].sort(compareMethods)) {
+  const rankForQuestion = (left: typeof eligible[number], right: typeof eligible[number]) => {
+    const proofPreference = Number(isWrittenUniversalIdentity(right, context)) - Number(isWrittenUniversalIdentity(left, context));
+    return proofPreference || compareMethods(left, right);
+  };
+  for (const method of [...eligible].sort(rankForQuestion)) {
     const signature = method.rows.length ? rowSignature(method.rows) : null;
     const first = signature ? signatures.get(signature) : undefined;
     if (first) {
@@ -994,8 +1482,13 @@ export type RescueTarget = {
  */
 export function desmosRescueTarget(selection: MethodSelection): RescueTarget | null {
   const winner = selection.methods.find((method) => method.id === selection.winnerId);
-  if (!winner || methodApproach(winner) === "desmos" || winner.techniqueId === "translate-the-words") return null;
-  if (isRepresentationQuestion(selection.question)) return null;
+  if (!winner || selection.methods.some(method => !method.rejected && methodApproach(method) === "desmos")) return null;
+  if (isRepresentationQuestion(selection.question) || isInterpretationQuestion(selection.question)) return null;
+  // A concise coefficient proof is the useful answer to a universal symbolic
+  // integer claim. A single fitted example cannot replace it, so another
+  // Desmos-search call would only add latency after the proof is ready.
+  if (winner.rows.length === 0 && winner.result.type === "written" &&
+      isUniversalSymbolicIntegerQuestion(selection.question, selection.choices, questionIntegerParameters(selection.question))) return null;
   const candidates = selection.methods.filter(
     (method) =>
       method.rejected !== null &&
@@ -1004,7 +1497,43 @@ export function desmosRescueTarget(selection: MethodSelection): RescueTarget | n
       getTechnique(method.techniqueId).source === "library" &&
       methodApproach(method) === "desmos",
   );
+  // For a calculation explicitly printed in the question, a new graph is
+  // usually a longer route to the same result. Only skip the speculative search
+  // when no rejected Desmos method needs repair; answer consistency was checked
+  // in selection, though this is not an independent arithmetic proof.
+  if (candidates.length === 0 && winner.techniqueId === "calculator-arithmetic" &&
+      winner.rows.length === 1 && isLiteralArithmetic(winner.rows[0].latex) &&
+      isPrintedCalculation(selection.question, winner.rows[0].latex) &&
+      winner.result.type === "numeric" && winner.result.row === 1 &&
+      winner.result.answerFrom === "value" && Number.isFinite(winner.result.value) &&
+      winner.cost.derivationSteps <= 1 && winner.cost.oneOffFacts === 0) return null;
   return { winner, candidates };
+}
+
+/** Server acceptance is not browser execution or a mathematical proof. */
+export type DesmosCoverage = {
+  status: "desmos-available" | "calculator-only" | "written-only";
+  methodIds: string[];
+  recommended: boolean;
+  recoveryRequired: boolean;
+  exemption: "representation" | "interpretation" | "universal-proof" | "literal-calculation" | null;
+};
+
+export function assessDesmosCoverage(selection: MethodSelection): DesmosCoverage {
+  const methods = selection.methods.filter(method => !method.rejected);
+  const native = methods.filter(method => method.rows.length > 0 && methodApproach(method) === "desmos");
+  const winner = methods.find(method => method.id === selection.winnerId);
+  const representation = isRepresentationQuestion(selection.question);
+  const universal = !!winner && winner.rows.length === 0 && winner.result.type === "written" &&
+    isUniversalSymbolicIntegerQuestion(selection.question, selection.choices, questionIntegerParameters(selection.question));
+  const required = native.length === 0 && desmosRescueTarget(selection) !== null;
+  return {
+    status: native.length ? "desmos-available" : methods.some(method => method.rows.length) ? "calculator-only" : "written-only",
+    methodIds: native.map(method => method.id),
+    recommended: native.some(method => method.id === selection.winnerId),
+    recoveryRequired: required,
+    exemption: native.length || required ? null : representation ? "representation" : isInterpretationQuestion(selection.question) ? "interpretation" : universal ? "universal-proof" : "literal-calculation",
+  };
 }
 
 /**

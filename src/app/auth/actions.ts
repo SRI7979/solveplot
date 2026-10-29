@@ -9,7 +9,7 @@ import { getSiteOrigin, getSupabaseConfig } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 
 export type AuthMode = "signin" | "signup" | "forgot" | "reset";
-export type AuthState = { error?: string; message?: string };
+export type AuthState = { error?: string; message?: string; authenticated?: boolean };
 
 const emailSchema = z.email().max(254);
 const passwordSchema = z.string().min(8).max(128);
@@ -76,6 +76,7 @@ export async function authenticate(_previous: AuthState, form: FormData): Promis
   }
 
   revalidatePath("/", "layout");
+  if (form.get("presentation") === "modal") return { authenticated: true };
   redirect(next);
 }
 

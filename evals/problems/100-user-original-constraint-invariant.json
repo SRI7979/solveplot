@@ -1,0 +1,58 @@
+{
+  "group": "hard",
+  "source": "user-screenshot",
+  "domain": "Advanced Math",
+  "topic": "Approved original-constraint invariant regression",
+  "problem": "What is the value of 8x\u00b2 + 18x + 8xy + 9y + 2y\u00b2 when 2x + y = 20?",
+  "choices": null,
+  "correctAnswer": "980",
+  "expectedResultType": "numeric",
+  "gold": [
+    "parameter-regression"
+  ],
+  "acceptable": [
+    "bracket-regression",
+    "slider-condition"
+  ],
+  "bad": [
+    {
+      "technique": "function-evaluation",
+      "why": "Rearrangement and repeated substitution hide avoidable algebra in a long function row."
+    }
+  ],
+  "goldRows": [
+    "2x_{1}+y_{1}\\sim20",
+    "8x_{1}^2+18x_{1}+8x_{1}y_{1}+9y_{1}+2y_{1}^2"
+  ],
+  "burden": {
+    "gold": {
+      "manualMath": 0,
+      "hiddenDerivation": 0
+    },
+    "algebraFirst": {
+      "manualMath": 3,
+      "hiddenDerivation": 2,
+      "description": "Isolate y, substitute its expression three times, then evaluate the rewritten function."
+    }
+  },
+  "routing": {
+    "representation": false,
+    "condition": null,
+    "integerParameters": [],
+    "continuousInterval": false,
+    "integerFactorExtremum": false
+  },
+  "explanationNotes": "Internally prove target=2(2x+y)^2+9(2x+y)=980 over the full affine constraint. Fit the original relation, then evaluate the unchanged target. A fitted pair or zero residual alone is not a proof. Alternative: c=1; 2x+y=20; 8x^2+18x+8xy+9y+2y^2=c. Adjust c until the original line lies on the target level set. Keep source invariance proof internal.",
+  "labelProvenance": "human_verified_gold",
+  "notes": "Explicit user-approved worked example; do not add to the model prompt. 2026-10-27 follow-up explicitly approves the original-constraint level-set slider as a useful alternative. Direct regression is preferred for less adjustment and visual interpretation, not because regression always ranks first. Start the slider away from 980.",
+  "humanReview": {
+    "source": "user-provided-worked-example",
+    "reference": "2026-10-27 user strategy-selection brief, original-constraint invariant example",
+    "example": "affine-invariant",
+    "reviewedFields": [
+      "problem",
+      "correctAnswer",
+      "gold"
+    ]
+  }
+}

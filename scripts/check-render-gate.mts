@@ -11,12 +11,15 @@
  * .env.local. No AI calls; nothing is written unless --screenshots is given.
  */
 import { spawn } from "node:child_process";
+import assert from "node:assert/strict";
 import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import http from "node:http";
 import os from "node:os";
 import path from "node:path";
 import { build } from "esbuild";
 
+import { affineInvariantPlan } from "../src/lib/affine-invariant-plan";
+import { workflowPair, workflowCases } from "../tests/workflow-ranking-fixtures";
 import { CORRECTED_ROWS, NESTED_LIST_ROWS } from "../tests/method-fixtures";
 
 const args = process.argv.slice(2);
@@ -37,19 +40,38 @@ function solution(rows: string[], answer: string) {
   };
 }
 
+const slider = workflowPair().slider;
+const sliderSolution = {
+  ...solution([], "980"), question: workflowCases[0].question,
+  expressions: slider.rows, result: slider.result, answerState: slider.answerState,
+};
+const screenshotQuestion = "What is the value of the expression $8x^2+18x+8xy+9y+2y^2$ when $2x+y=20$?";
+const invariantPlan = affineInvariantPlan(screenshotQuestion)!;
+const invariantSolution = {
+  ...solution([], "980"), question: screenshotQuestion, trick: "Parameter regression",
+  expressions: invariantPlan.candidate.rows.map((row, index) => ({...row, purpose: invariantPlan.explanation.purposes[index]})),
+  result: invariantPlan.candidate.result, ...invariantPlan.explanation,
+};
 const harness = `
 import { createRoot } from "react-dom/client";
 import { CalculatorVerificationProvider } from "@/components/calculator-verification";
 import DesmosCalculator from "@/components/desmos-calculator";
 import SolutionExplanation from "@/components/solution-explanation";
-const cases = ${JSON.stringify({ shipped: solution(NESTED_LIST_ROWS, "25/12"), corrected: solution(CORRECTED_ROWS, "25/12") })};
+const cases = ${JSON.stringify({ shipped: solution(NESTED_LIST_ROWS, "25/12"), corrected: solution(CORRECTED_ROWS, "25/12"), wrongReadout: solution(["0"], "25/12"), slider: sliderSolution, invariant: invariantSolution })};
+const originalCalculator = window.Desmos.GraphingCalculator;
+window.observedCalculators = [];
+window.Desmos.GraphingCalculator = function(host, options) {
+  const calculator = originalCalculator(host, options);
+  window.observedCalculators.push({host, calculator});
+  return calculator;
+};
 window.renderCase = (name) => {
   const host = document.getElementById("app");
   host.innerHTML = "";
   const solution = cases[name];
   createRoot(host).render(
     <CalculatorVerificationProvider>
-      <div style={{ width: 900 }}><DesmosCalculator expressions={solution.expressions} bounds={null} answerState={null} revision={0} /></div>
+      <div style={{ width: 900 }}><DesmosCalculator expressions={solution.expressions} bounds={null} answerState={solution.answerState} expectedResult={solution.result} revision={0} initialExpressionsOpen /></div>
       <div id="explanation"><SolutionExplanation solution={solution} /></div>
     </CalculatorVerificationProvider>,
   );
@@ -82,7 +104,13 @@ const bundle = await build({
       name: "next-script-shim",
       setup(build) {
         build.onResolve({ filter: /^next\/script$/ }, () => ({ path: "next-script-shim", namespace: "shim" }));
-        build.onLoad({ filter: /.*/, namespace: "shim" }, () => ({ contents: scriptShim, loader: "jsx", resolveDir: process.cwd() }));
+        build.onLoad({ filter: /^next-script-shim$/, namespace: "shim" }, () => ({ contents: scriptShim, loader: "jsx", resolveDir: process.cwd() }));
+        // This standalone calculator harness has no Next server-action runtime.
+        // Auth navigation is outside the check; calculator/verification code is unchanged.
+        build.onResolve({ filter: /(?:^|\/)guest-auth-provider$/ }, () => ({ path: "guest-auth-shim", namespace: "shim" }));
+        build.onLoad({ filter: /^guest-auth-shim$/, namespace: "shim" }, () => ({ contents: "export function useGuestAuth() { return { isGuest: true, requireSignIn: () => true }; }", loader: "js" }));
+        build.onResolve({ filter: /^next\/(link|dynamic)$/ }, ({ path }) => ({ path, namespace: "navigation-shim" }));
+        build.onLoad({ filter: /.*/, namespace: "navigation-shim" }, ({ path }) => ({ contents: path === "next/link" ? "export default function Link(props) { return <a {...props}/>; }" : "export default function dynamic() { return () => null; }", loader: "jsx", resolveDir: process.cwd() }));
       },
     },
   ],
@@ -138,13 +166,14 @@ const inspect = `(() => {
   const visible = document.querySelector('[aria-label="Interactive Desmos graphing calculator"]');
   const text = (selector) => document.querySelector(selector)?.textContent?.trim() ?? null;
   return {
-    visibleRows: visible ? visible.querySelectorAll(".dcg-expressionitem:not(.dcg-new-expression)").length : -1,
+    visibleRows: visible ? [...visible.querySelectorAll(".dcg-expressionitem:not(.dcg-new-expression)")].filter(row => row.querySelector(".dcg-mq-root-block")?.textContent?.trim()).length : -1,
     visibleErrorIcons: visible ? visible.querySelectorAll(".dcg-error, .dcg-icon-error, [class*='error-triangle']").length : -1,
     status: text('[data-testid="desmos-status"]'),
     withheld: text('[data-testid="rows-withheld"]'),
     explanationRows: document.querySelectorAll('#explanation [data-testid="explanation-line"]').length,
     explanationWithheld: text('[data-testid="rows-withheld-explanation"]'),
-    hiddenInstances: document.querySelectorAll("[data-desmo-preflight]").length,
+    readoutBadge: text('[data-testid="verified-badge"]'),
+    hiddenInstances: document.querySelectorAll("[data-solveplot-preflight]").length,
   };
 })()`;
 
@@ -164,7 +193,7 @@ try {
   })()`);
   await evaluate(`document.getElementById("control").innerHTML = ""`);
 
-  for (const name of ["shipped", "corrected"]) {
+  for (const name of ["shipped", "corrected", "wrongReadout", "slider", "invariant"]) {
     await evaluate(`renderCase(${JSON.stringify(name)})`);
     const samples = [];
     // Sample repeatedly while it settles: an erroring row must never appear, even briefly.
@@ -173,6 +202,31 @@ try {
       await pause(100);
     }
     results[name] = { final: samples.at(-1), maxVisibleErrorIcons: Math.max(...samples.map((sample) => Number(sample.visibleErrorIcons))), maxVisibleRows: Math.max(...samples.map((sample) => Number(sample.visibleRows))) };
+    if (name === "slider") {
+      const rows = await evaluate<string[]>(`window.observedCalculators.filter(item => item.host.isConnected && item.host.getAttribute('aria-label') === 'Interactive Desmos graphing calculator').at(-1).calculator.getExpressions().map(row => row.latex)`);
+      assert.equal(rows[0], "c=1", "visible calculator must not start at c=980");
+      assert.equal(samples.at(-1)?.status, "3 lines added");
+      assert.equal(samples.at(-1)?.readoutBadge, null, "a graph/slider result has no verified numeric readout");
+      assert.equal(Math.max(...samples.map(sample => Number(sample.visibleErrorIcons))), 0);
+      results.slider = {...results.slider as object, initialRows: rows};
+    } else if (name === "corrected" || name === "invariant") {
+      // Desmos virtualizes expression fields; its loaded-count status and
+      // the explanation verify both entries, even if one field is off-screen.
+      assert.ok(Number(samples.at(-1)?.visibleRows) > 0, JSON.stringify(samples.at(-1)));
+      assert.equal(samples.at(-1)?.status, `${CORRECTED_ROWS.length} lines added`);
+      assert.equal(samples.at(-1)?.explanationRows, CORRECTED_ROWS.length);
+      assert.equal(samples.at(-1)?.readoutBadge, "Readout checked");
+      if (name === "invariant") {
+        const readout = await evaluate<number>(`window.observedCalculators.filter(item => item.host.isConnected && item.host.getAttribute('aria-label') === 'Interactive Desmos graphing calculator').at(-1).calculator.expressionAnalysis.solveplot_2.evaluation.value`);
+        assert.equal(readout, 980);
+        results.invariant = {...results.invariant as object, readout};
+      }
+    } else {
+      assert.ok(samples.every(sample => sample.visibleRows === 0), `${name}: failed rows must never be inserted: ${JSON.stringify(samples.at(-1))}`);
+      assert.equal(samples.at(-1)?.explanationRows, 0);
+      assert.ok(samples.at(-1)?.explanationWithheld, `${name}: explain the limitation`);
+      assert.equal(samples.at(-1)?.readoutBadge, null);
+    }
     if (screenshotDir) {
       mkdirSync(screenshotDir, { recursive: true });
       const shot = await send("Page.captureScreenshot", { format: "png" });

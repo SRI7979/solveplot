@@ -1,0 +1,11 @@
+.solveplot-landing .public-guides { padding:64px 0; border-bottom:1px solid #293139; scroll-margin-top:25px; }
+.solveplot-landing .public-guides > header { display:flex; justify-content:space-between; align-items:center; gap:24px; }
+.solveplot-landing .public-guides h2 { margin:0; color:#edf0f3; font-family:var(--font-geist),sans-serif; font-size:clamp(26px,3vw,36px); line-height:1.2; font-weight:500; letter-spacing:-.04em; }
+.solveplot-landing .public-guides > header > a { display:flex; align-items:center; gap:8px; font-size:12px; color:#a8c9db; white-space:nowrap; }
+.solveplot-landing .public-guides > p { max-width:72ch; margin:22px 0 28px; font-size:14px; line-height:1.85; color:#a2adb5; }
+.solveplot-landing .public-guide-links { display:grid; grid-template-columns:1fr 1fr; column-gap:40px; }
+.solveplot-landing .public-guide-links > a { position:relative; display:grid; gap:7px; padding:23px 30px 23px 0; border-top:1px solid #293139; color:#dbe4e9; }
+.solveplot-landing .public-guide-links strong { font-size:15px; font-weight:500; }.solveplot-landing .public-guide-links span { font-size:12px; line-height:1.7; color:#8f9ca5; }.solveplot-landing .public-guide-links svg { position:absolute; right:0; top:27px; color:#89b2ca; transition:transform .18s; }.solveplot-landing .public-guide-links a:hover svg { transform:translateX(4px); }
+.solveplot-landing .public-guides > .public-guides-note { margin-bottom:0; font-size:12px; color:#8f9ca5; }
+@media(max-width:600px) { .solveplot-landing .public-guides { padding-block:42px; }.solveplot-landing .public-guide-links { grid-template-columns:1fr; }.solveplot-landing .public-guides > header { align-items:flex-start; }.solveplot-landing .public-guides > p { font-size:13px; } }
+@media(prefers-reduced-motion:reduce) { .solveplot-landing .public-guide-links svg { transition:none; } }

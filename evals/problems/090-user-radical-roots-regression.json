@@ -1,0 +1,56 @@
+{
+  "group": "hard",
+  "source": "original",
+  "domain": "Advanced Math",
+  "topic": "User radical roots regression",
+  "problem": "One solution of 3x^2 - 16x + 2 = 0 can be written as (a + sqrt(b))/6, where a and b are integers. What is a + b?",
+  "choices": null,
+  "correctAnswer": "248",
+  "expectedResultType": "numeric",
+  "gold": [
+    "bracket-regression"
+  ],
+  "acceptable": [],
+  "bad": [
+    {
+      "technique": "quadratic-formula",
+      "why": "Recalling and applying the full quadratic formula misses the preferred Desmos method."
+    }
+  ],
+  "goldRows": [
+    "y=3x^{2}-16x+2",
+    "[\\frac{a+\\sqrt{b}}{6},\\frac{a-\\sqrt{b}}{6}]\\sim[5.205257701954636,0.128075631378697]",
+    "\\operatorname{round}(a)+\\operatorname{round}(b)"
+  ],
+  "burden": {
+    "gold": {
+      "manualMath": 0,
+      "hiddenDerivation": 0
+    },
+    "algebraFirst": {
+      "manualMath": 2,
+      "hiddenDerivation": 1,
+      "description": "A manual route derives parameter relations before evaluating the requested quantity."
+    }
+  },
+  "routing": {
+    "representation": false,
+    "condition": null,
+    "integerParameters": [],
+    "continuousInterval": false,
+    "integerFactorExtremum": false
+  },
+  "explanationNotes": "Click both roots and fit the two root forms in matching order. The clicked decimals are approximate, not exact proof: verify a=16, b=232 exactly before reporting 248. The readout rounds fitted integers, not the input roots.",
+  "labelProvenance": "human_verified_gold",
+  "notes": "User supplied this exact question, preferred method, and answer in the engineering brief dated 2026-10-25. Click both roots and fit the two root forms in matching order. The clicked decimals are approximate, not exact proof: verify a=16, b=232 exactly before reporting 248. The readout rounds fitted integers, not the input roots.",
+  "humanReview": {
+    "source": "user-provided-worked-example",
+    "reference": "2026-10-25 SolvePlot solver-engineering brief",
+    "example": "B",
+    "reviewedFields": [
+      "problem",
+      "correctAnswer",
+      "gold"
+    ]
+  }
+}

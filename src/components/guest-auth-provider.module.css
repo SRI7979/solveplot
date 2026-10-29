@@ -1,0 +1,25 @@
+.dialog.dialog {
+  position: fixed;
+  width: min(460px, calc(100vw - 32px));
+  max-height: min(90dvh, 820px);
+  margin: auto;
+  padding: 0;
+  overflow: auto;
+  color: var(--foreground);
+  box-shadow: 0 24px 90px rgb(0 0 0 / 24%), 0 0 0 1px var(--selection-border);
+  animation: arrive 180ms ease-out;
+}
+.dialog::backdrop {
+  background: rgb(10 17 24 / 46%);
+  backdrop-filter: blur(5px);
+}
+.body { position: relative; padding: 42px 32px 24px; }
+.dialog .body .close { position: absolute; top: 12px; right: 12px; }
+.body h1 { padding-right: 20px; }
+.dialog .body .browse { display: block; margin: 20px auto 0; font-size: 13px; }
+@keyframes arrive {
+  from { opacity: 0; transform: translateY(8px) scale(.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@media (max-width: 480px) { .body { padding: 42px 22px 22px; } }
+@media (prefers-reduced-motion: reduce) { .dialog { animation: none; } }

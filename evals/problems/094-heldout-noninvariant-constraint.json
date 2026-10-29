@@ -1,0 +1,53 @@
+{
+  "group": "hard",
+  "source": "original",
+  "domain": "Advanced Math",
+  "topic": "Heldout noninvariant constraint",
+  "problem": "Real numbers x and y satisfy 2x + y = 20. Which statement gives the value of x + y?",
+  "choices": [
+    "10",
+    "20",
+    "40",
+    "Cannot be determined"
+  ],
+  "correctAnswer": "Cannot be determined",
+  "expectedResultType": "written",
+  "gold": [
+    "direct-arithmetic"
+  ],
+  "acceptable": [
+    "strategic-value-test"
+  ],
+  "bad": [
+    {
+      "technique": "parameter-regression",
+      "why": "A single arbitrary fitted pair cannot establish a unique target when x+y varies."
+    },
+    {
+      "technique": "bracket-regression",
+      "why": "Fitting the constraint alone cannot identify x+y."
+    }
+  ],
+  "goldRows": [],
+  "burden": {
+    "gold": {
+      "manualMath": 1,
+      "hiddenDerivation": 0
+    },
+    "algebraFirst": {
+      "manualMath": 2,
+      "hiddenDerivation": 1,
+      "description": "A manual route derives parameter relations before evaluating the requested quantity."
+    }
+  },
+  "routing": {
+    "representation": false,
+    "condition": null,
+    "integerParameters": [],
+    "continuousInterval": false,
+    "integerFactorExtremum": false
+  },
+  "explanationNotes": "Counterexample to fitting one arbitrary pair: (x,y)=(0,20) gives 20, while (10,0) gives 10. No unique target exists. Any solver that reports one fitted value as unique is wrong.",
+  "labelProvenance": "agent_generated_silver",
+  "notes": "Synthetic held-out coefficient/structure variant authored by an agent; method labels remain silver, not human-verified. Counterexample to fitting one arbitrary pair: (x,y)=(0,20) gives 20, while (10,0) gives 10. No unique target exists. Any solver that reports one fitted value as unique is wrong."
+}

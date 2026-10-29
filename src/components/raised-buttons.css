@@ -1,0 +1,225 @@
+/* The shell and hit area stay fixed. Only the face and its contents compress. */
+.solveplot-shell[data-palette]
+  :is(
+    .outlinedControl,
+    .secondaryButton,
+    .primaryButton,
+    .copyButton,
+    .pointButton,
+    .wsNewProblem,
+    .wsMobileMenu,
+    .appearanceAmountChoice,
+    .appearancePaletteChoice,
+    .iconControl,
+    .choiceControl
+  ) {
+  --press-travel: 0px;
+  --press-duration: 170ms;
+  --press-inset: max(var(--press-padding, 8px), var(--press-depth, 3px));
+  position: var(--press-position, relative);
+  isolation: isolate;
+  border: var(--press-border, 1px) solid transparent;
+  border-bottom-width: calc(var(--press-border, 1px) + var(--press-depth, 3px));
+  background: transparent;
+  box-shadow: none;
+  transform: none;
+  touch-action: manipulation;
+  /* Vertical padding is part of the press mechanism, not a layout override.
+     A local padding:0 on a grid/icon button used to leave its icon behind.
+     Keep the sum constant and the lower inset nonnegative, including small
+     controls, so text nodes and all children travel with the face. Components
+     can set --press-padding and padding-inline without breaking this contract. */
+  padding-block-start: calc(var(--press-inset) + var(--press-travel)) !important;
+  padding-block-end: calc(var(--press-inset) - var(--press-travel)) !important;
+  transition:
+    padding-block-start var(--press-duration) cubic-bezier(0.2, 0.8, 0.2, 1),
+    padding-block-end var(--press-duration) cubic-bezier(0.2, 0.8, 0.2, 1),
+    color 150ms !important;
+}
+
+.solveplot-shell[data-palette]
+  :is(
+    .outlinedControl,
+    .secondaryButton,
+    .primaryButton,
+    .copyButton,
+    .pointButton,
+    .wsNewProblem,
+    .wsMobileMenu,
+    .appearanceAmountChoice,
+    .appearancePaletteChoice,
+    .iconControl,
+    .choiceControl
+  )::before,
+.solveplot-shell[data-palette]
+  :is(
+    .outlinedControl,
+    .secondaryButton,
+    .primaryButton,
+    .copyButton,
+    .pointButton,
+    .wsNewProblem,
+    .wsMobileMenu,
+    .appearanceAmountChoice,
+    .appearancePaletteChoice,
+    .iconControl,
+    .choiceControl
+  )::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: calc(0px - var(--press-border, 1px));
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* The base never moves, including during a held press. */
+.solveplot-shell[data-palette]
+  :is(
+    .outlinedControl,
+    .secondaryButton,
+    .primaryButton,
+    .copyButton,
+    .pointButton,
+    .wsNewProblem,
+    .wsMobileMenu,
+    .appearanceAmountChoice,
+    .appearancePaletteChoice,
+    .iconControl,
+    .choiceControl
+  )::before {
+  top: calc(var(--press-depth, 3px) - var(--press-border, 1px));
+  bottom: calc(0px - var(--press-border, 1px) - var(--press-depth, 3px));
+  background: var(--press-base, var(--control-edge));
+}
+
+.solveplot-shell[data-palette]
+  :is(
+    .outlinedControl,
+    .secondaryButton,
+    .primaryButton,
+    .copyButton,
+    .pointButton,
+    .wsNewProblem,
+    .wsMobileMenu,
+    .appearanceAmountChoice,
+    .appearancePaletteChoice,
+    .iconControl,
+    .choiceControl
+  )::after {
+  border: var(--press-border, 1px) solid
+    var(--press-outline, var(--control-border));
+  background: var(--press-face, var(--paper));
+  box-shadow: var(--press-ring, none);
+  transform: translateY(var(--press-travel));
+  transition:
+    transform var(--press-duration) cubic-bezier(0.2, 0.8, 0.2, 1),
+    background 0.15s,
+    border-color 0.15s;
+}
+
+.solveplot-shell[data-palette]
+  :is(
+    .outlinedControl,
+    .secondaryButton,
+    .primaryButton,
+    .copyButton,
+    .pointButton,
+    .wsNewProblem,
+    .wsMobileMenu,
+    .appearanceAmountChoice,
+    .appearancePaletteChoice,
+    .iconControl,
+    .choiceControl
+  )[data-pressing]:not(:disabled):not([aria-disabled="true"]) {
+  --press-travel: var(--press-depth, 3px);
+  --press-duration: 65ms;
+}
+.solveplot-shell[data-palette]
+  :is(
+    .outlinedControl,
+    .secondaryButton,
+    .primaryButton,
+    .copyButton,
+    .pointButton,
+    .wsNewProblem,
+    .wsMobileMenu,
+    .appearanceAmountChoice,
+    .appearancePaletteChoice,
+    .iconControl,
+    .choiceControl
+  )[data-pressing]:not(:disabled):not([aria-disabled="true"])::after {
+  transition-duration: 65ms;
+}
+
+.outlinedControl {
+  --press-border: 2px;
+  --press-depth: 4px;
+}
+.primaryButton {
+  --press-padding: 11px;
+  --press-depth: 4px;
+  --press-face: var(--primary-button);
+  --press-base: var(--primary-edge);
+  --press-outline: var(--primary-edge);
+}
+.copyButton {
+  --press-padding: 2px;
+  --press-depth: 2px;
+}
+.pointButton {
+  --press-padding: 7px;
+}
+.wsMobileMenu {
+  --press-padding: 1px;
+  --press-depth: 1px;
+}
+.appearancePaletteChoice {
+  --press-padding: 11px;
+  --press-depth: 2px;
+}
+
+/* Selected markers positioned over a choice are outside its padding flow. */
+.solveplot-shell[data-palette] .appearanceTreatmentChoice > svg {
+  translate: 0 var(--press-travel);
+  transition: translate var(--press-duration) cubic-bezier(.2,.8,.2,1);
+}
+@media (max-width: 600px) {
+  .solveplot-shell[data-palette] .appearanceTypographyChoice > svg {
+    translate: 0 var(--press-travel);
+    transition: translate var(--press-duration) cubic-bezier(.2,.8,.2,1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .solveplot-shell[data-palette]
+    :is(
+      .outlinedControl,
+      .secondaryButton,
+      .primaryButton,
+      .copyButton,
+      .pointButton,
+      .wsNewProblem,
+      .wsMobileMenu,
+      .appearanceAmountChoice,
+      .appearancePaletteChoice,
+      .iconControl,
+      .choiceControl
+    ),
+  .solveplot-shell[data-palette]
+    :is(
+      .outlinedControl,
+      .secondaryButton,
+      .primaryButton,
+      .copyButton,
+      .pointButton,
+      .wsNewProblem,
+      .wsMobileMenu,
+      .appearanceAmountChoice,
+      .appearancePaletteChoice,
+      .iconControl,
+      .choiceControl
+    )::after {
+    transition: none !important;
+  }
+}

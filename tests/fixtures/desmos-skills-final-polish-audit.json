@@ -1,0 +1,182 @@
+{
+  "label": "desmos-skills-final-content-polish",
+  "scope": "Four corrected authored setups and one diagnostic-only completed comparison. No model calls. The diagnostic residual rows are not seeded in learner content.",
+  "fullResults": [
+    {
+      "id": "polish/restrictions/endpoint-check",
+      "result": {
+        "ok": true,
+        "techniqueId": "final-content-polish",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "f(x)=(x-3)^2+2\\left\\{0\\le x<2\\right\\}",
+              "purpose": "Keep inputs from 0 inclusive to 2 exclusive."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "polish/answer-choice-testing/empty-check",
+      "result": {
+        "ok": true,
+        "techniqueId": "final-content-polish",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "L=[1,2,3,4]",
+              "purpose": "The finite set of supplied candidates."
+            },
+            {
+              "latex": "3L+2",
+              "purpose": "Test every listed candidate."
+            },
+            {
+              "latex": "L[3L+2=10]",
+              "purpose": "Return only candidates whose output is 10; this result is empty."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "polish/bracket-regression/independent-check",
+      "result": {
+        "ok": true,
+        "techniqueId": "final-content-polish",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "[a+b,a+b]\\sim[10,10]",
+              "purpose": "Repeat one condition; this does not uniquely determine both parameters."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "polish/regression/model-choice",
+      "result": {
+        "ok": true,
+        "techniqueId": "final-content-polish",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "x_{1}=[0,2,3]",
+              "purpose": "The three given inputs."
+            },
+            {
+              "latex": "y_{1}=[1,9,16]",
+              "purpose": "Their matching outputs."
+            },
+            {
+              "latex": "y_{1}\\sim ax_{1}^2+bx_{1}+c",
+              "purpose": "Fit the stated quadratic model."
+            },
+            {
+              "latex": "f(x)=ax^2+bx+c",
+              "purpose": "Define the fitted quadratic for any input."
+            },
+            {
+              "latex": "(x_{1},y_{1})",
+              "purpose": "Show the three given data points."
+            },
+            {
+              "latex": "y=f(x)",
+              "purpose": "Plot the fitted quadratic for comparison."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "diagnostic/regression/compare-linear-and-quadratic",
+      "result": {
+        "ok": true,
+        "techniqueId": "diagnostic-only",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "x_{1}=[0,2,3]",
+              "purpose": "The three given inputs."
+            },
+            {
+              "latex": "y_{1}=[1,9,16]",
+              "purpose": "Their matching outputs."
+            },
+            {
+              "latex": "y_{1}\\sim ax_{1}^2+bx_{1}+c",
+              "purpose": "Fit the stated quadratic model."
+            },
+            {
+              "latex": "f(x)=ax^2+bx+c",
+              "purpose": "Define the fitted quadratic for any input."
+            },
+            {
+              "latex": "(x_{1},y_{1})",
+              "purpose": "Show the three given data points."
+            },
+            {
+              "latex": "y=f(x)",
+              "purpose": "Plot the fitted quadratic for comparison."
+            },
+            {
+              "latex": "y_{1}\\sim mx_{1}+n",
+              "purpose": "Audit-only completed trial instruction; not prefilled learner content."
+            },
+            {
+              "latex": "y=mx+n",
+              "purpose": "Audit-only completed trial instruction; not prefilled learner content."
+            },
+            {
+              "latex": "f(x_{1})-y_{1}",
+              "purpose": "Audit-only quadratic residuals; expected [0,0,0]."
+            },
+            {
+              "latex": "mx_{1}+n-y_{1}",
+              "purpose": "Audit-only line residuals; not all zero."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    }
+  ],
+  "readoutChecks": [
+    {
+      "id": "polish/answer-choice-testing/empty-check",
+      "expected": {
+        "kind": "list",
+        "row": 3,
+        "value": []
+      },
+      "meaning": "The empty-filter concept displays an actual empty filter."
+    },
+    {
+      "id": "diagnostic/regression/compare-linear-and-quadratic",
+      "expected": {
+        "kind": "list",
+        "row": 9,
+        "value": [
+          0,
+          0,
+          0
+        ]
+      },
+      "meaning": "The stated quadratic fits all three points."
+    },
+    {
+      "id": "diagnostic/regression/compare-linear-and-quadratic",
+      "expected": {
+        "kind": "nonzero-list",
+        "row": 10
+      },
+      "meaning": "The trial line does not fit all three points."
+    }
+  ]
+}

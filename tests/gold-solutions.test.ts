@@ -5,9 +5,10 @@ import path from "node:path";
 import { test } from "node:test";
 
 import { goldCase, loadGoldCases } from "../evals/benchmark/load-cases";
-import gold from "../src/content/gold-solutions/desmo_gold_solutions.json" with { type: "json" };
+import gold from "../src/content/gold-solutions/solveplot_gold_solutions.json" with { type: "json" };
 import { findUndefinedVariables, normalizeDesmosExpressions } from "../src/lib/desmos-latex";
 import { GoldSolutionError, loadGoldSolutions, type GoldSolution } from "../src/lib/gold-solutions";
+import { findRegressionDeterminacyViolations } from "../src/lib/solver-rules";
 
 const solution: GoldSolution = {
   id: "test-001",
@@ -22,12 +23,12 @@ const solution: GoldSolution = {
   needs_review: false,
 };
 
-test("the gold solutions load from their own folder: the original 14 plus the quadratic root", async () => {
+test("the gold solutions load from their own folder: the original 14, the quadratic root, and the system combination", async () => {
   const loaded = await loadGoldSolutions();
-  assert.deepEqual(loaded.files, ["desmo_gold_solutions.json"]);
-  assert.equal(loaded.solutionCount, 15);
+  assert.deepEqual(loaded.files, ["solveplot_gold_solutions.json"]);
+  assert.equal(loaded.solutionCount, 16);
   assert.equal(loaded.skippedReviewCount, 0);
-  assert.equal(loaded.solutions.length, 15);
+  assert.equal(loaded.solutions.length, 16);
   assert.match(loaded.prompt, /Parameter regression using multiple x-values/);
   assert.match(loaded.prompt, /Direct bracket regression for a small system/);
   assert.match(loaded.prompt, /\[-q-19w,2q-19w\] ~ \[-337,47\]/);
@@ -38,7 +39,7 @@ test("the gold solutions load from their own folder: the original 14 plus the qu
 });
 
 test("a gold solution with a free-form technique name fails the schema", async () => {
-  const directory = await mkdtemp(path.join(os.tmpdir(), "desmo-gold-"));
+  const directory = await mkdtemp(path.join(os.tmpdir(), "solveplot-gold-"));
   try {
     await writeFile(path.join(directory, "gold.json"), JSON.stringify([{ ...solution, techniqueId: "My clever trick" }]));
     await assert.rejects(loadGoldSolutions(directory), GoldSolutionError);
@@ -48,7 +49,7 @@ test("a gold solution with a free-form technique name fails the schema", async (
 });
 
 test("files are read in order; a draft marked needs_review stays out of the prompt and the benchmark", async () => {
-  const directory = await mkdtemp(path.join(os.tmpdir(), "desmo-gold-"));
+  const directory = await mkdtemp(path.join(os.tmpdir(), "solveplot-gold-"));
   try {
     await Promise.all([
       writeFile(path.join(directory, "b.json"), JSON.stringify([{ ...solution, id: "draft", needs_review: true }])),
@@ -67,7 +68,7 @@ test("files are read in order; a draft marked needs_review stays out of the prom
 });
 
 test("rejects duplicate ids across gold files", async () => {
-  const directory = await mkdtemp(path.join(os.tmpdir(), "desmo-gold-"));
+  const directory = await mkdtemp(path.join(os.tmpdir(), "solveplot-gold-"));
   try {
     await Promise.all([
       writeFile(path.join(directory, "one.json"), JSON.stringify([solution])),
@@ -95,21 +96,36 @@ test("every gold solution's calculator rows are executable under the syntax-safe
   }
 });
 
-test("the quadratic-root gold solution is the clicked root, a slider for a, and a regression for b", () => {
+test("the quadratic-root gold solution clicks both roots and fits both unknowns in one bracket regression", () => {
   const quadratic = (gold as GoldSolution[]).find((item) => item.id === "015")!;
   assert.match(quadratic.question, /where a and b are integers/, "the real wording, which the integer rule must allow");
   assert.equal(quadratic.answer_choices[quadratic.correct_answer], "248");
   assert.equal(quadratic.techniqueId, "parameter-regression");
-  assert.deepEqual(quadratic.desmos_steps.filter((step) => !/^[A-Z]/.test(step)), ["3x^2-16x+2", "(a+\\sqrt{b})/6~5.20526", "a=16", "a+b"]);
+  assert.deepEqual(quadratic.desmos_steps.filter((step) => !/^[A-Z]/.test(step)), ["3x^2-16x+2", "[(a+\\sqrt{b})/6,(a-\\sqrt{b})/6]~[5.20526,0.128073]", "a+b"]);
   assert.doesNotMatch(quadratic.desmos_steps.join(" "), /4\(3\)\(2\)|b\^2-4ac|quadratic formula/i, "no formula in the Desmos way");
-  // The rows reproduce the answer: the clicked root is the larger one, and the fitted b rounds to 232.
+  // The two clicked roots determine the two parameters; the integer values sum to the answer.
   assert.equal(((16 + Math.sqrt(232)) / 6).toFixed(5), "5.20526");
-  assert.equal(Math.round(16 + (6 * 5.20526 - 16) ** 2), 248);
+  assert.ok(Math.abs((16 - Math.sqrt(232)) / 6 - 0.128073) < 0.00001, "the smaller clicked root is approximately 0.128073");
+  assert.equal(16 + 232, 248);
+});
+
+test("the system-combination gold solution fits both equations in one bracket regression and reads x+y+z on its own line", () => {
+  const system = (gold as GoldSolution[]).find((item) => item.id === "016")!;
+  assert.deepEqual(system.answer_choices, {}, "a student-produced response");
+  assert.equal(system.correct_answer, "8");
+  assert.equal(system.techniqueId, "bracket-regression");
+  const rows = system.desmos_steps.filter((step) => !/^[A-Z]/.test(step));
+  assert.deepEqual(rows, ["[7x_{1}+4y_{1}+8z,4x_{1}+y_{1}+5z]~[61,37]", "x_{1}+y_{1}+z"]);
+  // Three fitted unknowns against two equations, accepted only because line 2 is fixed.
+  assert.deepEqual(findRegressionDeterminacyViolations(rows.map((latex) => ({ latex })), { readoutRow: 2 }), []);
+  assert.doesNotMatch(system.desmos_steps.join(" "), /eliminat|\(61-37\)|subtract/i, "no hand elimination in the Desmos way");
+  // The first equation minus the second is 3x+3y+3z=24.
+  assert.equal((61 - 37) / 3, 8);
 });
 
 test("gold solutions become their own benchmark group, scored on the choice text, and only on request", async () => {
   const cases = await loadGoldCases();
-  assert.equal(cases.length, 15);
+  assert.equal(cases.length, 16);
   assert.ok(cases.every((item) => item.group === "gold" && item.labelProvenance === "human_verified_gold" && item.id.startsWith("gold/")));
   const quadratic = goldCase((gold as GoldSolution[]).find((item) => item.id === "015")!);
   assert.equal(quadratic.correctAnswer, "248", "a lettered answer is scored as the choice's text");

@@ -290,14 +290,17 @@ test("regression test 8: the shape's row count is the number of rows the calcula
 test("every path that shows calculator rows goes through the pre-flight gate", () => {
   const calculator = readFileSync("src/components/desmos-calculator.tsx", "utf8");
   const explanation = readFileSync("src/components/solution-explanation.tsx", "utf8");
+  // Formatting and trailing commas do not change the guarded insertion.
+  const compact = calculator.replace(/\s+/g, "").replace(/,(?=[)}])/g, "");
   // The visible calculator inserts rows in exactly one place, only for a clean verdict.
   assert.equal(calculator.match(/\.setExpressions\(/g)?.length, 1);
   assert.match(calculator, /const insertable = gate\.status === "clean" && !blocked;/);
-  // The checked batch itself is inserted; dark mode changes only each row's display color.
-  assert.match(calculator, /if \(!insertable \|\| payload\.items\.length === 0\) return;\s+try \{\s+const dark = isDark\(\);\s+calculator\.setExpressions\(payload\.items\.map\(\(item\) => \(\{ \.\.\.item, color: displayColor\(item\.color, dark\) \}\)\)\);/);
-  // A theme change recolors the loaded rows in place and touches nothing else about them.
-  assert.equal(calculator.match(/\.setExpression!?\(/g)?.length, 1);
-  assert.match(calculator, /calculator\.setExpression!\(\{ id, color: displayColor\(rows\.colors\[index\], dark\) \}\)/);
+  // Insert the checked batch unchanged; the visible graph stays in light mode
+  // when the workspace theme changes, without rewriting a student's rows.
+  assert.ok(compact.includes("if(!insertable||payload.items.length===0)return;try{calculator.setExpressions(payload.items);"));
+  assert.equal(calculator.match(/\.setExpression!?\(/g)?.length ?? 0, 0);
+  assert.ok(!calculator.includes("invertedColors: true"));
+  assert.equal(calculator.match(/invertedColors: false/g)?.length, 2);
   // The explanation's copyable rows render only in the branch after the gate is clean.
   const pending = explanation.indexOf('gate.status === "pending"');
   const withheld = explanation.indexOf('gate.status !== "clean"');
@@ -305,6 +308,6 @@ test("every path that shows calculator rows goes through the pre-flight gate", (
   assert.ok(pending > 0 && withheld > pending && rows > withheld, "rows follow both gate checks");
   // Both calculators evaluate with the same math options and the same batch builder.
   assert.match(calculator, /\.\.\.MATH_OPTIONS/);
-  assert.match(calculator, /usePreflightGate\(expressions, answerState\)/);
-  assert.match(readFileSync("src/components/preflight-gate.ts", "utf8"), /calculatorPayload\(rows, answerState\)/);
+  assert.match(calculator, /usePreflightGate\(expressions, answerState, expectedResult\)/);
+  assert.match(readFileSync("src/components/preflight-gate.ts", "utf8"), /calculatorPayload\(rows, answerState, mode\)/);
 });

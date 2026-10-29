@@ -201,6 +201,79 @@ test("choice-position results select the aligned choice and validate the index",
   );
 });
 
+test("a filtered list of original choice numbers reads its value, not its shortened position", () => {
+  const pointChoices = [
+    { label: "A", text: "(1, -5)" },
+    { label: "B", text: "(2, 5)" },
+    { label: "C", text: "(4, 6)" },
+    { label: "D", text: "(6, 0)" },
+  ];
+  const rows = [
+    { latex: "x_{1}=[1,2,4,6]" },
+    { latex: "y_{1}=[-5,5,6,0]" },
+    { latex: "[1...4][(y_{1}>3x_{1}-7)\\land(2x_{1}+y_{1}\\le12)]" },
+  ];
+  const derived = deriveConsistentSolution({
+    choices: pointChoices,
+    result: { type: "list_entry", row: 3, relatedRows: [], value: 2, listIndex: 1, answerFrom: "choice_position", choiceLabel: "B", detail: "the sole qualifying choice position" },
+    answer: "B) (2, 5)", readAnswer: "", expressionCount: rows.length, expressions: rows,
+  });
+  assert.equal(derived.answer, "B) (2, 5)");
+  assert.equal(derived.result.answerFrom, "choice_index");
+  assert.equal(derived.result.listIndex, 1, "the calculator still displays one filtered entry");
+  const solution = { choices: derived.choices, answer: derived.answer, result: derived.result,
+    expressions: rows.map((row) => ({ ...row, purpose: "" })) };
+  assert.equal(reconcileWithCalculator(solution, { type: "ListOfNumber", value: [2] }).status, "verified");
+  const changed = reconcileWithCalculator(solution, { type: "ListOfNumber", value: [3] });
+  assert.equal(changed.status, "contradicted");
+  if (changed.status === "contradicted") assert.equal(changed.answer, "C) (4, 6)");
+  assert.equal(reconcileWithCalculator(solution, { type: "ListOfNumber", value: [5] }).status, "unverified");
+  const olderSavedSolution = { ...solution, answer: "A) (1, -5)",
+    result: { ...derived.result, answerFrom: "choice_position" as const, choiceLabel: "A" } };
+  const olderCheck = reconcileWithCalculator(olderSavedSolution, { type: "ListOfNumber", value: [2] });
+  assert.equal(olderCheck.status, "contradicted");
+  if (olderCheck.status === "contradicted") assert.equal(olderCheck.answer, "B) (2, 5)");
+
+  const namedRows = [
+    { latex: "X=[1,2,4,6]" },
+    { latex: "Y=[-5,5,6,0]" },
+    { latex: "N=[1,2,3,4]" },
+    { latex: "N[(Y>3X-7)\\land(2X+Y\\le12)]" },
+  ];
+  const named = deriveConsistentSolution({
+    choices: pointChoices,
+    result: { type: "list_entry", row: 4, relatedRows: [], value: 2, listIndex: 1, answerFrom: "choice_position", choiceLabel: "B", detail: "the qualifying choice number" },
+    answer: "B) (2, 5)", readAnswer: "", expressionCount: namedRows.length, expressions: namedRows,
+  });
+  assert.equal(named.answer, "B) (2, 5)");
+  assert.equal(named.result.answerFrom, "choice_index");
+  assert.equal(reconcileWithCalculator({ choices: named.choices, answer: named.answer, result: named.result,
+    expressions: namedRows.map((row) => ({ ...row, purpose: "" })) },
+  { type: "ListOfNumber", value: [2] }).status, "verified");
+  const notChoiceIndices = deriveConsistentSolution({
+    choices: pointChoices,
+    result: { type: "list_entry", row: 2, relatedRows: [], value: 2, listIndex: 1, answerFrom: "choice_position", choiceLabel: "A", detail: "first surviving entry" },
+    answer: "A) (1, -5)", readAnswer: "", expressionCount: 2,
+    expressions: [{ latex: "N=[2,3,4,5]" }, { latex: "N[N>2]" }],
+  });
+  assert.equal(notChoiceIndices.result.answerFrom, "choice_position", "a different source list is not an original choice index list");
+
+  const aligned = deriveConsistentSolution({
+    choices: pointChoices,
+    result: { type: "list_entry", row: 3, relatedRows: [], value: 0, listIndex: 1, answerFrom: "choice_position", choiceLabel: "B", detail: "the first zero" },
+    answer: "B) (2, 5)", readAnswer: "", expressionCount: 3,
+    expressions: [{ latex: "x=1" }, { latex: "y=2" }, { latex: "[0,1,2,3]" }],
+  });
+  assert.equal(aligned.answer, "A) (1, -5)");
+  assert.equal(aligned.result.answerFrom, "choice_position");
+  assert.throws(() => deriveConsistentSolution({
+    choices: pointChoices,
+    result: { type: "list_entry", row: 3, relatedRows: [], value: 2, listIndex: 1, answerFrom: "choice_index", choiceLabel: "B", detail: "choice number" },
+    answer: "B) (2, 5)", readAnswer: "", expressionCount: 3,
+    expressions: [{ latex: "x=1" }, { latex: "y=2" }, { latex: "[1,2,3,4]" }],
+  }), /requires a filtered \[1\.\.\.N\]/);
+});
+
 test("reasoning results require a valid choice letter and keep symbolic choices", () => {
   const graphs = [{ label: "A", text: "Graph A" }, { label: "B", text: "Graph B" }];
   const derived = deriveConsistentSolution({
@@ -483,11 +556,10 @@ test("REGRESSION 1: the reported reproduction — slider set to k=3 verifies -15
   const answerState = { param: "k", value: 3 };
   // 1) Validation accepts the slider-dependent answer (server-side gate).
   assert.doesNotThrow(() => validateAnswerState(rows, answerState));
-  // 2) The loader opens the calculator with k already at 3, not at the row's
-  //    own written starting value (2) and not at the slider's minimum.
+  // 2) Hidden verification checks k=3; visible discovery still starts at k=2.
   const loaded = applyAnswerState(rows, answerState);
   assert.equal(loaded[0].latex, "k=3");
-  // 3) With the calculator actually sitting at k=3 (as the loader guarantees),
+  // 3) Once the calculator is sitting at k=3,
   //    Desmos reports -15 for row 3, matching choice D exactly, so the
   //    verifier confirms it — no banner, only the quiet confirmation.
   const solution = desmosSolution({

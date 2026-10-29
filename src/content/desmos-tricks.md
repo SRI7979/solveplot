@@ -1,8 +1,8 @@
-DESMO SAT MATH STRATEGY LIBRARY
+SOLVEPLOT SAT MATH STRATEGY LIBRARY
 
-DESMOS-FIRST, LEAST-TOTAL-EFFORT POLICY
+DESMOS-FIRST, LEAST-STUDENT-MATH POLICY
 
-Desmo teaches Desmos-first problem solving, not traditional math with Desmos
+SolvePlot teaches Desmos-first problem solving, not traditional math with Desmos
 added afterward. The student may be weak at traditional math but strong at
 recognizing Desmos patterns; their thought should become "this is an
 intersection trick", "this is a list-filter trick", "this is a midpoint
@@ -24,14 +24,14 @@ over plugging the choices in; it transfers to the next problem and to
 student-produced responses. Answer-choice testing stays a strong candidate
 when it is clearly simpler or the general route is convoluted.
 
-Obtain the correct answer with the least total student effort: the shortest,
-clearest Desmos workflow an elite SAT/Desmos tutor would actually use under
-time pressure and a student could reproduce. Desmos outsourcing is valuable
-only when it simplifies the overall workflow. Rows are cheap but not free:
-prefer 1–4 rows; use 5–6 only when they clearly simplify a hard problem; more
-than 6 needs strong justification. A plan needs no final numeric row when the
-student can read an intersection, zero, vertex, overlap, or slider condition
-directly from the graph.
+Obtain the correct answer with the least mathematical reasoning required from
+the student. Correctness and reliable execution come first. Then minimize
+student reasoning, manual algebra and hidden derivation, maximize useful work
+performed by Desmos, prefer reproducible understandable setups, and only then
+compare typing, rows and interactions. Three or four regression rows that copy
+the original givens beat one row built from a clever manual substitution.
+A final numeric row is unnecessary when the graph already exposes the answer.
+Do not add ornamental rows or fragile fits; extra rows must remove real work.
 
 Penalize HIDDEN DERIVATION above all. A short expression is not simple if the
 student first had to derive a non-obvious formula to type it: B=(M-7)/6 is one
@@ -43,15 +43,12 @@ automation. Advanced tricks earn their place only when they materially simplify.
 
 List every genuinely distinct technique that validly solves the problem (up to six), each named
 by the [technique: id | name] tag of the strategy that teaches it, and report
-each one's cost components honestly. The server scores them; the cheapest
-Desmos way is the default, and the student may switch to any other listed
-technique. Always include the lowest simplicity-ladder rung that works, and the
-one math way (a paper technique) when one genuinely exists. Never pad the list with a technique that
+each one's cost components honestly. The server scores them; the valid method with least student math is the default, and the student may switch to any other listed
+technique. Compare complete workflows rather than ranking tool families or ladder rungs.
+Include a useful paper alternative when one genuinely exists. Never pad the list with a technique that
 does not solve the problem: two real techniques beat four with filler. Before
-choosing, ask "what is the shortest,
-clearest Desmos workflow a student could realistically reproduce?", never "how
-can Desmos perform every individual mathematical step?". An invalid or
-unjustified method is never listed.
+choosing, ask "how can Desmos do the mathematical work the student would
+otherwise have to do?". An invalid or unjustified method is never listed.
 
 PREFERENCE EXAMPLES (the simplest valid applicable method wins):
 - Factor problem, b a positive integer: a one-row derived formula such as
@@ -126,7 +123,7 @@ distinguishes them.
 
 Each listed technique is one canonical method: its ordered calculator
 entries, their purposes, and the final answer instruction describe exactly
-that method. The routing policy at the end applies across all 78 strategies.
+that method. The routing policy at the end applies across all 79 strategies.
 
 1. Graph two equations and click the intersection
 [technique: graph-both-sides | Graph both sides]
@@ -226,6 +223,11 @@ Enter both exactly.
 Click intersection.
 
 Usually faster than substitution/elimination.
+
+Three or more unknowns (x, y, z) cannot be graphed in the 2D calculator, and
+fewer equations than unknowns leave no single intersection. When the question
+asks for one value or a combination such as x+y+z, use strategy 79: one
+bracket regression of the equations, then a line that computes the combination.
 
 6. Linear + quadratic system
 [technique: graph-both-sides | Graph both sides]
@@ -1152,8 +1154,10 @@ SPECIAL HIGH-VALUE SAT TRICKS
 
 High-priority trigger: A polynomial equation has unknown constants and is true
 for all x, is an identity, or is stated to have infinitely many solutions.
-Prefer entering the original equation as a regression to a multi-step
-coefficient-matching solution.
+Prefer entering the original equation as a regression over coefficient matching
+or a strategic input chosen to expose a coefficient sum. A short substitution
+still requires its mathematical insight; count it even when typed into Desmos.
+Do not penalize a useful data list and final readout for adding rows.
 
 Create a list of sample x-values, replace x by the list variable on BOTH sides,
 and replace the equation's equals sign with a regression tilde. Parameters to
@@ -1702,34 +1706,66 @@ lets Desmos do the setup too: graph both sides of the relationship instead of
 inverting it by hand, mean(repeat(...)) instead of a weighted-mean formula.
 Scalar rows with no function are this technique, not function evaluation.
 
-78. Root in a given radical form → click the root, slider the visible number, regress the hidden one
+78. Root in a given radical form → click both roots and fit both forms together
 [technique: parameter-regression | Parameter regression]
 
 Use when: an equation is given and the question says one solution can be
 written in a form with unknown constants, such as (a+√b)/6 or a+b√3, then asks
-for a, b, or a combination of them. This is the model Desmos way: the graph
-finds the root and a regression finds the hidden number, so the student does
-no algebra at all.
+for a, b, or a combination of them. Graph the equation and click both
+x-intercepts. When the two roots match conjugate forms, put both forms and
+both clicked values into one bracket regression so Desmos fits all unknown
+parameters together; the student does not have to infer a parameter from the
+equation first.
 
 3x^2-16x+2=0 has a solution (a+√b)/6, where a and b are integers; find a+b:
 3x^{2}-16x+2
-(a+\sqrt{b})/6\sim5.20526
-a=16
+[(a+\sqrt{b})/6,(a-\sqrt{b})/6]\sim[5.20526,0.128073]
 a+b
 
-Graph the expression and click both x-intercepts, (0.12808, 0) and
-(5.20526, 0); the form with a plus sign is the larger root. Keep a as a slider
-at 16, the number already printed in the equation outside any root. The
-regression shows b=232.00042 and the last row 248.0004: a and b are integers,
-so b=232 and a+b=248. A regression fits a continuous value, so read the
-integer it rounds to; that is the integer the question asks for.
-If the outside number is not evident, click both x-intercepts and fit both
-conjugates at once: [(a+\sqrt{b})/6,(a-\sqrt{b})/6]\sim[5.20526,0.12808].
+Graph the expression and click both x-intercepts, (0.128073, 0) and
+(5.20526, 0). Match the plus form to the larger root and the minus form to the
+smaller root. This single bracket regression fits a≈16 and b≈232 at once;
+because the question says both are integers, read those integer values and
+then the final row gives a+b=248. The two clicked roots provide two conditions,
+so the regression can solve both unknowns without first setting either one by
+hand.
 
 BAD, the math way dressed up as Desmos: typing (16+\sqrt{16^{2}-4(3)(2)})/6
 or 16^{2}-4(3)(2) is the quadratic formula and its discriminant with a
 calculator. The student still recalls and sets up the formula; Desmos only does
 the arithmetic. It is listed, at most, as the math way.
+
+79. System in its own unknowns → bracket regression, then read the combination
+[technique: bracket-regression | Bracket regression]
+
+High-priority trigger: two or three equations in the question's own unknowns
+(x, y, z, ...) with three or more unknowns, or fewer equations than unknowns,
+and the question asks for one value or a combination of them (x+y+z, 2x-y,
+(x+y)/2). Strategy 5's graph cannot show three unknowns, and with fewer
+equations than unknowns there is no single intersection to click. Copy the
+complete left sides into one bracket and the right sides into another, in the
+same order, replace = with ~, and type the requested combination on the next
+line.
+
+7x+4y+8z=61 and 4x+y+5z=37; find x+y+z:
+[7x_{1}+4y_{1}+8z,4x_{1}+y_{1}+5z]\sim[61,37]
+x_{1}+y_{1}+z
+
+Line 2 shows 8. Desmos reserves x and y for the graph's axes, so the system's
+own x and y are typed x_{1} and y_{1}; every other letter stays as printed.
+These unknowns are fitted parameters, unlike a supplied coordinate such as
+x_{1}=2, which is defined and never fitted. With two equations in three
+unknowns, the values under line 1 (here something like x_{1}=9.67,
+y_{1}=-1.67, z=0) are only one of infinitely many solutions: never report them
+as the answer or call them unique. The combination is the same for every
+solution, and the server verifies that exactly before it accepts the fit, so
+an underdetermined fit is valid here. The readout must be its own line, such
+as x_{1}+y_{1}+z, never a parameter read off line 1.
+
+BAD, the math way: scaling the equations by hand (subtract the second from the
+first to get 3x+3y+3z=24, then divide by 3) or typing (61-37)/3 into Desmos.
+That is elimination, or Desmos as a calculator over a combination the student
+derived. It is listed, at most, as the math way.
 
 REGRESSION SAFETY
 
@@ -1767,7 +1803,10 @@ inapplicable approaches rather than inventing data or a fake executable plan. St
    numerical condition, then regression, parameter regression, or derivative
    regression that lets Desmos infer the unknowns from those conditions. A
    root stated in a form such as (a+√b)/6 is a clicked root fitted to that
-   form (78), never the quadratic formula.
+   form (78), never the quadratic formula. A system in three unknowns, or with
+   fewer equations than unknowns, asking for x+y+z or another combination is
+   one bracket regression plus a line computing that combination (79), never
+   elimination or arithmetic.
 2. Lists/tables and answer-choice testing that compare possibilities together,
    including strategic-value testing for symbolic choices.
 3. Direct graphing of the original equations: intersections, zeros, intercepts,
@@ -1803,10 +1842,9 @@ Rows are worthwhile only when they simplify the whole workflow. A few extra
 rows that remove a derived slope or coefficient formula are worth it; rows
 that automate what the graph already shows, re-check a labeled point, or turn
 a two-row intersection into a list construction are not. The simplest valid
-applicable method beats a more elaborate one; among methods of equal
-simplicity, the one with less total student effort wins, then the one with
-less manual math, then fewer rows. Do not fill rows with checks to make the
-outsourcing score look higher; outsourcing is only a tie-breaker.
+applicable method has the least student mathematical burden first. Practical
+calculator effort and row count only break ties in that burden. Do not fill
+rows with checks to make an outsourcing score look higher.
 
 Easy solving and evaluation questions can still use Desmos; the representation
 exception above still applies. For 3x=18, the original graphs y=3x and y=18

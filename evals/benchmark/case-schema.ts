@@ -24,13 +24,14 @@ export const SAT_DOMAINS = [
 export const CASE_GROUPS = ["representative", "hard", "gold"] as const;
 export type CaseGroup = (typeof CASE_GROUPS)[number];
 
-export const CASE_SOURCES = ["original", "bedrock-paraphrase", "user-screenshot", "bedrock-private"] as const;
+export const CASE_SOURCES = ["original", "bedrock-paraphrase", "user-screenshot", "bedrock-private", "college-board-public"] as const;
 
 const techniqueId = z.enum(TECHNIQUE_IDS);
 
 /**
  * Who vouches for a case's labels: a human who checked the answer and the
- * method to teach (the gold solutions), or an agent (every case file here).
+ * method to teach, or an agent. Explicit user-supplied worked examples may
+ * carry human-reviewed problem/answer/method labels; synthetic variants may not.
  */
 export const LABEL_PROVENANCES = ["human_verified_gold", "agent_generated_silver"] as const;
 export type LabelProvenance = (typeof LABEL_PROVENANCES)[number];
@@ -88,6 +89,12 @@ export const benchmarkCaseSchema = z
      * Reported separately, so agent labels are never read as ground truth.
      */
     labelProvenance: z.enum(LABEL_PROVENANCES).default("agent_generated_silver"),
+    humanReview: z.object({
+      source: z.literal("user-provided-worked-example"),
+      reference: z.string().min(10).max(200),
+      example: z.string().min(1).max(20),
+      reviewedFields: z.tuple([z.literal("problem"), z.literal("correctAnswer"), z.literal("gold")]),
+    }).strict().optional(),
     // Legacy fields used by evals/classifiers.ts; optional on new cases.
     intendedMethod: z.string().max(120).optional(),
     acceptableMethods: z.array(z.string().max(120)).optional(),
@@ -96,6 +103,9 @@ export const benchmarkCaseSchema = z
   })
   .strict()
   .superRefine((value, context) => {
+    if (value.labelProvenance === "human_verified_gold" && !value.humanReview) {
+      context.addIssue({ code: "custom", path: ["humanReview"], message: "Human-reviewed case files require an explicit source for the problem, answer, and preferred method." });
+    }
     const named = new Set<string>();
     for (const id of [...value.gold, ...value.acceptable, ...value.bad.map((item) => item.technique)]) {
       if (named.has(id)) context.addIssue({ code: "custom", message: `${id} is listed in more than one of gold/acceptable/bad` });

@@ -1,0 +1,167 @@
+{
+  "label": "desmos-skills-graph-point-diagnostics",
+  "scope": "Free independent engine diagnostics. Candidate substitutions/readout helpers are appended audit rows, NOT generated learner instructions or prefilled lesson content. Scalar/list evidence supplements the original graphical/Point rows; independent mathematical tests establish the requested features.",
+  "fullResults": [
+    {
+      "id": "diagnostic/graphing-equations/try-it",
+      "result": {
+        "ok": true,
+        "techniqueId": "diagnostic-only",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "4x-3=25",
+              "purpose": "Audit-only substitution or point equality check; not learner content."
+            },
+            {
+              "latex": "4(7)-3-25",
+              "purpose": "Audit-only substitution or point equality check; not learner content."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "diagnostic/graphing-equations/solve-for-y",
+      "result": {
+        "ok": true,
+        "techniqueId": "diagnostic-only",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "5y-4=16",
+              "purpose": "Audit-only substitution or point equality check; not learner content."
+            },
+            {
+              "latex": "5(4)-4-16",
+              "purpose": "Audit-only substitution or point equality check; not learner content."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "diagnostic/intersections-and-intercepts/try-it",
+      "result": {
+        "ok": true,
+        "techniqueId": "diagnostic-only",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "y=3x-2",
+              "purpose": "Audit-only substitution or point equality check; not learner content."
+            },
+            {
+              "latex": "y=-x+10",
+              "purpose": "Audit-only substitution or point equality check; not learner content."
+            },
+            {
+              "latex": "[3(3)-2-7,-3+10-7]",
+              "purpose": "Audit-only substitution or point equality check; not learner content."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "diagnostic/intersections-and-intercepts/choose-the-right-zero",
+      "result": {
+        "ok": true,
+        "techniqueId": "diagnostic-only",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "f(x)=(x-1)^2-9",
+              "purpose": "Audit-only substitution or point equality check; not learner content."
+            },
+            {
+              "latex": "y=f(x)",
+              "purpose": "Audit-only substitution or point equality check; not learner content."
+            },
+            {
+              "latex": "[f(-2),f(4)]",
+              "purpose": "Audit-only substitution or point equality check; not learner content."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "diagnostic/advanced-desmos-shortcuts/use-a-new-midpoint",
+      "result": {
+        "ok": true,
+        "techniqueId": "diagnostic-only",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "M=\\operatorname{midpoint}((-4,1),(2,7))",
+              "purpose": "Audit-only substitution or point equality check; not learner content."
+            },
+            {
+              "latex": "\\operatorname{distance}(M,(-1,4))",
+              "purpose": "Audit-only substitution or point equality check; not learner content."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    }
+  ],
+  "readoutChecks": [
+    {
+      "id": "diagnostic/graphing-equations/try-it",
+      "expected": {
+        "kind": "number",
+        "row": 2,
+        "value": 0
+      },
+      "meaning": "Substitution checks the expected x=7 against the original equation; uniqueness is independently established by its nonzero linear coefficient."
+    },
+    {
+      "id": "diagnostic/graphing-equations/solve-for-y",
+      "expected": {
+        "kind": "number",
+        "row": 2,
+        "value": 0
+      },
+      "meaning": "Substitution checks the expected y=4 against the original equation; uniqueness is independently established by its nonzero linear coefficient."
+    },
+    {
+      "id": "diagnostic/intersections-and-intercepts/try-it",
+      "expected": {
+        "kind": "list",
+        "row": 3,
+        "value": [
+          0,
+          0
+        ]
+      },
+      "meaning": "Both original equations contain (3,7); their distinct slopes independently establish the single intersection."
+    },
+    {
+      "id": "diagnostic/intersections-and-intercepts/choose-the-right-zero",
+      "expected": {
+        "kind": "list",
+        "row": 3,
+        "value": [
+          0,
+          0
+        ]
+      },
+      "meaning": "Both proposed zeros evaluate to zero in the original quadratic. Independent math establishes these are its two zeros, with 4 greater."
+    },
+    {
+      "id": "diagnostic/advanced-desmos-shortcuts/use-a-new-midpoint",
+      "expected": {
+        "kind": "number",
+        "row": 2,
+        "value": 0
+      },
+      "meaning": "Zero distance verifies the actual returned midpoint equals (-1,4), despite the scalar-only audit adapter not exposing Point values directly."
+    }
+  ]
+}

@@ -7,6 +7,7 @@ import {
   cacheKeyFor,
   CACHE_ENTRY_VERSION,
   createMemorySolveCache,
+  createSupabaseSolveCache,
   inputHash,
   normalizeProblemText,
   problemKey,
@@ -42,6 +43,7 @@ test("the problem key comes from extracted text and choices, never image bytes",
   // Two different screenshots are two different inputs but one problem.
   assert.notEqual(inputHash(new Uint8Array([1, 2, 3])), inputHash(new Uint8Array([1, 2, 4])));
   assert.notEqual(inputHash(new Uint8Array([1])), inputHash({ problem: "\u0001", choices: null }));
+  assert.notEqual(inputHash({ problem: "x = 2; A) 2" }), inputHash({ problem: "x = 2; A) 2", choices: null }), "embedded choices must not reuse a no-choice retry's input mapping");
 });
 
 const configuration = {
@@ -54,6 +56,9 @@ const configuration = {
   vocabulary: [{ id: "graph-both-sides" }],
   schemas: ["schema"],
   model: "gpt-5-mini",
+  candidateReasoningEffort: "high",
+  explanationReasoningEffort: "low",
+  validationVersion: "v1",
 };
 
 test("regression test 3 (unit): every part of the prompt configuration changes promptConfigVersion", () => {
@@ -69,6 +74,9 @@ test("regression test 3 (unit): every part of the prompt configuration changes p
     vocabulary: [{ id: "graph-both-sides" }, { id: "slider-parallel" }],
     schemas: ["schema v2"],
     model: "gpt-5",
+    candidateReasoningEffort: "medium",
+    explanationReasoningEffort: "high",
+    validationVersion: "v2",
   })) {
     assert.notEqual(promptConfigVersion({ ...configuration, [key]: changed }), base, `${key} is part of the version`);
   }
@@ -161,4 +169,33 @@ test("a cache outage degrades to an uncached solve instead of failing it", async
   assert.deepEqual(await broken.getPreflight("key.v1"), {});
   assert.deepEqual(await broken.putPreflight("key.v1", "intercept-read", { status: "clean" }), { status: "clean" });
   assert.deepEqual(failures, ["lookupInput", "getEntry", "putEntry", "putExplanation", "rememberInput", "getPreflight", "putPreflight"]);
+});
+
+test("a new calculator error invalidates a cached clean verdict and cannot be cleared by later clean reports", async () => {
+  const cache = createMemorySolveCache();
+  const failure = {status:"error" as const, errors:[{row:1,message:"This expression no longer evaluates"}]};
+  await cache.putPreflight("solve","method",{status:"clean"});
+  assert.deepEqual(await cache.putPreflight("solve","method",failure),failure);
+  assert.deepEqual(await cache.putPreflight("solve","method",{status:"clean"}),failure);
+  assert.deepEqual((await cache.getPreflight("solve")).method,failure);
+});
+
+test("durable verdict writes also make errors win against concurrent and stale clean reports", async () => {
+  type Stored={cache_key:string;method_id:string;verdict:unknown};
+  const rows=new Map<string,Stored>();
+  const client={from:()=>({
+    upsert:async(row:Stored,options:{ignoreDuplicates:boolean})=>{
+      const key=`${row.cache_key}:${row.method_id}`;
+      if(!rows.has(key)||!options.ignoreDuplicates) rows.set(key,structuredClone(row));
+      return {error:null};
+    },
+    select:()=>({eq:(_column:string,key:string)=>Promise.resolve({data:[...rows.values()].filter(row=>row.cache_key===key),error:null})}),
+  })};
+  const cache=createSupabaseSolveCache(client);
+  const failure={status:"error" as const,errors:[{row:2,message:"Undefined symbol"}]};
+  await cache.putPreflight("solve","method",{status:"clean"});
+  await Promise.all([cache.putPreflight("solve","method",failure),cache.putPreflight("solve","method",{status:"clean"})]);
+  assert.deepEqual((await cache.getPreflight("solve")).method,failure);
+  await cache.putPreflight("solve","method",{status:"clean"});
+  assert.deepEqual((await cache.getPreflight("solve")).method,failure);
 });

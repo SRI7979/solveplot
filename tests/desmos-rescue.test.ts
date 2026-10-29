@@ -58,14 +58,14 @@ function deps(): PipelineDeps {
   };
 }
 
-const savedRescue = process.env.DESMO_DESMOS_RESCUE;
+const savedRescue = process.env.SOLVEPLOT_DESMOS_RESCUE;
 beforeEach(() => {
-  delete process.env.DESMO_DESMOS_RESCUE;
+  delete process.env.SOLVEPLOT_DESMOS_RESCUE;
 });
 afterEach(() => {
   mock.restoreAll();
-  if (savedRescue === undefined) delete process.env.DESMO_DESMOS_RESCUE;
-  else process.env.DESMO_DESMOS_RESCUE = savedRescue;
+  if (savedRescue === undefined) delete process.env.SOLVEPLOT_DESMOS_RESCUE;
+  else process.env.SOLVEPLOT_DESMOS_RESCUE = savedRescue;
 });
 
 test("a math-heavy default that stands only because a Desmos candidate slipped triggers one rescue", () => {
@@ -137,8 +137,8 @@ test("a provider failure during the rescue keeps the original selection", async 
   assert.equal(result.method.techniqueId, "substitution");
 });
 
-test("DESMO_DESMOS_RESCUE=off disables the extra call", async () => {
-  process.env.DESMO_DESMOS_RESCUE = "off";
+test("SOLVEPLOT_DESMOS_RESCUE=off disables the extra call", async () => {
+  process.env.SOLVEPLOT_DESMOS_RESCUE = "off";
   const { requests } = mockModel({ candidates: factorResponse([slipped(), substitution()]) });
   const result = await solveProblem(deps(), { kind: "text", problem: FACTOR_QUESTION, choices: null });
   assert.equal(result.kind, "solved");

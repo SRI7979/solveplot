@@ -1,0 +1,368 @@
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme" layer(theme);
+@import "tailwindcss/utilities";
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--ui-muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-subtle: var(--subtle);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-brand: var(--brand);
+  --color-brand-soft: var(--brand-soft);
+  --color-success: var(--success);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --shadow-card: var(--shadow-card);
+  --shadow-pop: var(--shadow-pop);
+  --radius-sm: calc(var(--radius) - 6px);
+  --radius-md: calc(var(--radius) - 4px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+}
+
+.solveplot-shell {
+  --background: var(--appearance-light-background);
+  --card: var(--appearance-light-card);
+  --foreground: var(--appearance-light-foreground);
+  --popover: var(--appearance-light-popover);
+  --card-foreground: var(--appearance-light-card-foreground);
+  --popover-foreground: var(--appearance-light-popover-foreground);
+  --primary: var(--appearance-light-primary);
+  --primary-foreground: var(--appearance-light-primary-foreground);
+  --secondary: var(--appearance-light-secondary);
+  --secondary-foreground: var(--appearance-light-secondary-foreground);
+  --muted: var(--appearance-light-muted);
+  --ui-muted: var(--appearance-light-ui-muted);
+  --muted-foreground: var(--appearance-light-muted-foreground);
+  --subtle: var(--appearance-light-subtle);
+  --accent: var(--appearance-light-accent);
+  --accent-foreground: var(--appearance-light-accent-foreground);
+  --brand: var(--appearance-light-brand);
+  --brand-soft: var(--appearance-light-brand-soft);
+  --success: var(--appearance-light-success);
+  --border: var(--appearance-light-border);
+  --input: var(--appearance-light-input);
+  --ring: var(--appearance-light-ring);
+  --radius: var(--appearance-light-radius);
+  --radius-sm: var(--appearance-light-radius-sm);
+  --radius-md: var(--appearance-light-radius-md);
+  --radius-lg: var(--appearance-light-radius-lg);
+  --radius-xl: var(--appearance-light-radius-xl);
+  --radius-2xl: var(--appearance-light-radius-2xl);
+  --surface: var(--appearance-light-surface);
+  --surface-raised: var(--appearance-light-surface-raised);
+  --surface-muted: var(--appearance-light-surface-muted);
+  --accent-ink: var(--appearance-light-accent-ink);
+  --accent-text: var(--appearance-light-accent-text);
+  --accent-soft: var(--appearance-light-accent-soft);
+  --accent-hover: var(--appearance-light-accent-hover);
+  --accent-pressed: var(--appearance-light-accent-pressed);
+  --answer-surface: var(--appearance-light-answer-surface);
+  --border-subtle: var(--appearance-light-border-subtle);
+  --border-strong: var(--appearance-light-border-strong);
+  --border-accent: var(--appearance-light-border-accent);
+  --success-soft: var(--appearance-light-success-soft);
+  --panel-header: var(--appearance-light-panel-header);
+  --trace-line: var(--appearance-light-trace-line);
+  --danger: var(--appearance-light-danger);
+  --danger-soft: var(--appearance-light-danger-soft);
+  --destructive: var(--appearance-light-destructive);
+  --shadow-card: var(--appearance-light-shadow-card);
+  --shadow-pop: var(--appearance-light-shadow-pop);
+  --shadow-float: var(--appearance-light-shadow-float);
+  --font-sans: var(--appearance-light-font-sans);
+  --font-mono: var(--appearance-light-font-mono);
+  --font-math: var(--font-stix), "Cambria Math", Cambria, serif;
+  min-height: 100dvh;
+  font-family: var(--font-sans);
+  font-feature-settings: "ss01", "cv11";
+  color: var(--foreground);
+  background: var(--background);
+  line-height: 1.5;
+}
+.solveplot-shell {
+  color-scheme: light;
+}
+html[data-theme="dark"] .solveplot-shell {
+  --background: var(--appearance-dark-background);
+  --card: var(--appearance-dark-card);
+  --foreground: var(--appearance-dark-foreground);
+  --popover: var(--appearance-dark-popover);
+  --card-foreground: var(--appearance-dark-card-foreground);
+  --popover-foreground: var(--appearance-dark-popover-foreground);
+  --primary: var(--appearance-dark-primary);
+  --primary-foreground: var(--appearance-dark-primary-foreground);
+  --secondary: var(--appearance-dark-secondary);
+  --secondary-foreground: var(--appearance-dark-secondary-foreground);
+  --muted: var(--appearance-dark-muted);
+  --ui-muted: var(--appearance-dark-ui-muted);
+  --muted-foreground: var(--appearance-dark-muted-foreground);
+  --subtle: var(--appearance-dark-subtle);
+  --accent: var(--appearance-dark-accent);
+  --accent-foreground: var(--appearance-dark-accent-foreground);
+  --brand: var(--appearance-dark-brand);
+  --brand-soft: var(--appearance-dark-brand-soft);
+  --success: var(--appearance-dark-success);
+  --border: var(--appearance-dark-border);
+  --input: var(--appearance-dark-input);
+  --ring: var(--appearance-dark-ring);
+  --radius: var(--appearance-dark-radius);
+  --radius-sm: var(--appearance-dark-radius-sm);
+  --radius-md: var(--appearance-dark-radius-md);
+  --radius-lg: var(--appearance-dark-radius-lg);
+  --radius-xl: var(--appearance-dark-radius-xl);
+  --radius-2xl: var(--appearance-dark-radius-2xl);
+  --surface: var(--appearance-dark-surface);
+  --surface-raised: var(--appearance-dark-surface-raised);
+  --surface-muted: var(--appearance-dark-surface-muted);
+  --accent-ink: var(--appearance-dark-accent-ink);
+  --accent-text: var(--appearance-dark-accent-text);
+  --accent-soft: var(--appearance-dark-accent-soft);
+  --accent-hover: var(--appearance-dark-accent-hover);
+  --accent-pressed: var(--appearance-dark-accent-pressed);
+  --answer-surface: var(--appearance-dark-answer-surface);
+  --border-subtle: var(--appearance-dark-border-subtle);
+  --border-strong: var(--appearance-dark-border-strong);
+  --border-accent: var(--appearance-dark-border-accent);
+  --success-soft: var(--appearance-dark-success-soft);
+  --panel-header: var(--appearance-dark-panel-header);
+  --trace-line: var(--appearance-dark-trace-line);
+  --danger: var(--appearance-dark-danger);
+  --danger-soft: var(--appearance-dark-danger-soft);
+  --destructive: var(--appearance-dark-destructive);
+  --shadow-card: var(--appearance-dark-shadow-card);
+  --shadow-pop: var(--appearance-dark-shadow-pop);
+  --shadow-float: var(--appearance-dark-shadow-float);
+  --font-sans: var(--appearance-dark-font-sans);
+  --font-mono: var(--appearance-dark-font-mono);
+  color-scheme: dark;
+}
+.solveplot-shell .font-sans {
+  font-family: var(--font-sans);
+}
+.solveplot-shell .font-mono {
+  font-family: var(--font-mono);
+}
+.solveplot-shell button {
+  cursor: pointer;
+}
+.solveplot-shell button:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 3px;
+}
+.solveplot-shell ::selection {
+  background: var(--brand-soft);
+  color: var(--foreground);
+}
+.solveplot-shell :is(button[data-primary], button.bg-primary) {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+.solveplot-shell[data-button="outline"]
+  :is(.primaryButton, button[data-primary], button.bg-primary):not(:disabled) {
+  background: transparent;
+  color: var(--brand);
+  border-color: transparent;
+  --press-depth: 0px;
+  --press-base: transparent;
+  --press-face: var(--paper);
+  --press-outline: var(--brand);
+}
+.solveplot-shell[data-button="solid"] .primaryButton {
+  --press-depth: 0px;
+  --press-base: transparent;
+  --press-outline: transparent;
+}
+.solveplot-shell[data-button="raised"] .primaryButton {
+  --press-depth: 4px;
+  --press-base: var(--primary-edge);
+  --press-outline: var(--primary-edge);
+}
+@media (prefers-reduced-motion: reduce) {
+  .solveplot-shell *,
+  .solveplot-shell *::before,
+  .solveplot-shell *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+.solveplot-shell {
+  --ink: var(--appearance-light-ink);
+  --teal: var(--appearance-light-teal);
+  --teal-deep: var(--appearance-light-teal-deep);
+  --paper: var(--appearance-light-paper);
+  --canvas: var(--appearance-light-canvas);
+  --sidebar: var(--appearance-light-sidebar);
+  --raised: var(--appearance-light-raised);
+  --hover: var(--appearance-light-hover);
+  --control-border: var(--appearance-light-control-border);
+  --control-edge: var(--appearance-light-control-edge);
+  --accent-border: var(--appearance-light-accent-border);
+  --soft: var(--appearance-light-soft);
+  --answer-fill: var(--appearance-light-answer-fill);
+  --secondary-accent: var(--appearance-light-secondary-accent);
+  --secondary-soft: var(--appearance-light-secondary-soft);
+  --tertiary: var(--appearance-light-tertiary);
+  --tertiary-soft: var(--appearance-light-tertiary-soft);
+  --selection-accent: var(--appearance-light-selection-accent);
+  --selection-soft: var(--appearance-light-selection-soft);
+  --selection-border: var(--appearance-light-selection-border);
+  --primary-button: var(--appearance-light-primary-button);
+  --primary-button-hover: var(--appearance-light-primary-button-hover);
+  --primary-edge: var(--appearance-light-primary-edge);
+}
+
+html[data-theme="dark"] .solveplot-shell {
+  --ink: var(--appearance-dark-ink);
+  --teal: var(--appearance-dark-teal);
+  --teal-deep: var(--appearance-dark-teal-deep);
+  --paper: var(--appearance-dark-paper);
+  --canvas: var(--appearance-dark-canvas);
+  --sidebar: var(--appearance-dark-sidebar);
+  --raised: var(--appearance-dark-raised);
+  --hover: var(--appearance-dark-hover);
+  --control-border: var(--appearance-dark-control-border);
+  --control-edge: var(--appearance-dark-control-edge);
+  --accent-border: var(--appearance-dark-accent-border);
+  --soft: var(--appearance-dark-soft);
+  --answer-fill: var(--appearance-dark-answer-fill);
+  --secondary-accent: var(--appearance-dark-secondary-accent);
+  --secondary-soft: var(--appearance-dark-secondary-soft);
+  --tertiary: var(--appearance-dark-tertiary);
+  --tertiary-soft: var(--appearance-dark-tertiary-soft);
+  --selection-accent: var(--appearance-dark-selection-accent);
+  --selection-soft: var(--appearance-dark-selection-soft);
+  --selection-border: var(--appearance-dark-selection-border);
+  --primary-button: var(--appearance-dark-primary-button);
+  --primary-button-hover: var(--appearance-dark-primary-button-hover);
+  --primary-edge: var(--appearance-dark-primary-edge);
+}
+
+/* Shared controls are scoped to the authenticated workspace. */
+.solveplot-shell {
+  .outlinedControl,
+  .secondaryButton,
+  .primaryButton,
+  .pointButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 41px;
+    padding: 8px 15px;
+    border: 1px solid var(--control-border);
+    border-radius: var(--radius-lg);
+    background: var(--paper);
+    color: var(--foreground);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1.3;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .outlinedControl {
+    gap: 7px;
+    min-height: 38px;
+    padding: 8px 12px;
+    border-width: 2px;
+    border-radius: var(--radius-md);
+    font-size: 12px;
+    font-weight: 750;
+  }
+  .outlinedControl:hover {
+    --press-face: var(--raised);
+    --press-outline: var(--control-edge);
+  }
+  .secondaryButton:hover {
+    --press-face: var(--raised);
+    --press-outline: var(--accent-border);
+  }
+  .primaryButton {
+    min-height: 46px;
+    padding: 11px 20px;
+    border-radius: var(--radius-lg);
+    background: var(--primary-button);
+    color: var(--primary-foreground);
+    font-size: 15px;
+  }
+  .primaryButton:hover {
+    --press-face: var(--primary-button-hover);
+  }
+  .pointButton {
+    --press-padding: 7px;
+    min-height: 36px;
+    margin-top: 12px;
+    padding: 7px 12px;
+    border-radius: 10px;
+    color: var(--secondary-accent);
+    font-size: 13px;
+  }
+  .pointButton:hover {
+    --press-face: var(--raised);
+    --press-outline: var(--accent-border);
+  }
+  .copyButton:hover {
+    --press-outline: var(--accent-border);
+  }
+  :is(
+    .outlinedControl,
+    .secondaryButton,
+    .primaryButton,
+    .pointButton
+  ):disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+  .wsPageHeading {
+    margin-bottom: 32px;
+  }
+  .wsPageHeading h1 {
+    font-size: 30px;
+    line-height: 1.25;
+    font-weight: 850;
+    letter-spacing: -0.035em;
+  }
+  .wsPageHeading p {
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+  button,
+  summary,
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+  button svg,
+  a svg,
+  summary svg {
+    flex-shrink: 0;
+  }
+  @media (max-width: 860px) {
+    .wsPageHeading h1 {
+      display: flex;
+      align-items: center;
+      min-height: 40px;
+      padding-left: 46px;
+      font-size: 27px;
+    }
+  }
+}
+.solveplot-shell .katex {
+  position: relative;
+}

@@ -32,6 +32,7 @@ type Checked = { label: string; verdict: { status: string; rows: number; errors?
 const args = process.argv.slice(2);
 const resultsPath = args.find((arg) => arg.startsWith("--results="))?.split("=")[1] ?? "evals/results/before-enum.json";
 const writeFixtures = args.includes("--write-fixtures");
+const outputPath = args.find((arg) => arg.startsWith("--output="))?.slice("--output=".length) ?? null;
 // --cases: also run every benchmark case's gold rows through real Desmos.
 const auditCases = args.includes("--cases");
 // --plans=<file.json>: worked examples ({ plans: [{ source, context, rows, claimedResult, sliderRows }] })
@@ -248,6 +249,10 @@ try {
     console.log(`  ERROR ${item.label}: ${item.verdict.errors!.map((error) => `line ${error.row} ${JSON.stringify(item.rows[error.row - 1])}: ${error.message}`).join("; ")}`);
   }
   console.log(`  pre-flight per check: p50 ${percentile(50)}ms, p95 ${percentile(95)}ms, max ${times.at(-1)}ms (includes the 60ms quiet window)`);
+  if (outputPath) {
+    writeFileSync(outputPath, JSON.stringify({ desmos: version, label: results.label, checkedAt: new Date().toISOString(), scriptReadyMs, fixtureResults, audit }, null, 2));
+    console.log(`  machine-readable evidence: ${outputPath}`);
+  }
 
   if (auditCases) {
     // Every benchmark case's reference rows must run in real Desmos, and a

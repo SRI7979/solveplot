@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="224" viewBox="0 0 720 224">
+  <rect width="720" height="224" rx="18" fill="#fff"/>
+  <g fill="#172d35" font-family="Arial, Helvetica, sans-serif" font-size="27">
+    <text x="24" y="38">A quadratic function f has the following values:</text>
+    <g text-anchor="middle">
+      <text x="118" y="91" font-style="italic">x</text>
+      <text x="300" y="91">1</text><text x="445" y="91">2</text><text x="590" y="91">4</text>
+      <text x="118" y="141" font-style="italic">f(x)</text>
+      <text x="300" y="141">8</text><text x="445" y="141">15</text><text x="590" y="141">35</text>
+    </g>
+    <text x="24" y="201">What is f(10)?</text>
+  </g>
+  <g fill="none" stroke="#cadde1" stroke-width="1.5">
+    <path d="M42 108H668M207 60V158"/>
+  </g>
+</svg>

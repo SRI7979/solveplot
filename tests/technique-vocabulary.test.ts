@@ -72,7 +72,7 @@ test("regression test 4: only vocabulary ids validate; a free-form technique nam
     assert.equal(candidateSchema.safeParse({ ...graphCandidate(), techniqueId: freeForm }).success, false, freeForm);
   }
   // The structured-output schema sent to the model enumerates exactly the vocabulary.
-  const schema = JSON.stringify(zodTextFormat(candidatesResponseSchema, "desmo_candidates"));
+  const schema = JSON.stringify(zodTextFormat(candidatesResponseSchema, "solveplot_candidates"));
   for (const id of TECHNIQUE_IDS) assert.match(schema, new RegExp(`"${id}"`));
 });
 
@@ -81,7 +81,7 @@ test("the candidates prompt teaches the vocabulary, the ladder, and the cost con
     /TECHNIQUES \(a controlled vocabulary; a free-form name is rejected\)/,
     /completing-the-square \(Completing the square\)/,
     /translate-the-words \(Translate the words\)/,
-    /SIMPLICITY LADDER/,
+    /TECHNIQUE DESCRIPTORS/,
     /Every candidate has a DISTINCT techniqueId/,
     /two real techniques beat four with filler/,
     /Enumerate EVERY technique in the vocabulary that validly solves this/,
@@ -100,6 +100,6 @@ test("the candidates prompt teaches the vocabulary, the ladder, and the cost con
 test("regression test 10 (prompt side): no solver mode survives in either prompt or the library", async () => {
   const text = [CANDIDATE_INSTRUCTIONS, EXPLANATION_INSTRUCTIONS, buildCandidatePrompt(), await library()].join("\n");
   assert.doesNotMatch(text, /Weaponized|Desmos First|Fastest SAT|active mode|MODE:/);
-  const schema = JSON.stringify(zodTextFormat(candidatesResponseSchema, "desmo_candidates"));
+  const schema = JSON.stringify(zodTextFormat(candidatesResponseSchema, "solveplot_candidates"));
   assert.doesNotMatch(schema, /"mode"/);
 });

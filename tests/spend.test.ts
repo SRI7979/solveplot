@@ -21,10 +21,45 @@ test("regression test 3 (math): cost = uncached input + cached input + output (r
   assert.equal(costUsd(usageFrom({ input_tokens: 1_000_000, output_tokens: 1_000_000 }), MODEL_RATES["gpt-5"].default), 11.25);
 });
 
+test("newer-model cache writes replace ordinary input at their reported lifetimes", () => {
+  const usage = usageFrom({
+    input_tokens: 12_000,
+    input_tokens_details: {
+      cached_tokens: 4_000,
+      cache_write_tokens: 7_000,
+      cache_write_tokens_details: { ttl_30m_tokens: 3_000, ttl_12h_tokens: 4_000 },
+    },
+    output_tokens: 2_000,
+    output_tokens_details: { reasoning_tokens: 500 },
+  });
+  assert.deepEqual(usage, {
+    inputTokens: 12_000,
+    cachedTokens: 4_000,
+    cacheWrite30mTokens: 3_000,
+    cacheWrite12hTokens: 4_000,
+    outputTokens: 2_000,
+    reasoningTokens: 500,
+    totalTokens: 14_000,
+  });
+  assert.equal(costUsd(usage, rateFor("gpt-6-luna", "default").rate), 0.002515);
+  assert.equal(costUsd(usage, rateFor("gpt-6-luna", "priority").rate), 0.00503);
+
+  const aggregateOnly = usageFrom({
+    input_tokens: 1_000,
+    input_tokens_details: { cached_tokens: 200, cache_write_tokens: 600 },
+  });
+  assert.equal(aggregateOnly.cacheWrite12hTokens, 600, "an unknown write lifetime gets the conservative 12-hour rate");
+  assert.equal(costUsd(aggregateOnly, rateFor("gpt-6-luna", "default").rate), 0.000172);
+});
+
 test("dated snapshots use their base model's price; unknown models are priced high, never free", () => {
   assert.equal(rateFor("gpt-5-mini-2025-08-07", "default").rate.input, 0.25, "not priced as gpt-5");
   assert.equal(rateFor("gpt-5-2025-08-07", "priority").rate.output, 20);
   assert.equal(rateFor("gpt-5-nano", "priority").rate.output, 0.4, "no priority rate: the default rate applies");
+  assert.equal(rateFor("gpt-6-luna", "priority").rate.output, 1, "Luna Fast mode uses twice its standard token rate");
+  assert.deepEqual(rateFor("gpt-6-luna", "fast"), rateFor("gpt-6-luna", "priority"), "Luna responses report fast even when priority was requested");
+  assert.deepEqual(rateFor("gpt-5-mini", "fast"), rateFor("gpt-5-mini", "priority"), "both Fast tier labels use the premium rate");
+  assert.equal(costUsd(usageFrom({ input_tokens: 1_000_000, output_tokens: 1_000_000 }), rateFor("gpt-6-luna", "fast").rate), 1.2);
   const unknown = rateFor("some-new-model", "default");
   assert.equal(unknown.known, false);
   assert.ok(unknown.rate.output >= Math.max(...Object.values(MODEL_RATES).map((rates) => (rates.priority ?? rates.default).output)));

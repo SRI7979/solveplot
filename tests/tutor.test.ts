@@ -6,7 +6,7 @@ import type { Solution } from "../src/lib/solver-schema";
 import { createMemoryUsageStore } from "../src/lib/spend";
 import { candidatesResponseSchema, selectMethods } from "../src/lib/strategy-selection";
 import { createTelemetry, memorySink, type TelemetryRecord } from "../src/lib/telemetry";
-import { TUTOR_CACHE_KEY, TUTOR_INSTRUCTIONS, tutorQuestionsPerDay, type SavedTrick, type SavedTrickInput } from "../src/lib/tutor";
+import { TUTOR_CACHE_KEY, TUTOR_INSTRUCTIONS, tutorQuestionsPerDay, tutorRequest, type SavedTrick, type SavedTrickInput } from "../src/lib/tutor";
 import { cleanSelection, findGrounding, groundingKey, isExplainableSelection } from "../src/lib/tutor-grounding";
 import { createTricksHandler, createTutorHandler, type TricksDependencies, type TutorDependencies } from "../src/lib/tutor-handler";
 import { candidatesResponse, explanation, hang, providerBody } from "./method-fixtures";
@@ -266,7 +266,7 @@ test("a calculator line is explained from the server's own context, metered as o
   assert.equal(requests.length, 1);
   const request = requests[0];
   assert.deepEqual(Object.keys(request).sort(), ["input", "instructions", "max_output_tokens", "model", "prompt_cache_key", "reasoning", "service_tier", "store", "text"]);
-  assert.equal(request.model, "gpt-5-mini");
+  assert.equal(request.model, "gpt-6-luna");
   assert.equal(request.prompt_cache_key, TUTOR_CACHE_KEY);
   assert.equal(request.store, false);
   assert.equal(request.instructions, TUTOR_INSTRUCTIONS);
@@ -303,6 +303,18 @@ test("a calculator line is explained from the server's own context, metered as o
   assert.equal(event.practice, false);
   const logged = JSON.stringify(events);
   for (const text of ["positive solution", "x^2", "x-intercept"]) assert.ok(!logged.includes(text), `telemetry carries no problem or answer text (${text})`);
+});
+
+test("GPT-6 tutors retain explicit Low controls while legacy overrides remain supported", () => {
+  for (const model of ["gpt-6-luna", "gpt-6.1-sol", "gpt-5-mini"]) {
+    const request = tutorRequest("Explain the selected calculator row.", false, model);
+    assert.equal(request.model, model);
+    assert.deepEqual(request.reasoning, { effort: "low" });
+    assert.equal((request.text as { verbosity: string }).verbosity, "low");
+  }
+  const legacy = tutorRequest("Explain the selected calculator row.", false, "gpt-4.1-mini");
+  assert.equal(legacy.reasoning, undefined);
+  assert.equal((legacy.text as { verbosity?: string }).verbosity, undefined);
 });
 
 test("a highlighted rendered-math passage is verified and passed on as the server's own source text", async () => {

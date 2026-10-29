@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { createPreflightEngine, type DesmosApi, type PreflightEngine } from "@/lib/desmos-engine";
-import { calculatorPayload, type CalculatorPayload, type PreflightVerdict } from "@/lib/desmos-preflight";
-import type { AnswerState } from "@/lib/solver-schema";
+import { createPreflightEngine, type PreflightEngine } from "@/lib/desmos-engine";
+import { calculatorPayload, checkMethodReadout, type CalculatorPayload, type PreflightVerdict } from "@/lib/desmos-preflight";
+import { DESMOS_READY_EVENT, loadDesmos } from "@/lib/desmos-loader";
+import type { AnswerState, SolutionResult } from "@/lib/solver-schema";
 
 /**
  * The rendering gate. Every path that shows calculator rows (the solve page,
@@ -13,29 +14,17 @@ import type { AnswerState } from "@/lib/solver-schema";
  * the solve flow already checked renders with no second check.
  */
 
-const LOAD_TIMEOUT_MS = 20_000;
-
 let engine: Promise<PreflightEngine> | null = null;
 const settled = new Map<string, PreflightVerdict>();
 const inFlight = new Map<string, Promise<PreflightVerdict>>();
-
-function waitForDesmos(): Promise<DesmosApi> {
-  return new Promise((resolve, reject) => {
-    const started = Date.now();
-    const poll = () => {
-      if (window.Desmos) resolve(window.Desmos);
-      else if (Date.now() - started > LOAD_TIMEOUT_MS) reject(new Error("Desmos did not load"));
-      else setTimeout(poll, 50);
-    };
-    poll();
-  });
-}
+const VERDICT_CHANGED_EVENT = "solveplot:calculator-verdict-changed";
 
 function getEngine(): Promise<PreflightEngine> {
-  engine ??= waitForDesmos().then((desmos) => createPreflightEngine(desmos, document));
-  engine.catch(() => {
-    engine = null;
-  });
+  if (!engine) {
+    const pending = loadDesmos().then((desmos) => createPreflightEngine(desmos, document));
+    engine = pending;
+    pending.catch(() => { if (engine === pending) engine = null; });
+  }
   return engine;
 }
 
@@ -66,6 +55,7 @@ export function preflight(payload: CalculatorPayload): Promise<PreflightVerdict>
 /** The visible calculator saw an error the hidden check did not: never show this batch again. */
 export function recordVisibleError(key: string, verdict: Extract<PreflightVerdict, { status: "error" }>) {
   settled.set(key, verdict);
+  window.dispatchEvent(new Event(VERDICT_CHANGED_EVENT));
 }
 
 export type GateState =
@@ -87,12 +77,26 @@ function stateFor(payload: CalculatorPayload): GateState {
  * reported every row free of errors. "unverified" (Desmos could not load, or
  * never settled) shows nothing, like "error": unverified is not clean.
  */
-export function usePreflightGate(
+function usePayloadGate(
   rows: ReadonlyArray<{ latex: string; slider?: { min: number; max: number; step: number } | null }>,
   answerState: AnswerState | null | undefined,
+  expectedResult?: SolutionResult | null,
+  mode: "answer" | "discovery" = "answer",
 ): { payload: CalculatorPayload; gate: GateState } {
-  const payload = useMemo(() => calculatorPayload(rows, answerState), [rows, answerState]);
+  const payload = useMemo(() => calculatorPayload(rows, answerState, mode), [rows, answerState, mode]);
   const [result, setResult] = useState<{ key: string; gate: GateState } | null>(null);
+  const [readyRevision, setReadyRevision] = useState(0);
+  useEffect(() => {
+    // A later successful retry rechecks unverified rows in both the graph and
+    // explanation. Never memoize a network failure as a bad math verdict.
+    const ready = () => setReadyRevision((value) => value + 1);
+    window.addEventListener(DESMOS_READY_EVENT, ready);
+    window.addEventListener(VERDICT_CHANGED_EVENT, ready);
+    return () => {
+      window.removeEventListener(DESMOS_READY_EVENT, ready);
+      window.removeEventListener(VERDICT_CHANGED_EVENT, ready);
+    };
+  }, []);
   useEffect(() => {
     if (payload.items.length === 0 || settled.has(payload.key)) return;
     let active = true;
@@ -109,8 +113,30 @@ export function usePreflightGate(
     return () => {
       active = false;
     };
-  }, [payload]);
+  }, [payload, readyRevision]);
   const known = stateFor(payload);
   const gate = known.status !== "pending" ? known : result?.key === payload.key ? result.gate : known;
+  if (gate.status === "clean") {
+    const checked = checkMethodReadout(expectedResult, gate.verdict);
+    if (checked.status === "error") return { payload, gate: { status: "error", verdict: checked } };
+  }
   return { payload, gate };
+}
+
+/** Both states must run cleanly. Readout verification applies only at the
+ * expected answer state; the learner sees and manipulates the starting state. */
+export function usePreflightGate(
+  rows: ReadonlyArray<{ latex: string; slider?: {min:number;max:number;step:number} | null }>,
+  answerState: AnswerState | null | undefined,
+  expectedResult?: SolutionResult | null,
+): {payload: CalculatorPayload; gate: GateState} {
+  const answer = usePayloadGate(rows, answerState, expectedResult);
+  const initial = usePayloadGate(rows, answerState, answerState ? null : expectedResult, "discovery");
+  if (answerState && initial.payload.items.length > 0 && initial.payload.key === answer.payload.key) {
+    return { payload: initial.payload, gate: { status: "error", verdict: {
+      status: "error", rows: initial.payload.items.length,
+      errors: [{ row: 1, message: "This answer-finding slider has no distinct starting state. The method needs correction before it can be shown." }],
+    } } };
+  }
+  return {payload:initial.payload, gate: answer.gate.status === "clean" || answer.gate.status === "empty" ? initial.gate : answer.gate};
 }

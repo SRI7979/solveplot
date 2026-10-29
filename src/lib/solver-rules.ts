@@ -1,4 +1,6 @@
 import { analyzePlan } from "./desmos-latex";
+import { affineForm, affineSolutionSpace, determinedValue, differenceForm, parseDecimal, type AffineForm, type NameRole, type Rational } from "./linear-forms";
+import { isScalarPolynomial, polynomialReadoutValue } from "./polynomial-invariants";
 import type { ConditionType, DistinguishMethod, Parameter, Solution } from "./solver-schema";
 
 function escapeRegExp(text: string): string {
@@ -7,9 +9,37 @@ function escapeRegExp(text: string): string {
 
 const REGRESSION_OP = /\\sim(?![A-Za-z])|~/;
 
+/** Known calculator syntax failures observed in real-engine audits. This is
+ * deliberately bounded; unknown geometry is still checked by browser preflight. */
+export function findUnsupportedDesmosOperations(expressions: ReadonlyArray<{ latex: string }>): { row: number; reason: string }[] {
+  const analyzed = analyzePlan(expressions).rows;
+  const pointNames = new Set(expressions.flatMap(({ latex }) => {
+    const match = latex.replace(/\\left|\\right/g, "").match(/^\s*([A-Za-z](?:_\{[^{}]*\}|_[A-Za-z0-9])?)\s*=\s*\([^,]+,[^,]+\)\s*$/);
+    return match ? [match[1]] : [];
+  }));
+  const name = String.raw`[A-Za-z](?:_\{[^{}]*\}|_[A-Za-z0-9])?`;
+  const group = String.raw`\(\s*(${name}(?:\s*[+-]\s*${name})+)\s*\)`;
+  const product = new RegExp(`${group}\\s*(?:\\\\cdot|\\\\times|\\*)?\\s*${group}`, "g");
+  return expressions.flatMap(({ latex }, index) => {
+    if (analyzed[index].isRegression && ["x", "y"].some(axis => analyzed[index].names.has(axis))) {
+      return [{ row: index + 1, reason: "Bare x and y are graph coordinates, not fitted parameters. Use a different scalar name or declared data lists in this regression." }];
+    }
+    for (const match of latex.replace(/\\left|\\right/g, "").matchAll(product)) {
+      if ([match[1], match[2]].every(side => side.split(/[+-]/).every(token => pointNames.has(token.trim())))) {
+        return [{ row: index + 1, reason: "Desmos cannot multiply a point by a point. A dot product requires explicit scalar coordinates; juxtaposed point differences are not a dot product." }];
+      }
+    }
+    return [];
+  });
+}
+
 function mentionsIdentifier(text: string, name: string): boolean {
-  // a_{1} is a different identifier from a.
-  return new RegExp(`(?<![A-Za-z\\\\])${escapeRegExp(name)}(?![A-Za-z0-9{_])`).test(text);
+  // Desmos juxtaposition is multiplication: ax_1 contains a and x_1.
+  // Word-boundary regexes miss both names, skipping integer/determinacy checks.
+  // Reuse the calculator lexer, which also distinguishes a from a_{1} and
+  // ignores command names and locally bound variables.
+  const canonical = name.replace(/_([A-Za-z0-9])$/, "_{$1}");
+  return analyzePlan([{ latex: text }]).rows[0].names.has(canonical);
 }
 
 /** The `{condition}` (or `\left\{condition\right\}`) restriction at the end of a row, if any. */
@@ -38,15 +68,15 @@ export type IntegerParameterViolation = { row: number; param: string };
 
 export type IntegerEncodingOptions = {
   /**
-   * The method never drags its sliders, so a fixed integer definition (a=16,
-   * a number the question prints) is an integer as typed.
+   * The method never drags its sliders, so a fixed integer definition (for
+   * example, q=7 when the question prints 7) is an integer as typed.
    */
   fixedValuesAllowed?: boolean;
   /**
    * The question asks for one determined value ("what is the value of a+b?"),
    * not which values could work or the greatest or least one. An equality fit
-   * then has a single answer, and reading the integer it rounds to
-   * (b=232.00042 → 232) is exact. Rule 2 still rejects an underdetermined fit.
+   * then has a single answer, and reading the nearby integer values it fits is
+   * exact. Rule 2 still rejects an underdetermined fit.
    */
   determinedValue?: boolean;
 };
@@ -111,6 +141,13 @@ export function findIntegerParameterViolations(
  * each row's free (fitted) symbols against the length of the list(s) it fits.
  * Inequality restrictions bound the search; they never pin a value, so they
  * do not count as constraints.
+ *
+ * An underdetermined fit can still answer the question when the plan reads a
+ * value the conditions fix: two equations in x, y, and z leave each of them
+ * free but fix x+y+z (PHILOSOPHY.md: the requested value may be determined
+ * when nuisance parameters are not, checked internally). That is accepted
+ * only when exact linear algebra shows every exact fit gives the line the
+ * student reads the same value; anything it cannot verify stays rejected.
  */
 
 function balancedSplit(text: string, separator: string): string[] {
@@ -187,6 +224,7 @@ function literalSideLength(side: string): number | null {
 
 export type RegressionDeterminacyViolation =
   | { row: number; kind: "underdetermined"; freeParams: number; constraints: number; params: string[] }
+  | { row: number; kind: "inconsistent" }
   | { row: number; kind: "mismatched_lists"; lengths: Record<string, number> };
 
 /** Identifier tokens (a, y_{1}, x_1) with their positions, outside \operatorname{...} and other commands. */
@@ -202,6 +240,9 @@ function identifierTokens(latex: string): { name: string; start: number; end: nu
 
 /** Maximal runs of juxtaposed identifiers ("sy_{1}" is [s, y_{1}]); a run touching ^, (, or a command is not a plain product. */
 function productRuns(latex: string): string[][] {
+  // A relation ends a product; unlike an adjacent function command it does
+  // not make uv in uv\\sim3 a more complicated use of either parameter.
+  latex = latex.replace(REGRESSION_OP, "~");
   const tokens = identifierTokens(latex);
   const runs: { names: string[]; start: number; end: number }[] = [];
   for (const token of tokens) {
@@ -247,8 +288,78 @@ function productMerges(rows: readonly string[], free: ReadonlySet<string>): numb
   return merges;
 }
 
+const NUMERIC_DEFINITION = /^\s*([A-Za-z])(?:_\{([A-Za-z0-9]+)\}|_([A-Za-z0-9]))?\s*=\s*(-?\d+(?:\.\d+)?)\s*$/;
+
+/** The elements of one `~` side: a literal bracket's entries, or the side itself when it holds no list. */
+function regressionElements(side: string): string[] | null {
+  const trimmed = stripDelimiters(side).trim();
+  const list = trimmed.match(/^\[([\s\S]*)\]$/);
+  if (list && bracketEnd(trimmed, 0) === trimmed.length - 1 && !/\.\.\.|\bfor\b/.test(list[1])) {
+    return balancedSplit(list[1], ",").map((element) => element.trim());
+  }
+  return /[[\]]/.test(trimmed) ? null : [trimmed];
+}
+
+function regressionNameRole(
+  expressions: ReadonlyArray<{ latex: string }>,
+  regressionIndex: number,
+  free: ReadonlySet<string>,
+): NameRole {
+  // Supplied values such as x_{1}=2; a bare x or y is a coordinate, never one.
+  const known = new Map<string, Rational>();
+  for (const { latex } of expressions.slice(0, regressionIndex)) {
+    const definition = latex.match(NUMERIC_DEFINITION);
+    if (!definition) continue;
+    const subscript = definition[2] ?? definition[3];
+    if (subscript === undefined && /^[xy]$/.test(definition[1])) continue;
+    known.set(subscript === undefined ? definition[1] : `${definition[1]}_{${subscript}}`, parseDecimal(definition[4]));
+  }
+  return (name) => known.get(name) ?? (free.has(name) ? "variable" : null);
+}
+
+function affineRegressionConditions(sides: readonly [string, string], role: NameRole): AffineForm[] | null {
+  const [left, right] = sides.map(regressionElements);
+  if (!left || !right || left.length !== right.length) return null;
+  const conditions: AffineForm[] = [];
+  for (const [index, element] of left.entries()) {
+    const [fitted, target] = [affineForm(element, role), affineForm(right[index], role)];
+    if (!fitted || !target) return null;
+    conditions.push(differenceForm(fitted, target));
+  }
+  return conditions;
+}
+
+/** A later readout is fixed over every exact solution, even if the fitted
+ * parameters themselves are not unique. Polynomial targets use the same
+ * exact affine solution space; no trial fit or sampled values are evidence. */
+function fixesReadout(
+  expressions: ReadonlyArray<{ latex: string }>,
+  regressionIndex: number,
+  sides: readonly [string, string],
+  free: ReadonlySet<string>,
+  readoutRow: number | null | undefined,
+): boolean {
+  if (!readoutRow || readoutRow <= regressionIndex + 1 || readoutRow > expressions.length) return false;
+  if (trailingRestriction(expressions[regressionIndex].latex) !== null) return false;
+  const readout = stripDelimiters(expressions[readoutRow - 1].latex);
+  if (REGRESSION_OP.test(readout) || /[=<>[\]]/.test(readout)) return false;
+  const role = regressionNameRole(expressions, regressionIndex, free);
+  const conditions = affineRegressionConditions(sides, role);
+  if (!conditions) return false;
+  const value = affineForm(readout, role);
+  if (value !== null && value.terms.size > 0 && determinedValue(conditions, value) !== null) return true;
+  if (free.size > 6 || conditions.length > 12) return false;
+  return polynomialReadoutValue(readout, role, affineSolutionSpace(conditions, [...free])) !== null;
+}
+
+export type DeterminacyOptions = {
+  /** The line the plan reads its answer from (result.row): an underdetermined fit that fixes it passes. */
+  readoutRow?: number | null;
+};
+
 export function findRegressionDeterminacyViolations(
   expressions: ReadonlyArray<{ latex: string }>,
+  options: DeterminacyOptions = {},
 ): RegressionDeterminacyViolation[] {
   const { rows, defined, isKnown } = analyzePlan(expressions);
   const declaredLengths = declaredListLengths(expressions);
@@ -300,11 +411,24 @@ export function findRegressionDeterminacyViolations(
     const constraintCandidates = [left, right]
       .map((side) => sideConstraintCount(side, declaredLengths))
       .filter((count): count is number => count !== null);
-    if (constraintCandidates.length === 0) return; // no evidence either way; do not false-positive
-    const constraints = Math.max(...constraintCandidates);
+    const role = regressionNameRole(expressions, index, free);
+    const affine = free.size <= 6 ? affineRegressionConditions([left, right], role) : null;
+    const space = affine && affine.length <= 12 ? affineSolutionSpace(affine, [...free]) : undefined;
+    if (space === null) {
+      violations.push({ row: index + 1, kind: "inconsistent" });
+      return;
+    }
+    // Literal scalar polynomials supply one residual equation. Data lists,
+    // unsupported functions and unknown broadcast shapes remain unclassified.
+    // This closes the former scalar-only early return without guessing shapes.
+    if (constraintCandidates.length === 0 && isScalarPolynomial(left, role) && isScalarPolynomial(right, role)) constraintCandidates.push(1);
+    if (constraintCandidates.length === 0) return;
+    const constraints = space
+      ? free.size - [...free].filter((name) => space.get(name)?.terms.has(name)).length
+      : Math.max(...constraintCandidates);
 
     const effective = free.size - productMerges(expressions.map((expression) => expression.latex), free);
-    if (effective > constraints) {
+    if (effective > constraints && !fixesReadout(expressions, index, [left, right], free, options.readoutRow)) {
       violations.push({
         row: index + 1,
         kind: "underdetermined",

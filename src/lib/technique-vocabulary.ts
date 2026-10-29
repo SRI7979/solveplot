@@ -66,7 +66,7 @@ export const TECHNIQUES = [
   { id: "number-theory-builtin", name: "mod/gcd/lcm built-ins", source: "library" },
   { id: "sum-product", name: "Sum/product notation", source: "library" },
   { id: "derivative-slope", name: "Derivative slope finder", source: "library" },
-  { id: "strategic-value-test", name: "Strategic-value testing", source: "library" },
+  { id: "strategic-value-test", name: "Strategic-value testing", source: "library", minSteps: 1 },
   { id: "shared-zero", name: "Shared zero", source: "library" },
   { id: "vertex-of-difference", name: "Vertex of the difference", source: "library" },
   // Desmos as a scientific calculator: the student still decides which
@@ -169,7 +169,7 @@ export const TECHNIQUE_ANNOTATION = /^\[technique: ([a-z0-9-]+) \| ([^\]]+)\]$/;
  * (the strategies it matched, the one each candidate applies), so the schema
  * bounds the numbers; tests/technique-vocabulary.test.ts keeps this in sync.
  */
-export const LIBRARY_STRATEGY_COUNT = 78;
+export const LIBRARY_STRATEGY_COUNT = 79;
 
 /** Prompt text: the standard techniques the library does not cover. */
 export function standardTechniqueGuide(): string {

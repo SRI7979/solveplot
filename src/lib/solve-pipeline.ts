@@ -4,6 +4,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 
 import { normalizeChoices, parseNumber } from "./answer-consistency";
+import { similarityReadoutConflict } from "./similarity-validation";
 import { detectStructures, libraryTrace, parseLibraryIndex, type LibraryStrategy, type LibraryTrace } from "./library-trace";
 import {
   ExplanationError,
@@ -48,6 +49,8 @@ import {
   desmosRescueTarget,
   mergeSelections,
   rescueReason,
+  assessDesmosCoverage,
+  type DesmosCoverage,
   selectMethods,
   StrategySelectionError,
   type CandidatesResponse,
@@ -59,7 +62,9 @@ import { classifyOpenAIError, describeOpenAIError } from "./openai-errors";
 import type { Meter, ModelCall } from "./spend";
 import { TECHNIQUES } from "./technique-vocabulary";
 import { loadGoldSolutions } from "./gold-solutions";
+import { buildRetrievalIndex, retrieveStrategies, RETRIEVAL_VERSION, SHORTCUT_CHALLENGE_INSTRUCTIONS, type StrategyRetrievalIndex } from "./strategy-retrieval";
 import { expectedIntegerFactorExtremumAnswer, repairIntegerFactorExtremum, repairQuadraticRationalIntercept } from "./semantic-repairs";
+import { desmosNativePlan, repairCachedDesmosNativePlans, repairDesmosNativePlans } from "./desmos-native-plans";
 
 /** One guided correction per call, shared by both calls. */
 export const MAX_ATTEMPTS = 2;
@@ -95,11 +100,11 @@ export class ModelTimeoutError extends Error {
     this.name = "ModelTimeoutError";
   }
 }
-export const CANDIDATE_CACHE_KEY = "desmo-candidates-v1";
-export const EXPLANATION_CACHE_KEY = "desmo-explanation-v1";
+export const CANDIDATE_CACHE_KEY = "solveplot-candidates-v1";
+export const EXPLANATION_CACHE_KEY = "solveplot-explanation-v1";
 
-const candidateFormat = zodTextFormat(candidatesResponseSchema, "desmo_candidates");
-const explanationFormat = zodTextFormat(explanationSchema, "desmo_explanation");
+const candidateFormat = zodTextFormat(candidatesResponseSchema, "solveplot_candidates");
+const explanationFormat = zodTextFormat(explanationSchema, "solveplot_explanation");
 
 const reasoningEfforts = ["minimal", "low", "medium", "high"] as const;
 export type ReasoningEffort = (typeof reasoningEfforts)[number];
@@ -110,14 +115,17 @@ export function configuredReasoningEffort(): ReasoningEffort {
   return reasoningEfforts.find((effort) => effort === configured) ?? "low";
 }
 
+/** Method discovery needs the configured effort; explaining a selected,
+ * validated method usually does not. Keep this independently reversible. */
+export function configuredExplanationReasoningEffort(): ReasoningEffort {
+  const configured = process.env.OPENAI_EXPLANATION_REASONING_EFFORT?.trim();
+  return reasoningEfforts.find((effort) => effort === configured) ?? "low";
+}
+
 /** Remembered once OpenAI rejects priority processing, so later calls skip it. */
 export type ServiceTierState = { priorityUnavailable: boolean };
 
-/**
- * Priority processing roughly halves solve time at the same reasoning effort
- * for about 1.8× the token price. It is the default; OPENAI_SERVICE_TIER=default
- * opts out.
- */
+/** Priority processing is the default; OPENAI_SERVICE_TIER=default opts out. */
 export function configuredServiceTier(state: ServiceTierState): (typeof serviceTiers)[number] {
   const configured = process.env.OPENAI_SERVICE_TIER?.trim();
   const tier = serviceTiers.find((item) => item === configured) ?? "priority";
@@ -143,7 +151,15 @@ export type SolveContext = {
   version: string;
   /** The numbered library strategies, for the development/eval library trace. */
   libraryIndex?: LibraryStrategy[];
+  discovery?: { mode: StrategyRetrievalMode; index: StrategyRetrievalIndex; prefix: string };
 };
+
+export type StrategyRetrievalMode = "off" | "hint" | "focused";
+/** Full-library hints preserve coverage; focused subsets remain experimental. */
+export function configuredStrategyRetrieval(): StrategyRetrievalMode {
+  const value = process.env.SOLVEPLOT_STRATEGY_RETRIEVAL?.trim();
+  return value === "off" || value === "focused" ? value : "hint";
+}
 
 /**
  * Reads the library and the gold solutions and fixes the prompt configuration
@@ -151,14 +167,17 @@ export type SolveContext = {
  * a Desmos way is held to, and the library is where the model searches for one.
  */
 export async function loadSolveContext(): Promise<SolveContext> {
-  const model = process.env.OPENAI_MODEL?.trim() || "gpt-5-mini";
+  const model = process.env.OPENAI_MODEL?.trim() || "gpt-6-luna";
   const [library, gold] = await Promise.all([
     readFile(path.join(process.cwd(), "src/content/desmos-tricks.md"), "utf8"),
     loadGoldSolutions(),
   ]);
   const candidateInstructions = `${CANDIDATE_INSTRUCTIONS}\n\n${GOLD_SOLUTION_INSTRUCTIONS}\n\n<gold_solutions>\n${gold.prompt}\n</gold_solutions>\n\n<strategy_library>\n${library}\n</strategy_library>`;
+  const mode = configuredStrategyRetrieval();
+  const index = mode === "off" ? undefined : buildRetrievalIndex(library, gold.solutions);
+  const prefix = `${CANDIDATE_INSTRUCTIONS}\n\n${GOLD_SOLUTION_INSTRUCTIONS}\n\n${SHORTCUT_CHALLENGE_INSTRUCTIONS}`;
   const version = promptConfigVersion({
-    candidateInstructions: `${CANDIDATE_INSTRUCTIONS}\n${GOLD_SOLUTION_INSTRUCTIONS}`,
+    candidateInstructions: `${CANDIDATE_INSTRUCTIONS}\n${GOLD_SOLUTION_INSTRUCTIONS}${index ? `\n${RETRIEVAL_VERSION}:${mode}\n${SHORTCUT_CHALLENGE_INSTRUCTIONS}\n${JSON.stringify(index)}` : ""}`,
     explanationInstructions: EXPLANATION_INSTRUCTIONS,
     strategyLibrary: library,
     goldSolutions: gold.prompt,
@@ -167,14 +186,17 @@ export async function loadSolveContext(): Promise<SolveContext> {
     vocabulary: TECHNIQUES,
     schemas: [candidateFormat, explanationFormat],
     model,
+    candidateReasoningEffort: configuredReasoningEffort(),
+    explanationReasoningEffort: configuredExplanationReasoningEffort(),
+    validationVersion: "2026-10-27-invariant-wording-v17",
   });
-  return { model, candidateInstructions, version, libraryIndex: parseLibraryIndex(library) };
+  return { model, candidateInstructions, version, libraryIndex: parseLibraryIndex(library), ...(index ? { discovery: { mode, index, prefix } } : {}) };
 }
 
 export type SolveInput =
   /** bytes: the upload as received (hashed for the cache); modelBytes: what is sent, when downscaled. */
   | { kind: "image"; bytes: Buffer; mime: string; modelBytes?: Buffer }
-  | { kind: "text"; problem: string; choices: string[] | null };
+  | { kind: "text"; problem: string; choices?: string[] | null };
 
 export type PipelineDeps = {
   client: OpenAI;
@@ -218,7 +240,14 @@ export type CandidateOutput = {
  * library trace records which curated strategies a fresh solve matched and
  * used (absent on a cache hit, which searched nothing).
  */
-export type SolveTrace = { stages: StageTiming[]; candidateOutputs: CandidateOutput[]; library?: LibraryTrace };
+export type RetrievalTrace = { mode: StrategyRetrievalMode; fallback: boolean; strategyIds: number[]; structures: string[]; ms: number; reason: string };
+export type CoverageTrace = {
+  beforeRecovery?: DesmosCoverage;
+  final: DesmosCoverage;
+  recovery: RescueOutcome | "not-needed" | "disabled" | "deadline" | "attempt-limit" | "cache";
+  matchedStrategies: number[];
+};
+export type SolveTrace = { coverage?: CoverageTrace; stages: StageTiming[]; candidateOutputs: CandidateOutput[]; library?: LibraryTrace; retrieval?: RetrievalTrace };
 
 export function createTrace(): SolveTrace {
   return { stages: [], candidateOutputs: [] };
@@ -280,7 +309,7 @@ export type ResolvedEntry =
 export type ReadyEntry = Extract<ResolvedEntry, { status: "ready" }>;
 
 export const HONEST_FAILURE =
-  "Every method found for this problem has a Desmos line that errors, even after one corrected attempt, so none is shown. Try a tighter crop of just this question.";
+  "None of the methods passed the calculator and mathematical checks, even after one corrected attempt, so none is shown. Check that the full question and all its values are included, then try again.";
 
 /** No method survived pre-flight, even after the one retry: an honest failure, never erroring rows. */
 export class PreflightFailedError extends Error {
@@ -297,7 +326,15 @@ export class PreflightFailedError extends Error {
  * method errored, the entry's Desmos retry (if it ran) takes its place.
  */
 export async function resolveEntry(cache: SolveCache, entry: CacheEntry, options: { fresh?: boolean } = {}): Promise<ResolvedEntry> {
-  const verdicts = options.fresh ? {} : await cache.getPreflight(entry.cacheKey);
+  entry = repairCachedDesmosNativePlans(entry);
+  const verdicts = options.fresh ? {} : { ...await cache.getPreflight(entry.cacheKey) };
+  // Recheck old saved claims against necessary source conditions, without
+  // rewriting their answers or caching this as an expression syntax error.
+  for (const method of eligibleMethods(entry)) {
+    const value = parseNumber(method.answer.replace(/^[A-Z][).:]\s*/, ""));
+    const conflict = value === null ? null : similarityReadoutConflict(entry.question, value);
+    if (conflict) verdicts[method.id] = { status: "error", errors: [{ row: method.result.row ?? 1, message: `Source-condition check: ${conflict}`.slice(0, 300) }] };
+  }
   const surviving = eligibleMethods(entry).filter((method) => verdicts[method.id]?.status !== "error");
   if (surviving.length > 0) {
     const badges = assignBadges(surviving);
@@ -322,9 +359,9 @@ function desmosRejection(entry: CacheEntry, verdicts: Record<string, PreflightRe
   return {
     stage: "desmos_preflight",
     reason:
-      "every candidate's calculator rows were inserted into a real Desmos instance (API v1.11) and at least one row of each ERRORED, " +
-      `so no candidate can be shown. Desmos reported: ${failures.join(" | ")}. ` +
-      "Correct each technique so every row runs, or replace it with a technique whose rows run; never pad. A single unknown is a bare " +
+      "Every candidate failed a calculator or source-condition check, so no candidate can be shown. " +
+      `Recorded failures: ${failures.join(" | ")}. ` +
+      "Distinguish syntax errors, observed readout mismatches, and source-condition contradictions. Correct each technique so its rows run and justify the requested result; never pad. A single unknown is a bare " +
       "letter the regression leaves undefined, never a one-element list, and Desmos has no nested lists.",
     previous: JSON.stringify({
       question: entry.question,
@@ -440,8 +477,8 @@ export type SolveResult =
   | { kind: "clarification"; solution: Solution; calls: CallCounts; timings: { methodsMs: number; completeMs: number } }
   | SolvedResult;
 
-function isGpt5(model: string) {
-  return model.startsWith("gpt-5");
+function supportsReasoningControls(model: string) {
+  return model.startsWith("gpt-5") || model.startsWith("gpt-6");
 }
 
 /**
@@ -486,7 +523,7 @@ async function callModel(
     }
   } catch (error) {
     if (controller.signal.aborted && !deps.signal?.aborted) {
-      console.warn("[desmo:call-timeout]", JSON.stringify({
+      console.warn("[solveplot:call-timeout]", JSON.stringify({
         id: deps.diagnosticId,
         call,
         elapsedMs: Math.round(performance.now() - started),
@@ -494,21 +531,23 @@ async function callModel(
         limitMs: Math.round(timeoutMs),
         deadlineBound: remaining < configured,
         serviceTier: tier,
+        effort: (body.reasoning as { effort?: string } | undefined)?.effort,
+        maxOutputTokens: body.max_output_tokens,
         priorityFallback,
       }));
       // OpenAI may still have finished (and billed) the call; its usage never
       // arrives, so it is recorded at a deliberately high estimate.
       const maxOutput = typeof body.max_output_tokens === "number" ? body.max_output_tokens : 8_000;
-      await deps.meter?.record(call, { status: "timeout", model, serviceTier: tier, usage: timeoutEstimate(call, maxOutput), estimated: true });
+      if (deps.meter) await timed(deps.trace, "usage_record", () => deps.meter!.record(call, { status: "timeout", model, serviceTier: tier, usage: timeoutEstimate(call, maxOutput), estimated: true }));
       throw new ModelTimeoutError(call, Math.round(timeoutMs));
     }
     // A rejected or failed request is not billed; it is still recorded, so
     // failures show up next to what the successful calls cost.
-    await deps.meter?.record(call, { status: "failed", model, serviceTier: tier, usage: NO_USAGE, estimated: false });
+    if (deps.meter) await timed(deps.trace, "usage_record", () => deps.meter!.record(call, { status: "failed", model, serviceTier: tier, usage: NO_USAGE, estimated: false }));
     // Out of credit or locked out: every later call fails too, and students
     // only see "temporarily unavailable", so the real cause is logged loudly here.
     if (classifyOpenAIError(error).kind === "quota" || (error instanceof OpenAI.APIError && (error.status === 401 || error.status === 403))) {
-      console.error(`[desmo:ALERT] OpenAI refused the ${call} call; new solves will fail until this is fixed: ${describeOpenAIError(error)}`);
+      console.error(`[solveplot:ALERT] OpenAI refused the ${call} call; new solves will fail until this is fixed: ${describeOpenAIError(error)}`);
     }
     throw error;
   } finally {
@@ -518,11 +557,13 @@ async function callModel(
   const stage = deps.trace?.stages.at(-1);
   if (stage) stage.usage = usageOf(response);
   // The tier OpenAI reports actually applied is what it bills.
-  await deps.meter?.record(call, { status: "completed", model: response.model || model, serviceTier: response.service_tier ?? tier, usage: response.usage });
-  if (process.env.NODE_ENV === "development" || process.env.DESMO_DIAGNOSTICS === "1") {
+  const recorded = deps.meter
+    ? await timed(deps.trace, "usage_record", () => deps.meter!.record(call, { status: "completed", model: response.model || model, serviceTier: response.service_tier ?? tier, usage: response.usage }))
+    : null;
+  if (process.env.NODE_ENV === "development" || process.env.SOLVEPLOT_DIAGNOSTICS === "1") {
     const usage = response.usage;
     console.info(
-      "[desmo:call]",
+      "[solveplot:call]",
       JSON.stringify({
         id: deps.diagnosticId,
         format: (body.text as { format?: { name?: string } } | undefined)?.format?.name,
@@ -530,8 +571,12 @@ async function callModel(
         status: response.status,
         output: usage?.output_tokens,
         reasoning: usage?.output_tokens_details?.reasoning_tokens,
+        visibleOutput: (usage?.output_tokens ?? 0) - (usage?.output_tokens_details?.reasoning_tokens ?? 0),
         cached: usage?.input_tokens_details?.cached_tokens,
         input: usage?.input_tokens,
+        effort: (body.reasoning as { effort?: string } | undefined)?.effort,
+        maxOutputTokens: body.max_output_tokens,
+        costUsd: recorded?.costUsd,
         serviceTier: response.service_tier ?? tier,
         priorityFallback,
       }),
@@ -555,10 +600,11 @@ export function wasTruncated(rejection: Rejection | undefined): boolean {
  * likely, so a truncated response is retried at the configured effort with
  * twice the cap instead.
  */
-function effortFor(rejection: Rejection | undefined): ReasoningEffort {
-  const effort = configuredReasoningEffort();
-  if (!rejection || wasTruncated(rejection)) return effort;
-  return effort === "minimal" || effort === "low" ? "medium" : effort;
+function effortFor(rejection: Rejection | undefined, effort: ReasoningEffort, model: string): ReasoningEffort {
+  // GPT-6 uses "low" in place of GPT-5's "minimal" effort.
+  const supported = model.startsWith("gpt-6") && effort === "minimal" ? "low" : effort;
+  if (!rejection || wasTruncated(rejection)) return supported;
+  return supported === "minimal" || supported === "low" ? "medium" : supported;
 }
 
 export function outputTokenLimit(base: number, rejection: Rejection | undefined): number {
@@ -566,23 +612,50 @@ export function outputTokenLimit(base: number, rejection: Rejection | undefined)
 }
 
 function textProblem(input: Extract<SolveInput, { kind: "text" }>): string {
-  const choices = input.choices
+  const choices = input.choices === undefined
+    ? "\nPreserve any answer choices included in the question above. If none are given, treat it as a student-produced response."
+    : input.choices
     ? `\nAnswer choices: ${input.choices.map((choice, index) => `${String.fromCharCode(65 + index)}) ${choice}`).join(", ")}`
     : "\n(Student-produced response; no answer choices.)";
   return `No image is attached for this request. The text below is the complete, already-transcribed question; solve it directly, exactly as if it had been read from a screenshot.\n\nProblem: ${input.problem}${choices}`;
 }
 
+/** Retrieval only guides search. It never supplies or verifies a problem's answer. */
+export function discoveryPrompt(context: SolveContext, input: SolveInput, retry = false): { instructions: string; hint: string; trace?: RetrievalTrace } {
+  const discovery = context.discovery;
+  if (!discovery) return { instructions: context.candidateInstructions, hint: "" };
+  const started = performance.now();
+  const retrieved = input.kind === "text" && !retry
+    ? retrieveStrategies(discovery.index, input.problem, input.choices?.map((text, i) => ({ label: String.fromCharCode(65 + i), text })) ?? null)
+    : null;
+  const fallback = !retrieved || retrieved.fallback;
+  const instructions = discovery.mode === "focused" && !fallback
+    ? `${discovery.prefix}\n\n<strategy_library>\n${retrieved!.focusedLibrary}\n</strategy_library>\n\n<gold_solutions>\n${retrieved!.selectedGoldPrompt}\n</gold_solutions>`
+    : `${context.candidateInstructions}\n\n${SHORTCUT_CHALLENGE_INSTRUCTIONS}`;
+  return {
+    instructions,
+    hint: retrieved?.focusHint ?? "Search the complete strategy library. Check each technique's prerequisites before proposing it; the image or retry needs unrestricted strategy coverage.",
+    trace: { mode: discovery.mode, fallback, strategyIds: retrieved?.strategyIds ?? [], structures: retrieved?.structures ?? [], ms: Math.round((performance.now() - started) * 100) / 100, reason: retry ? "retry-full-library" : input.kind === "image" ? "image-full-library" : fallback ? "low-confidence-full-library" : "structural-shortlist" },
+  };
+}
+
 function candidateRequest(deps: PipelineDeps, input: SolveInput, rejection?: Rejection): Record<string, unknown> {
   const { model } = deps.context;
+  const discovery = discoveryPrompt(deps.context, input, Boolean(rejection));
+  if (!rejection && discovery.trace) {
+    if (deps.trace) deps.trace.retrieval = discovery.trace;
+    if (process.env.NODE_ENV === "development" || process.env.SOLVEPLOT_DIAGNOSTICS === "1") console.info("[solveplot:retrieval]", JSON.stringify({ id: deps.diagnosticId, ...discovery.trace }));
+  }
   return {
     model,
     prompt_cache_key: CANDIDATE_CACHE_KEY,
-    instructions: deps.context.candidateInstructions,
+    instructions: discovery.instructions,
     input: [
       {
         role: "user",
         content: [
           { type: "input_text", text: buildCandidatePrompt() },
+          ...(discovery.hint ? [{ type: "input_text", text: discovery.hint }] : []),
           input.kind === "image"
             ? { type: "input_image", image_url: `data:${input.mime};base64,${(input.modelBytes ?? input.bytes).toString("base64")}`, detail: "high" }
             : { type: "input_text", text: textProblem(input) },
@@ -590,8 +663,8 @@ function candidateRequest(deps: PipelineDeps, input: SolveInput, rejection?: Rej
         ],
       },
     ],
-    text: { format: candidateFormat, ...(isGpt5(model) ? { verbosity: "low" } : {}) },
-    ...(isGpt5(model) ? { reasoning: { effort: effortFor(rejection) } } : {}),
+    text: { format: candidateFormat, ...(supportsReasoningControls(model) ? { verbosity: "low" } : {}) },
+    ...(supportsReasoningControls(model) ? { reasoning: { effort: effortFor(rejection, configuredReasoningEffort(), model) } } : {}),
     max_output_tokens: outputTokenLimit(8000, rejection),
     store: false,
   };
@@ -612,8 +685,8 @@ function explanationRequest(deps: PipelineDeps, entry: CacheEntry, method: Metho
         ],
       },
     ],
-    text: { format: explanationFormat, ...(isGpt5(model) ? { verbosity: "low" } : {}) },
-    ...(isGpt5(model) ? { reasoning: { effort: effortFor(rejection) } } : {}),
+    text: { format: explanationFormat, ...(supportsReasoningControls(model) ? { verbosity: "low" } : {}) },
+    ...(supportsReasoningControls(model) ? { reasoning: { effort: effortFor(rejection, configuredExplanationReasoningEffort(), model) } } : {}),
     max_output_tokens: outputTokenLimit(4000, rejection),
     store: false,
   };
@@ -664,6 +737,13 @@ export async function explainMethod(
   calls: CallCounts = { candidates: 0, explanation: 0 },
 ): Promise<{ solution: Solution; source: "cache" | "model" | "fallback"; failure?: unknown }> {
   deps.meter?.setCacheKey(entry.cacheKey);
+  const factorPlan = desmosNativePlan(entry.question, entry.choices);
+  if (factorPlan && method.techniqueId === factorPlan.candidate.techniqueId &&
+      JSON.stringify(method.rows.map(row => row.latex)) === JSON.stringify(factorPlan.candidate.rows.map(row => row.latex))) {
+    validateExplanationQuality(method, factorPlan.explanation);
+    await deps.cache.putExplanation(entry.cacheKey, method.id, factorPlan.explanation);
+    return { solution: presentMethod(entry, method, factorPlan.explanation), source: "cache" };
+  }
   const cached = await deps.cache.getExplanation(entry.cacheKey, method.id);
   if (cached) {
     try {
@@ -706,9 +786,9 @@ export async function explainMethod(
   };
 }
 
-/** DESMO_DESMOS_RESCUE=off disables the rescue (for A/B benchmarking); it is on by default. */
+/** SOLVEPLOT_DESMOS_RESCUE=off disables the rescue (for A/B benchmarking); it is on by default. */
 export function rescueEnabled(env: Record<string, string | undefined> = process.env): boolean {
-  return env.DESMO_DESMOS_RESCUE?.trim().toLowerCase() !== "off";
+  return env.SOLVEPLOT_DESMOS_RESCUE?.trim().toLowerCase() !== "off";
 }
 
 /** "strategies 61, 78 teach parameter-regression": the library tricks the question's wording points to. */
@@ -743,7 +823,9 @@ async function rescueDesmosCandidate(
   const { candidatesMs, explanationMs } = modelTimeouts();
   const remaining = deps.deadline ? deps.deadline - Date.now() : Infinity;
   if (deps.signal?.aborted || remaining < candidatesMs + explanationMs) return { selection, outcome: null };
-  const rejection: Rejection = { stage: "desmos_rescue", reason: rescueReason(target, libraryHints(selection, deps.context.libraryIndex)), previous: modelOutputText(response) };
+  const focused = deps.context.discovery
+    ? retrieveStrategies(deps.context.discovery.index, selection.question, selection.choices).focusHint : "";
+  const rejection: Rejection = { stage: "desmos_rescue", reason: rescueReason(target, libraryHints(selection, deps.context.libraryIndex)) + (focused ? `\nTargeted library search:\n${focused}` : ""), previous: modelOutputText(response) };
   let retried: OpenAI.Responses.Response;
   try {
     await deps.meter?.authorizeRetry();
@@ -752,17 +834,17 @@ async function rescueDesmosCandidate(
   } catch (error) {
     // Out of budget, a timeout, or a provider error: the original selection stands.
     if (deps.signal?.aborted) throw error;
-    console.warn("[desmo:rescue]", JSON.stringify({ id: deps.diagnosticId, outcome: "failed", error: error instanceof Error ? error.name : String(error) }));
+    console.warn("[solveplot:rescue]", JSON.stringify({ id: deps.diagnosticId, outcome: "failed", error: error instanceof Error ? error.name : String(error) }));
     return { selection, outcome: "failed" };
   }
   try {
     const { parsed } = validateCandidatesResponse(retried);
     if (parsed.status !== "solved") throw new StrategySelectionError("The rescue asked for clarification instead of candidates.");
-    const corrected = selectMethods(repairIntegerFactorExtremum(repairQuadraticRationalIntercept({ ...parsed, question: selection.question, choices: selection.choices })));
+    const corrected = selectMethods(repairDesmosNativePlans(repairIntegerFactorExtremum(repairQuadraticRationalIntercept({ ...parsed, question: selection.question, choices: selection.choices }))));
     recordCandidateOutput(deps, "candidates", 2, retried, null);
     const merged = mergeSelections(selection, corrected);
     const outcome = merged.winnerId !== selection.winnerId ? "applied" : "kept";
-    console.info("[desmo:rescue]", JSON.stringify({ id: deps.diagnosticId, outcome, from: target.winner.techniqueId, to: merged.winnerId }));
+    console.info("[solveplot:rescue]", JSON.stringify({ id: deps.diagnosticId, outcome, from: target.winner.techniqueId, to: merged.winnerId }));
     return { selection: merged, outcome };
   } catch (error) {
     const failure = error instanceof StrategySelectionError ? new SolveValidationError(error.stage, error.message) : error;
@@ -794,6 +876,8 @@ export async function solveProblem(
   let repairs: string[] = [];
   let timeoutRetryUsed = false;
   let rescue: RescueOutcome = null;
+  let coverageBefore: DesmosCoverage | undefined;
+  let coverageRecovery: CoverageTrace["recovery"] = "cache";
 
   entry = await timed(deps.trace, "cache_lookup", async () => {
     const known = await deps.cache.lookupInput(hash, version);
@@ -828,13 +912,13 @@ export async function solveProblem(
         if (!(error instanceof ModelTimeoutError) || timeoutRetryUsed || deps.signal?.aborted || remaining < candidatesMs + explanationMs) throw error;
         timeoutRetryUsed = true;
         await deps.meter?.authorizeRetry();
-        console.warn("[desmo:timeout-retry]", JSON.stringify({ id: deps.diagnosticId, remainingMs: Number.isFinite(remaining) ? Math.round(remaining) : null }));
+        console.warn("[solveplot:timeout-retry]", JSON.stringify({ id: deps.diagnosticId, remainingMs: Number.isFinite(remaining) ? Math.round(remaining) : null }));
         response = await send();
       }
       try {
         const selectStarted = performance.now();
         const { parsed: rawParsed, repairs: metadataRepairs } = validateCandidatesResponse(response);
-        const parsed = repairIntegerFactorExtremum(repairQuadraticRationalIntercept(rawParsed));
+        const parsed = repairDesmosNativePlans(repairIntegerFactorExtremum(repairQuadraticRationalIntercept(rawParsed)));
         if (parsed.status === "needs_clarification") {
           recordCandidateOutput(deps, "candidates", attempt, response, null);
           const elapsed = performance.now() - started;
@@ -852,8 +936,15 @@ export async function solveProblem(
         let selection = selectMethods(parsed);
         deps.trace?.stages.push({ stage: "validate_select", ms: Math.round(performance.now() - selectStarted) });
         recordCandidateOutput(deps, "candidates", attempt, response, null);
-        if (attempt === 1 && desmosRescueTarget(selection)) {
-          ({ selection, outcome: rescue } = await timed(deps.trace, "desmos_rescue", () => rescueDesmosCandidate(deps, input, response, selection, calls)));
+        coverageBefore = assessDesmosCoverage(selection);
+        coverageRecovery = "not-needed";
+        if (coverageBefore.recoveryRequired) {
+          if (attempt !== 1) coverageRecovery = "attempt-limit";
+          else if (!rescueEnabled()) coverageRecovery = "disabled";
+          else {
+            ({ selection, outcome: rescue } = await timed(deps.trace, "desmos_rescue", () => rescueDesmosCandidate(deps, input, response, selection, calls)));
+            coverageRecovery = rescue ?? "deadline";
+          }
         }
         repairs = metadataRepairs;
         entry = await timed(deps.trace, "cache_write", () => deps.cache.putEntry({
@@ -873,7 +964,7 @@ export async function solveProblem(
         if (selection.modelPreference && winner && selection.modelPreference !== winner.techniqueId) {
           logSelectionDisagreement(deps.diagnosticId, selection.modelPreference, winner.techniqueId);
         }
-        const library = libraryTrace(parsed, selection, deps.context.libraryIndex);
+        const library = libraryTrace(rawParsed, selection, deps.context.libraryIndex);
         if (deps.trace) deps.trace.library = library;
         logLibraryTrace(deps.diagnosticId, library);
       } catch (error) {
@@ -891,6 +982,15 @@ export async function solveProblem(
   // is replaced, and a problem whose every method errored uses its retry.
   const resolved = await timed(deps.trace, "resolve", () => resolveOrRetry(deps, entry!, calls, { fresh: hit === null }));
   const method = resolved.winner;
+  const coverage: CoverageTrace = {
+    beforeRecovery: coverageBefore,
+    final: assessDesmosCoverage({ ...resolved.entry, methods: resolved.methods, winnerId: method.id }),
+    recovery: coverageRecovery,
+    matchedStrategies: deps.context.discovery
+      ? retrieveStrategies(deps.context.discovery.index, resolved.entry.question, resolved.entry.choices).strategyIds : [],
+  };
+  if (deps.trace) deps.trace.coverage = coverage;
+  if (coverage.final.recoveryRequired) console.warn("[solveplot:desmos-coverage-missing]", JSON.stringify({ id: deps.diagnosticId, ...coverage }));
   const methodsMs = performance.now() - started;
   await onMethods?.({ resolved, cached: hit !== null });
   const [explained] = await Promise.all([

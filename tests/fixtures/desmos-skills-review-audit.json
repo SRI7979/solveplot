@@ -1,0 +1,2680 @@
+{
+  "label": "desmos-skills-review",
+  "scope": "All distinct initially seeded authored calculator batches, separately marked completed numeric exercises, and a diagnostic-only completed linear/quadratic comparison. Completed and diagnostic rows are authored references, not prefilled student answers. No model calls.",
+  "fullResults": [
+    {
+      "id": "seed/introduction-to-desmos/explore-rule",
+      "slides": [
+        "introduction-to-desmos/explore-rule",
+        "introduction-to-desmos/define-a-function",
+        "introduction-to-desmos/choose-an-evaluation",
+        "introduction-to-desmos/evaluate-a-new-input",
+        "introduction-to-desmos/recap"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "f(x)=3x+2",
+              "purpose": "Define the function given in the lesson."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/introduction-to-desmos/enter-a-calculation",
+      "slides": [
+        "introduction-to-desmos/enter-a-calculation",
+        "graphing-equations/recognize",
+        "graphing-equations/try-it",
+        "graphing-equations/solve-for-y",
+        "graphing-equations/takeaway",
+        "intersections-and-intercepts/recognize",
+        "intersections-and-intercepts/try-it",
+        "intersections-and-intercepts/takeaway",
+        "sliders/recognize",
+        "lists/recognize",
+        "regression/recognize",
+        "functions-and-transformations/recognize",
+        "restrictions/try-it",
+        "restrictions/find-an-allowed-vertex",
+        "restrictions/takeaway",
+        "answer-choice-testing/recognize",
+        "bracket-regression/recognize",
+        "bracket-regression/name-unknowns",
+        "bracket-regression/try-it",
+        "bracket-regression/takeaway",
+        "advanced-desmos-shortcuts/recognize"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/introduction-to-desmos/read-an-output",
+      "slides": [
+        "introduction-to-desmos/read-an-output"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "f(x)=3x+2",
+              "purpose": "Define the function given in the lesson."
+            },
+            {
+              "latex": "f(4)",
+              "purpose": "Evaluate the worked example at input 4."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/introduction-to-desmos/connect-a-point",
+      "slides": [
+        "introduction-to-desmos/connect-a-point"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "f(x)=3x+2",
+              "purpose": "Define the function given in the lesson."
+            },
+            {
+              "latex": "f(4)",
+              "purpose": "Evaluate the worked example at input 4."
+            },
+            {
+              "latex": "(4,f(4))",
+              "purpose": "Plot the worked example as input and output."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/introduction-to-desmos/use-a-new-function",
+      "slides": [
+        "introduction-to-desmos/use-a-new-function"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "g(x)=4x-3",
+              "purpose": "The new given function. Add the requested evaluation on a new row."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/graphing-equations/enter-equation",
+      "slides": [
+        "graphing-equations/enter-equation",
+        "graphing-equations/read-line",
+        "graphing-equations/what-the-line-means"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "3x+5=20",
+              "purpose": "Enter the original equation without rearranging it."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/graphing-equations/verify",
+      "slides": [
+        "graphing-equations/verify"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "3x+5=20",
+              "purpose": "Enter the original equation without rearranging it."
+            },
+            {
+              "latex": "3(5)+5",
+              "purpose": "Check the x-value read from the graph."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/graphing-equations/coordinate-check",
+      "slides": [
+        "graphing-equations/coordinate-check"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "x=6",
+              "purpose": "Use the original given information."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/graphing-equations/move-line",
+      "slides": [
+        "graphing-equations/move-line"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "k=20",
+              "purpose": "Change the required right side.",
+              "slider": {
+                "min": -10,
+                "max": 35,
+                "step": 1
+              }
+            },
+            {
+              "latex": "3x+5=k",
+              "purpose": "The vertical line marks the current solution."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/tables/recognize",
+      "slides": [
+        "tables/recognize",
+        "tables/add-table",
+        "tables/output-heading",
+        "tables/read-row",
+        "tables/edit-input"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "f(x)=2x+1",
+              "purpose": "Use this function in the output column."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/tables/match-an-input",
+      "slides": [
+        "tables/match-an-input"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "x_{1}=[-1,2,5]",
+              "purpose": "Use the original given information."
+            },
+            {
+              "latex": "y_{1}=[-1,5,11]",
+              "purpose": "Use the original given information."
+            },
+            {
+              "latex": "(x_{1},y_{1})",
+              "purpose": "Use the original given information."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/tables/pairing-check",
+      "slides": [
+        "tables/pairing-check"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "x_{1}=[2,5,8]",
+              "purpose": "Use the original given information."
+            },
+            {
+              "latex": "y_{1}=[7,16,25]",
+              "purpose": "Use the original given information."
+            },
+            {
+              "latex": "(x_{1},y_{1})",
+              "purpose": "Use the original given information."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/tables/try-it",
+      "slides": [
+        "tables/try-it",
+        "tables/takeaway"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "g(x)=3x+1",
+              "purpose": "The rule for the new table."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/tables/read-a-new-table",
+      "slides": [
+        "tables/read-a-new-table"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "g(x)=-2x+8",
+              "purpose": "Use the original given information."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/intersections-and-intercepts/first-line",
+      "slides": [
+        "intersections-and-intercepts/first-line"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "y=2x+1",
+              "purpose": "First given equation."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/intersections-and-intercepts/second-line",
+      "slides": [
+        "intersections-and-intercepts/second-line",
+        "intersections-and-intercepts/read-crossing",
+        "intersections-and-intercepts/read-the-output"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "y=2x+1",
+              "purpose": "First given equation."
+            },
+            {
+              "latex": "y=-x+7",
+              "purpose": "Second given equation."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/intersections-and-intercepts/intercept-check",
+      "slides": [
+        "intersections-and-intercepts/intercept-check"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "f(x)=x^2-9",
+              "purpose": "Use the original given information."
+            },
+            {
+              "latex": "y=f(x)",
+              "purpose": "Use the original given information."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/intersections-and-intercepts/move-condition",
+      "slides": [
+        "intersections-and-intercepts/move-condition"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "b=7",
+              "purpose": "The second line's intercept.",
+              "slider": {
+                "min": 1,
+                "max": 13,
+                "step": 1
+              }
+            },
+            {
+              "latex": "y=2x+1",
+              "purpose": "Keep the first condition fixed."
+            },
+            {
+              "latex": "y=-x+b",
+              "purpose": "Move only the second line."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/intersections-and-intercepts/choose-the-right-zero",
+      "slides": [
+        "intersections-and-intercepts/choose-the-right-zero"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "f(x)=(x-1)^2-9",
+              "purpose": "Use the original given information."
+            },
+            {
+              "latex": "y=f(x)",
+              "purpose": "Use the original given information."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/sliders/create-slider",
+      "slides": [
+        "sliders/create-slider",
+        "sliders/parameter-or-coordinate",
+        "sliders/explore"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "m=1",
+              "purpose": "A trial slope, not a fitted answer.",
+              "slider": {
+                "min": -2,
+                "max": 6,
+                "step": 1
+              }
+            },
+            {
+              "latex": "y=mx+1",
+              "purpose": "The line controlled by m."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/sliders/target-point",
+      "slides": [
+        "sliders/target-point"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "m=1",
+              "purpose": "A trial slope, not a fitted answer.",
+              "slider": {
+                "min": -2,
+                "max": 6,
+                "step": 1
+              }
+            },
+            {
+              "latex": "y=mx+1",
+              "purpose": "The line controlled by m."
+            },
+            {
+              "latex": "(2,7)",
+              "purpose": "The point required by the question."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/sliders/verify-condition",
+      "slides": [
+        "sliders/verify-condition"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "m=3",
+              "purpose": "The slope found by matching the required point.",
+              "slider": {
+                "min": -2,
+                "max": 6,
+                "step": 1
+              }
+            },
+            {
+              "latex": "y=mx+1",
+              "purpose": "The line controlled by m."
+            },
+            {
+              "latex": "(2,7)",
+              "purpose": "The point required by the question."
+            },
+            {
+              "latex": "2m+1",
+              "purpose": "The line's output at x = 2."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/sliders/step-check",
+      "slides": [
+        "sliders/step-check"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "m=2",
+              "purpose": "Try a whole-number slope."
+            },
+            {
+              "latex": "y=mx-2",
+              "purpose": "Use the original given information."
+            },
+            {
+              "latex": "(4,8)",
+              "purpose": "Use the original given information."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/sliders/try-it",
+      "slides": [
+        "sliders/try-it",
+        "sliders/takeaway"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "m=1",
+              "purpose": "Adjust this trial value.",
+              "slider": {
+                "min": -2,
+                "max": 5,
+                "step": 0.5
+              }
+            },
+            {
+              "latex": "y=mx-2",
+              "purpose": "The new line from the question."
+            },
+            {
+              "latex": "(4,8)",
+              "purpose": "The point the new line must pass through."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/sliders/fit-a-different-parameter",
+      "slides": [
+        "sliders/fit-a-different-parameter"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "b=0",
+              "purpose": "Change the vertical intercept."
+            },
+            {
+              "latex": "y=2x+b",
+              "purpose": "Use the original given information."
+            },
+            {
+              "latex": "(3,11)",
+              "purpose": "Use the original given information."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/lists/input-list",
+      "slides": [
+        "lists/input-list"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "L=[1,2,3,4]",
+              "purpose": "The four permitted inputs."
+            },
+            {
+              "latex": "f(x)=x^2+2x",
+              "purpose": "Apply this rule to each input."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/lists/evaluate-list",
+      "slides": [
+        "lists/evaluate-list",
+        "lists/keep-the-position"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "L=[1,2,3,4]",
+              "purpose": "The four permitted inputs."
+            },
+            {
+              "latex": "f(x)=x^2+2x",
+              "purpose": "Apply this rule to each input."
+            },
+            {
+              "latex": "f(L)",
+              "purpose": "Evaluate all four inputs together."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/lists/maximum",
+      "slides": [
+        "lists/maximum"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "L=[1,2,3,4]",
+              "purpose": "The four permitted inputs."
+            },
+            {
+              "latex": "f(x)=x^2+2x",
+              "purpose": "Apply this rule to each input."
+            },
+            {
+              "latex": "f(L)",
+              "purpose": "Evaluate all four inputs together."
+            },
+            {
+              "latex": "\\operatorname{max}(f(L))",
+              "purpose": "Read the largest listed output."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/lists/finite-check",
+      "slides": [
+        "lists/finite-check"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "L=[0,1,2,3]",
+              "purpose": "Use the original given information."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/lists/filter",
+      "slides": [
+        "lists/filter"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "L=[1,2,3,4,5,6,7,8]",
+              "purpose": "The finite candidates."
+            },
+            {
+              "latex": "f(x)=x^2+2x",
+              "purpose": "The rule to test."
+            },
+            {
+              "latex": "k=20",
+              "purpose": "The output threshold.",
+              "slider": {
+                "min": 0,
+                "max": 80,
+                "step": 5
+              }
+            },
+            {
+              "latex": "N=L[f(L)>k]",
+              "purpose": "Keep candidate inputs whose outputs exceed k."
+            },
+            {
+              "latex": "(N,f(N))",
+              "purpose": "Plot only the surviving pairs."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/lists/try-it",
+      "slides": [
+        "lists/try-it",
+        "lists/takeaway"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "L=[-2,1,3]",
+              "purpose": "Only these three inputs are allowed."
+            },
+            {
+              "latex": "f(x)=x^2-2x",
+              "purpose": "The new function."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/lists/filter-and-count",
+      "slides": [
+        "lists/filter-and-count"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "L=[-3,0,2,5]",
+              "purpose": "Use the original given information."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/regression/pair-data",
+      "slides": [
+        "regression/pair-data"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "x_{1}=[1,2,4]",
+              "purpose": "Given inputs, in order."
+            },
+            {
+              "latex": "y_{1}=[8,15,35]",
+              "purpose": "Matching outputs, in the same order."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/regression/fit-model",
+      "slides": [
+        "regression/fit-model",
+        "regression/function-check"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "x_{1}=[1,2,4]",
+              "purpose": "Given inputs, in order."
+            },
+            {
+              "latex": "y_{1}=[8,15,35]",
+              "purpose": "Matching outputs, in the same order."
+            },
+            {
+              "latex": "y_{1}\\sim ax_{1}^2+bx_{1}+c",
+              "purpose": "Fit the quadratic model stated in the question."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/regression/define-function",
+      "slides": [
+        "regression/define-function"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "x_{1}=[1,2,4]",
+              "purpose": "Given inputs, in order."
+            },
+            {
+              "latex": "y_{1}=[8,15,35]",
+              "purpose": "Matching outputs, in the same order."
+            },
+            {
+              "latex": "y_{1}\\sim ax_{1}^2+bx_{1}+c",
+              "purpose": "Fit the quadratic model stated in the question."
+            },
+            {
+              "latex": "f(x)=ax^2+bx+c",
+              "purpose": "Define a reusable function with ordinary x."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/regression/evaluate",
+      "slides": [
+        "regression/evaluate",
+        "regression/pairing-check"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "x_{1}=[1,2,4]",
+              "purpose": "Given inputs, in order."
+            },
+            {
+              "latex": "y_{1}=[8,15,35]",
+              "purpose": "Matching outputs, in the same order."
+            },
+            {
+              "latex": "y_{1}\\sim ax_{1}^2+bx_{1}+c",
+              "purpose": "Fit the quadratic model stated in the question."
+            },
+            {
+              "latex": "f(x)=ax^2+bx+c",
+              "purpose": "Define a reusable function with ordinary x."
+            },
+            {
+              "latex": "f(10)",
+              "purpose": "Evaluate the requested input after fitting."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/regression/try-it",
+      "slides": [
+        "regression/try-it",
+        "regression/takeaway"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "x_{1}=[0,2,3]",
+              "purpose": "New given inputs."
+            },
+            {
+              "latex": "y_{1}=[1,9,16]",
+              "purpose": "New matching outputs."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/regression/model-choice",
+      "slides": [
+        "regression/model-choice"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "x_{1}=[0,2,3]",
+              "purpose": "The three given inputs."
+            },
+            {
+              "latex": "y_{1}=[1,9,16]",
+              "purpose": "Their matching outputs."
+            },
+            {
+              "latex": "y_{1}\\sim ax_{1}^2+bx_{1}+c",
+              "purpose": "Fit the stated quadratic model."
+            },
+            {
+              "latex": "f(x)=ax^2+bx+c",
+              "purpose": "Define the fitted quadratic for any input."
+            },
+            {
+              "latex": "(x_{1},y_{1})",
+              "purpose": "Show the three given data points."
+            },
+            {
+              "latex": "y=f(x)",
+              "purpose": "Plot the fitted quadratic for comparison."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/regression/fit-and-transfer",
+      "slides": [
+        "regression/fit-and-transfer"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "x_{1}=[0,1,2]",
+              "purpose": "Use the original given information."
+            },
+            {
+              "latex": "y_{1}=[3,6,11]",
+              "purpose": "Use the original given information."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/functions-and-transformations/define",
+      "slides": [
+        "functions-and-transformations/define",
+        "functions-and-transformations/choose-the-function",
+        "functions-and-transformations/inside-check"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "f(x)=x^2-4x+7",
+              "purpose": "The given function."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/functions-and-transformations/evaluate",
+      "slides": [
+        "functions-and-transformations/evaluate"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "f(x)=x^2-4x+7",
+              "purpose": "The given function."
+            },
+            {
+              "latex": "f(3)",
+              "purpose": "Evaluate the function at input 3."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/functions-and-transformations/transform",
+      "slides": [
+        "functions-and-transformations/transform"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "f(x)=x^2-4x+7",
+              "purpose": "The given function."
+            },
+            {
+              "latex": "g(x)=f(x-2)+3",
+              "purpose": "Move the original graph right 2 and up 3."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/functions-and-transformations/explore",
+      "slides": [
+        "functions-and-transformations/explore"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "f(x)=x^2-4x+7",
+              "purpose": "The original function."
+            },
+            {
+              "latex": "h=0",
+              "purpose": "Horizontal shift.",
+              "slider": {
+                "min": -3,
+                "max": 3,
+                "step": 1
+              }
+            },
+            {
+              "latex": "k=0",
+              "purpose": "Vertical shift.",
+              "slider": {
+                "min": -3,
+                "max": 3,
+                "step": 1
+              }
+            },
+            {
+              "latex": "g(x)=f(x-h)+k",
+              "purpose": "Compare the transformed graph with f."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/functions-and-transformations/try-it",
+      "slides": [
+        "functions-and-transformations/try-it",
+        "functions-and-transformations/takeaway"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "f(x)=(x-1)^2+2",
+              "purpose": "The new starting function."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/functions-and-transformations/transfer-a-vertical-shift",
+      "slides": [
+        "functions-and-transformations/transfer-a-vertical-shift"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "f(x)=(x+1)^2-3",
+              "purpose": "Use the original given information."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/restrictions/recognize",
+      "slides": [
+        "restrictions/recognize"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "f(x)=(x-3)^2+2",
+              "purpose": "The complete parabola."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/restrictions/restrict",
+      "slides": [
+        "restrictions/restrict",
+        "restrictions/choose-an-allowed-point"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "f(x)=(x-3)^2+2\\left\\{0\\le x\\le2\\right\\}",
+              "purpose": "Keep only the allowed interval, including its endpoints."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/restrictions/endpoints",
+      "slides": [
+        "restrictions/endpoints",
+        "restrictions/read-minimum"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "f(x)=(x-3)^2+2\\left\\{0\\le x\\le2\\right\\}",
+              "purpose": "Keep only the allowed interval, including its endpoints."
+            },
+            {
+              "latex": "f(0)",
+              "purpose": "The included left endpoint's output."
+            },
+            {
+              "latex": "f(2)",
+              "purpose": "The included right endpoint's output."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/restrictions/endpoint-check",
+      "slides": [
+        "restrictions/endpoint-check"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "f(x)=(x-3)^2+2\\left\\{0\\le x<2\\right\\}",
+              "purpose": "Keep inputs from 0 inclusive to 2 exclusive."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/restrictions/explore",
+      "slides": [
+        "restrictions/explore"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "b=2",
+              "purpose": "The included upper input bound.",
+              "slider": {
+                "min": 1,
+                "max": 5,
+                "step": 1
+              }
+            },
+            {
+              "latex": "y=(x-3)^2+2\\left\\{0\\le x\\le b\\right\\}",
+              "purpose": "Show only the permitted part."
+            },
+            {
+              "latex": "(b,(b-3)^2+2)",
+              "purpose": "Mark the moving endpoint."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/answer-choice-testing/candidates",
+      "slides": [
+        "answer-choice-testing/candidates"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "L=[1,2,3,4]",
+              "purpose": "The four candidate x-values."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/answer-choice-testing/test-outputs",
+      "slides": [
+        "answer-choice-testing/test-outputs",
+        "answer-choice-testing/candidate-or-test-output"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "L=[1,2,3,4]",
+              "purpose": "The four candidate x-values."
+            },
+            {
+              "latex": "3L+2",
+              "purpose": "Test every candidate in the equation's left side."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/answer-choice-testing/filter",
+      "slides": [
+        "answer-choice-testing/filter"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "L=[1,2,3,4]",
+              "purpose": "The four candidate x-values."
+            },
+            {
+              "latex": "3L+2",
+              "purpose": "Test every candidate in the equation's left side."
+            },
+            {
+              "latex": "L[3L+2=11]",
+              "purpose": "Keep the candidate whose test output is 11."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/answer-choice-testing/empty-check",
+      "slides": [
+        "answer-choice-testing/empty-check"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "L=[1,2,3,4]",
+              "purpose": "The finite set of supplied candidates."
+            },
+            {
+              "latex": "3L+2",
+              "purpose": "Test every listed candidate."
+            },
+            {
+              "latex": "L[3L+2=10]",
+              "purpose": "Return only candidates whose output is 10; this result is empty."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/answer-choice-testing/explore",
+      "slides": [
+        "answer-choice-testing/explore"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "L=[1,2,3,4]",
+              "purpose": "The fixed candidates."
+            },
+            {
+              "latex": "k=11",
+              "purpose": "The required output.",
+              "slider": {
+                "min": 5,
+                "max": 14,
+                "step": 1
+              }
+            },
+            {
+              "latex": "L[3L+2=k]",
+              "purpose": "Return passing candidates."
+            },
+            {
+              "latex": "(L,3L+2)",
+              "purpose": "Plot the tested pairs."
+            },
+            {
+              "latex": "y=k",
+              "purpose": "Show the required output."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/answer-choice-testing/try-it",
+      "slides": [
+        "answer-choice-testing/try-it",
+        "answer-choice-testing/takeaway"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "L=[-2,1,4,7]",
+              "purpose": "The only candidates in this question."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/answer-choice-testing/keep-every-condition",
+      "slides": [
+        "answer-choice-testing/keep-every-condition"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "L=[-3,-1,2,3]",
+              "purpose": "Use the original given information."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/bracket-regression/pair-conditions",
+      "slides": [
+        "bracket-regression/pair-conditions"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "[2a+1,-a+7]\\sim[b,b]",
+              "purpose": "Fit both complete equations at once."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/bracket-regression/requested-result",
+      "slides": [
+        "bracket-regression/requested-result",
+        "bracket-regression/pairing-check"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "[2a+1,-a+7]\\sim[b,b]",
+              "purpose": "Fit both complete equations at once."
+            },
+            {
+              "latex": "a+b",
+              "purpose": "Read the requested sum, not just one fitted parameter."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/bracket-regression/independent-check",
+      "slides": [
+        "bracket-regression/independent-check"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "[a+b,a+b]\\sim[10,10]",
+              "purpose": "Repeat one condition; this does not uniquely determine both parameters."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/bracket-regression/explore",
+      "slides": [
+        "bracket-regression/explore"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "c=7",
+              "purpose": "Change the constant in the second condition.",
+              "slider": {
+                "min": 1,
+                "max": 13,
+                "step": 1
+              }
+            },
+            {
+              "latex": "[2a+1,-a+c]\\sim[b,b]",
+              "purpose": "Fit both conditions with the new constant."
+            },
+            {
+              "latex": "a+b",
+              "purpose": "Read the sum of the fitted values."
+            },
+            {
+              "latex": "(a,b)",
+              "purpose": "Plot the fitted point."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/bracket-regression/use-zero-output-conditions",
+      "slides": [
+        "bracket-regression/use-zero-output-conditions"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "a=2",
+              "purpose": "Use the original given information."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/advanced-desmos-shortcuts/points",
+      "slides": [
+        "advanced-desmos-shortcuts/points"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "(1,2)",
+              "purpose": "First given point."
+            },
+            {
+              "latex": "(7,10)",
+              "purpose": "Second given point."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/advanced-desmos-shortcuts/distance",
+      "slides": [
+        "advanced-desmos-shortcuts/distance"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "(1,2)",
+              "purpose": "First given point."
+            },
+            {
+              "latex": "(7,10)",
+              "purpose": "Second given point."
+            },
+            {
+              "latex": "\\operatorname{distance}((1,2),(7,10))",
+              "purpose": "Find the distance without entering a distance formula."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/advanced-desmos-shortcuts/midpoint",
+      "slides": [
+        "advanced-desmos-shortcuts/midpoint",
+        "advanced-desmos-shortcuts/quantity-check"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "(1,2)",
+              "purpose": "First given point."
+            },
+            {
+              "latex": "(7,10)",
+              "purpose": "Second given point."
+            },
+            {
+              "latex": "\\operatorname{distance}((1,2),(7,10))",
+              "purpose": "Find the distance without entering a distance formula."
+            },
+            {
+              "latex": "\\operatorname{midpoint}((1,2),(7,10))",
+              "purpose": "Locate the point halfway between the endpoints."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/advanced-desmos-shortcuts/keep-the-point-pairs",
+      "slides": [
+        "advanced-desmos-shortcuts/keep-the-point-pairs",
+        "advanced-desmos-shortcuts/try-it",
+        "advanced-desmos-shortcuts/takeaway"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "(-1,2)",
+              "purpose": "Use the original given information."
+            },
+            {
+              "latex": "(2,6)",
+              "purpose": "Use the original given information."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/advanced-desmos-shortcuts/explore",
+      "slides": [
+        "advanced-desmos-shortcuts/explore"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "t=6",
+              "purpose": "Horizontal movement of the second point.",
+              "slider": {
+                "min": 0,
+                "max": 9,
+                "step": 1
+              }
+            },
+            {
+              "latex": "(1,2)",
+              "purpose": "The fixed first point."
+            },
+            {
+              "latex": "(1+t,10)",
+              "purpose": "The moving second point."
+            },
+            {
+              "latex": "\\operatorname{distance}((1,2),(1+t,10))",
+              "purpose": "The changing distance."
+            },
+            {
+              "latex": "\\operatorname{midpoint}((1,2),(1+t,10))",
+              "purpose": "The changing midpoint."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "seed/advanced-desmos-shortcuts/use-a-new-midpoint",
+      "slides": [
+        "advanced-desmos-shortcuts/use-a-new-midpoint"
+      ],
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-lesson-setup",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "(-4,1)",
+              "purpose": "Use the original given information."
+            },
+            {
+              "latex": "(2,7)",
+              "purpose": "Use the original given information."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "completed/introduction-to-desmos/evaluate-a-new-input",
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-completed-exercise",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "f(x)=3x+2",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "f(7)",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "completed/introduction-to-desmos/use-a-new-function",
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-completed-exercise",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "g(x)=4x-3",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "g(6)",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "completed/graphing-equations/try-it",
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-completed-exercise",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "4x-3=25",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "completed/graphing-equations/solve-for-y",
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-completed-exercise",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "5y-4=16",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "completed/tables/try-it",
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-completed-exercise",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "g(x)=3x+1",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "x_{1}=[0,2,5]",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "g(x_{1})",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "completed/tables/read-a-new-table",
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-completed-exercise",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "g(x)=-2x+8",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "x_{1}=[-1,3,6]",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "g(x_{1})",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "completed/intersections-and-intercepts/try-it",
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-completed-exercise",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "y=3x-2",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "y=-x+10",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "completed/intersections-and-intercepts/choose-the-right-zero",
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-completed-exercise",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "f(x)=(x-1)^2-9",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "y=f(x)",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "completed/sliders/try-it",
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-completed-exercise",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "m=2.5",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "y=mx-2",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "(4,8)",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "4m-2",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "completed/sliders/fit-a-different-parameter",
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-completed-exercise",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "b=5",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "y=2x+b",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "(3,11)",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "2(3)+b",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "completed/lists/try-it",
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-completed-exercise",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "L=[-2,1,3]",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "f(x)=x^2-2x",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "f(L)",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "\\operatorname{max}(f(L))",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "completed/lists/filter-and-count",
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-completed-exercise",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "L=[-3,0,2,5]",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "\\operatorname{count}(L[L>1])",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "completed/regression/try-it",
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-completed-exercise",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "x_{1}=[0,2,3]",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "y_{1}=[1,9,16]",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "y_{1}\\sim ax_{1}^2+bx_{1}+c",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "f(x)=ax^2+bx+c",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "f(5)",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "completed/regression/fit-and-transfer",
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-completed-exercise",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "x_{1}=[0,1,2]",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "y_{1}=[3,6,11]",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "y_{1}\\sim ax_{1}^2+bx_{1}+c",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "f(x)=ax^2+bx+c",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "f(4)",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "completed/functions-and-transformations/try-it",
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-completed-exercise",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "f(x)=(x-1)^2+2",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "g(x)=f(x-2)+3",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "g(4)",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "completed/functions-and-transformations/transfer-a-vertical-shift",
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-completed-exercise",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "f(x)=(x+1)^2-3",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "g(x)=f(x)+4",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "g(-1)",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "completed/restrictions/try-it",
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-completed-exercise",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "f(x)=(x-4)^2+1\\left\\{1\\le x\\le3\\right\\}",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "f(3)",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "completed/restrictions/find-an-allowed-vertex",
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-completed-exercise",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "f(x)=-(x-2)^2+9\\left\\{0\\le x\\le3\\right\\}",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "f(2)",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "completed/answer-choice-testing/try-it",
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-completed-exercise",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "L=[-2,1,4,7]",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "L[3L-2=10]",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "completed/answer-choice-testing/keep-every-condition",
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-completed-exercise",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "L=[-3,-1,2,3]",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "P=L[L^2=9]",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "P[P<0]",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "completed/bracket-regression/try-it",
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-completed-exercise",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "[2a+b,a-b]\\sim[13,2]",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "a+b",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "completed/bracket-regression/use-zero-output-conditions",
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-completed-exercise",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "a=2",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "[a(1)^2+b(1)+c,a(-3)^2+b(-3)+c]\\sim[0,0]",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "b+c",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "completed/advanced-desmos-shortcuts/try-it",
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-completed-exercise",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "(-1,2)",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "(2,6)",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "\\operatorname{distance}((-1,2),(2,6))",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "completed/advanced-desmos-shortcuts/use-a-new-midpoint",
+      "result": {
+        "ok": true,
+        "techniqueId": "authored-completed-exercise",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "(-4,1)",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "(2,7)",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            },
+            {
+              "latex": "\\operatorname{midpoint}((-4,1),(2,7))",
+              "purpose": "Authored completed exercise; not the initially loaded student state."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    },
+    {
+      "id": "diagnostic/regression/compare-linear-and-quadratic",
+      "result": {
+        "ok": true,
+        "techniqueId": "diagnostic-only",
+        "solution": {
+          "expressions": [
+            {
+              "latex": "x_{1}=[0,2,3]",
+              "purpose": "The three given inputs."
+            },
+            {
+              "latex": "y_{1}=[1,9,16]",
+              "purpose": "Their matching outputs."
+            },
+            {
+              "latex": "y_{1}\\sim ax_{1}^2+bx_{1}+c",
+              "purpose": "Fit the stated quadratic model."
+            },
+            {
+              "latex": "f(x)=ax^2+bx+c",
+              "purpose": "Define the fitted quadratic for any input."
+            },
+            {
+              "latex": "(x_{1},y_{1})",
+              "purpose": "Show the three given data points."
+            },
+            {
+              "latex": "y=f(x)",
+              "purpose": "Plot the fitted quadratic for comparison."
+            },
+            {
+              "latex": "y_{1}\\sim mx_{1}+n",
+              "purpose": "Audit-only completed trial instruction; not prefilled learner content."
+            },
+            {
+              "latex": "y=mx+n",
+              "purpose": "Audit-only completed trial instruction; not prefilled learner content."
+            },
+            {
+              "latex": "f(x_{1})-y_{1}",
+              "purpose": "Audit-only quadratic residuals; expected [0,0,0]."
+            },
+            {
+              "latex": "mx_{1}+n-y_{1}",
+              "purpose": "Audit-only line residuals; not all zero."
+            }
+          ],
+          "answerState": null
+        }
+      }
+    }
+  ],
+  "readoutChecks": [
+    {
+      "id": "completed/introduction-to-desmos/evaluate-a-new-input",
+      "lesson": "introduction-to-desmos",
+      "slide": "evaluate-a-new-input",
+      "studentAnswer": 23,
+      "expected": {
+        "kind": "number",
+        "row": 2,
+        "value": 23
+      }
+    },
+    {
+      "id": "completed/introduction-to-desmos/use-a-new-function",
+      "lesson": "introduction-to-desmos",
+      "slide": "use-a-new-function",
+      "studentAnswer": 21,
+      "expected": {
+        "kind": "number",
+        "row": 2,
+        "value": 21
+      }
+    },
+    {
+      "id": "completed/graphing-equations/try-it",
+      "lesson": "graphing-equations",
+      "slide": "try-it",
+      "studentAnswer": 7,
+      "expected": {
+        "kind": "graph-x-intercept",
+        "row": 1,
+        "point": [
+          7,
+          0
+        ]
+      },
+      "coverageNote": "Engine syntax plus independent arithmetic; this audit API does not return clicked graph coordinates."
+    },
+    {
+      "id": "completed/graphing-equations/solve-for-y",
+      "lesson": "graphing-equations",
+      "slide": "solve-for-y",
+      "studentAnswer": 4,
+      "expected": {
+        "kind": "graph-y-intercept",
+        "row": 1,
+        "point": [
+          0,
+          4
+        ]
+      },
+      "coverageNote": "Engine syntax plus independent arithmetic; this audit API does not return clicked graph coordinates."
+    },
+    {
+      "id": "completed/tables/try-it",
+      "lesson": "tables",
+      "slide": "try-it",
+      "studentAnswer": 16,
+      "expected": {
+        "kind": "list-entry",
+        "row": 3,
+        "index": 3,
+        "value": 16
+      },
+      "coverageNote": "Equivalent list-column readout; native + → Table interaction also needs a browser check."
+    },
+    {
+      "id": "completed/tables/read-a-new-table",
+      "lesson": "tables",
+      "slide": "read-a-new-table",
+      "studentAnswer": 2,
+      "expected": {
+        "kind": "list-entry",
+        "row": 3,
+        "index": 2,
+        "value": 2
+      },
+      "coverageNote": "Equivalent list-column readout; native + → Table interaction also needs a browser check."
+    },
+    {
+      "id": "completed/intersections-and-intercepts/try-it",
+      "lesson": "intersections-and-intercepts",
+      "slide": "try-it",
+      "studentAnswer": 7,
+      "expected": {
+        "kind": "intersection",
+        "rows": [
+          1,
+          2
+        ],
+        "point": [
+          3,
+          7
+        ]
+      },
+      "coverageNote": "Graphical readout: numeric coordinates are independently checked, not exposed by expressionAnalysis."
+    },
+    {
+      "id": "completed/intersections-and-intercepts/choose-the-right-zero",
+      "lesson": "intersections-and-intercepts",
+      "slide": "choose-the-right-zero",
+      "studentAnswer": 4,
+      "expected": {
+        "kind": "graph-x-intercept",
+        "row": 2,
+        "point": [
+          4,
+          0
+        ],
+        "otherPoint": [
+          -2,
+          0
+        ]
+      },
+      "coverageNote": "Graphical readout: numeric coordinates are independently checked, not exposed by expressionAnalysis."
+    },
+    {
+      "id": "completed/sliders/try-it",
+      "lesson": "sliders",
+      "slide": "try-it",
+      "studentAnswer": 2.5,
+      "expected": {
+        "kind": "number",
+        "row": 1,
+        "value": 2.5
+      },
+      "constraintReadouts": [
+        {
+          "row": 4,
+          "value": 8
+        }
+      ],
+      "coverageNote": "Completed slider state, not its starting value."
+    },
+    {
+      "id": "completed/sliders/fit-a-different-parameter",
+      "lesson": "sliders",
+      "slide": "fit-a-different-parameter",
+      "studentAnswer": 5,
+      "expected": {
+        "kind": "number",
+        "row": 1,
+        "value": 5
+      },
+      "constraintReadouts": [
+        {
+          "row": 4,
+          "value": 11
+        }
+      ],
+      "coverageNote": "Completed slider state, not its starting value."
+    },
+    {
+      "id": "completed/lists/try-it",
+      "lesson": "lists",
+      "slide": "try-it",
+      "studentAnswer": 8,
+      "expected": {
+        "kind": "number",
+        "row": 4,
+        "value": 8
+      }
+    },
+    {
+      "id": "completed/lists/filter-and-count",
+      "lesson": "lists",
+      "slide": "filter-and-count",
+      "studentAnswer": 2,
+      "expected": {
+        "kind": "number",
+        "row": 2,
+        "value": 2
+      }
+    },
+    {
+      "id": "completed/regression/try-it",
+      "lesson": "regression",
+      "slide": "try-it",
+      "studentAnswer": 36,
+      "expected": {
+        "kind": "number",
+        "row": 5,
+        "value": 36
+      }
+    },
+    {
+      "id": "completed/regression/fit-and-transfer",
+      "lesson": "regression",
+      "slide": "fit-and-transfer",
+      "studentAnswer": 27,
+      "expected": {
+        "kind": "number",
+        "row": 5,
+        "value": 27
+      }
+    },
+    {
+      "id": "completed/functions-and-transformations/try-it",
+      "lesson": "functions-and-transformations",
+      "slide": "try-it",
+      "studentAnswer": 6,
+      "expected": {
+        "kind": "number",
+        "row": 3,
+        "value": 6
+      }
+    },
+    {
+      "id": "completed/functions-and-transformations/transfer-a-vertical-shift",
+      "lesson": "functions-and-transformations",
+      "slide": "transfer-a-vertical-shift",
+      "studentAnswer": 1,
+      "expected": {
+        "kind": "number",
+        "row": 3,
+        "value": 1
+      }
+    },
+    {
+      "id": "completed/restrictions/try-it",
+      "lesson": "restrictions",
+      "slide": "try-it",
+      "studentAnswer": 2,
+      "expected": {
+        "kind": "number",
+        "row": 2,
+        "value": 2
+      }
+    },
+    {
+      "id": "completed/restrictions/find-an-allowed-vertex",
+      "lesson": "restrictions",
+      "slide": "find-an-allowed-vertex",
+      "studentAnswer": 9,
+      "expected": {
+        "kind": "number",
+        "row": 2,
+        "value": 9
+      }
+    },
+    {
+      "id": "completed/answer-choice-testing/try-it",
+      "lesson": "answer-choice-testing",
+      "slide": "try-it",
+      "studentAnswer": 4,
+      "expected": {
+        "kind": "list-entry",
+        "row": 2,
+        "index": 1,
+        "value": 4
+      }
+    },
+    {
+      "id": "completed/answer-choice-testing/keep-every-condition",
+      "lesson": "answer-choice-testing",
+      "slide": "keep-every-condition",
+      "studentAnswer": -3,
+      "expected": {
+        "kind": "list-entry",
+        "row": 3,
+        "index": 1,
+        "value": -3
+      }
+    },
+    {
+      "id": "completed/bracket-regression/try-it",
+      "lesson": "bracket-regression",
+      "slide": "try-it",
+      "studentAnswer": 8,
+      "expected": {
+        "kind": "number",
+        "row": 2,
+        "value": 8
+      }
+    },
+    {
+      "id": "completed/bracket-regression/use-zero-output-conditions",
+      "lesson": "bracket-regression",
+      "slide": "use-zero-output-conditions",
+      "studentAnswer": -2,
+      "expected": {
+        "kind": "number",
+        "row": 3,
+        "value": -2
+      }
+    },
+    {
+      "id": "completed/advanced-desmos-shortcuts/try-it",
+      "lesson": "advanced-desmos-shortcuts",
+      "slide": "try-it",
+      "studentAnswer": 5,
+      "expected": {
+        "kind": "number",
+        "row": 3,
+        "value": 5
+      }
+    },
+    {
+      "id": "completed/advanced-desmos-shortcuts/use-a-new-midpoint",
+      "lesson": "advanced-desmos-shortcuts",
+      "slide": "use-a-new-midpoint",
+      "studentAnswer": 4,
+      "expected": {
+        "kind": "point",
+        "row": 3,
+        "value": [
+          -1,
+          4
+        ],
+        "answerCoordinate": "y"
+      },
+      "coverageNote": "The current audit adapter exposes numeric/list evaluations only; a Point readout needs visual or richer-analysis inspection."
+    }
+  ]
+}

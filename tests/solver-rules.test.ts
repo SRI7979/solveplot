@@ -5,7 +5,17 @@ import {
   checkConditionCompleteness,
   findIntegerParameterViolations,
   findRegressionDeterminacyViolations,
+  findUnsupportedDesmosOperations,
 } from "../src/lib/solver-rules";
+
+test("real Desmos syntax: coordinates cannot be fitted and point multiplication is not a dot product", () => {
+  assert.equal(findUnsupportedDesmosOperations([{latex:"x"},{latex:String.raw`[40/x]\sim[45/18]`}])[0]?.row, 2);
+  assert.deepEqual(findUnsupportedDesmosOperations([{latex:String.raw`40/m\sim45/18`},{latex:"m"}]), []);
+  assert.deepEqual(findUnsupportedDesmosOperations([{latex:"f(x)=3x+2"},{latex:"x_{1}=[1,2]"},{latex:String.raw`f(x_{1})\sim ax_{1}+b`}]), []);
+  const points=[{latex:"K=(-60,0)"},{latex:"J=(-45,0)"},{latex:"P=(0,0)"}];
+  assert.equal(findUnsupportedDesmosOperations([...points,{latex:String.raw`\theta=\operatorname{acos}((K-J)(P-J)/675)`}])[0]?.row,4);
+  assert.deepEqual(findUnsupportedDesmosOperations([...points,{latex:"2(K-J)"},{latex:"(K.x-J.x)*(P.x-J.x)+(K.y-J.y)*(P.y-J.y)"}]),[]);
+});
 
 // ================================================================================
 // RULE 1 — integer conditions must be encoded as integers
@@ -120,6 +130,55 @@ test("Rule 2: an inequality restriction never counts as a constraint", () => {
   ]);
   assert.equal(violations.length, 1);
   assert.equal(violations[0].kind, "underdetermined");
+});
+
+// Two equations in x, y, z: each unknown is free, but x+y+z is fixed at 8.
+const SYSTEM_FIT = { latex: String.raw`[7x_{1}+4y_{1}+8z,4x_{1}+y_{1}+5z]\sim[61,37]` };
+
+test("Rule 2: an underdetermined fit passes when the line the plan reads is a combination the equations fix", () => {
+  assert.deepEqual(findRegressionDeterminacyViolations([SYSTEM_FIT, { latex: "x_{1}+y_{1}+z" }], { readoutRow: 2 }), []);
+  assert.deepEqual(findRegressionDeterminacyViolations([SYSTEM_FIT, { latex: "2x_1+2y_1+2z" }], { readoutRow: 2 }), []);
+  // A supplied value defined on an earlier line is a known number, not a fitted one.
+  assert.deepEqual(
+    findRegressionDeterminacyViolations([{ latex: "w=1" }, { latex: String.raw`[7x_{1}+4y_{1}+8zw,4x_{1}+y_{1}+5zw]\sim[61,37]` }, { latex: "x_{1}+y_{1}+z" }], { readoutRow: 3 }),
+    [],
+  );
+});
+
+test("Rule 2: an underdetermined fit stays rejected when its readout is not fixed or cannot be verified", () => {
+  const kind = (rows: { latex: string }[], readoutRow: number | null) => findRegressionDeterminacyViolations(rows, { readoutRow }).map((violation) => violation.kind);
+  assert.deepEqual(kind([SYSTEM_FIT, { latex: "x_{1}" }], 2), ["underdetermined"], "x alone is not fixed");
+  assert.deepEqual(kind([SYSTEM_FIT, { latex: "x_{1}+y_{1}+z" }], null), ["underdetermined"], "no readout line to check");
+  assert.deepEqual(kind([SYSTEM_FIT, { latex: "x_{1}+y_{1}+z" }], 1), ["underdetermined"], "a parameter read off the fit itself is arbitrary");
+  assert.deepEqual(kind([{ latex: String.raw`[a^{2}+b+c,a+b+c]\sim[3,2]` }, { latex: "b+c" }], 2), ["underdetermined"], "a nonlinear fit is not verified");
+  assert.deepEqual(kind([{ latex: String.raw`[7x_{1}+4y_{1}+8z,4x_{1}+y_{1}+5z]\sim[61,37]\left\{z>0\right\}` }, { latex: "x_{1}+y_{1}+z" }], 2), ["underdetermined"], "a restricted fit is not verified");
+  assert.deepEqual(kind([{ latex: String.raw`[a+b+c,2a+2b+2c]\sim[3,7]` }, { latex: "a+b+c" }], 2), ["inconsistent"], "contradictory equations fix nothing");
+  // The data-list fit of test 3a stays rejected whatever it reads.
+  assert.deepEqual(kind([{ latex: "x_{1}=[-2,8]" }, { latex: "y_{1}=[0,0]" }, { latex: String.raw`y_{1}\sim a x_{1}^2+b x_{1}+c` }, { latex: "a+b+c" }], 4), ["underdetermined"]);
+  for (const fit of [String.raw`0\sim ax_{1}^2+bx_{1}+c`, String.raw`0\sim a x_{1}^2+b x_{1}+c`]) {
+    const rows = [{ latex: "x_{1}=[-2,8]" }, { latex: fit }, { latex: "a+b" }];
+    assert.deepEqual(kind(rows, 3), ["underdetermined"], "implicit multiplication must not hide the two constraints");
+    assert.deepEqual(findIntegerParameterViolations(rows, [{name:"a",integer:true,min:2,max:100}]), [{row:2,param:"a"}], "the unfixed integer coefficient cannot be fitted continuously");
+  }
+});
+
+test("Rule 2: scalar regression counts one condition and needs an exact fixed readout", () => {
+  const check = (fit: string, target: string) => findRegressionDeterminacyViolations([{ latex: fit }, { latex: target }], { readoutRow: 2 });
+  assert.deepEqual(check("2u+v\\sim20", "8u^3+12u^2v+6uv^2+v^3"), []);
+  assert.deepEqual(check("3u-2v\\sim7", "81u^4-216u^3v+216u^2v^2-96uv^3+16v^4"), []);
+  assert.equal(check("2u+v\\sim20", "u+v")[0]?.kind, "underdetermined");
+  assert.equal(check("u^2+v\\sim20", "u+v")[0]?.kind, "underdetermined", "nonlinear scalar sides still have one residual");
+  assert.equal(check("u^2+v\\sim20", "u^2+v")[0]?.kind, "underdetermined", "nonlinear constraints are outside the affine proof");
+  assert.equal(check("[u^2+v]\\sim[20]", "u^2+v")[0]?.kind, "underdetermined");
+  assert.deepEqual(check("uv\\sim3", "uv"), [], "the existing inseparable-product rule is preserved");
+  assert.equal(check("uv\\sim3", "u+v")[0]?.kind, "underdetermined");
+});
+
+test("Rule 2: dependent affine conditions count by rank and contradictions fail explicitly", () => {
+  const fit = { latex: "[u+v,2u+2v]\\sim[3,6]" };
+  assert.equal(findRegressionDeterminacyViolations([fit, { latex: "u" }], { readoutRow: 2 })[0]?.kind, "underdetermined");
+  assert.deepEqual(findRegressionDeterminacyViolations([fit, { latex: "(u+v)^2" }], { readoutRow: 2 }), []);
+  assert.deepEqual(findRegressionDeterminacyViolations([{ latex: "[u+v,u+v]\\sim[1,2]" }, { latex: "0" }], { readoutRow: 2 }), [{ row: 1, kind: "inconsistent" }]);
 });
 
 // ================================================================================

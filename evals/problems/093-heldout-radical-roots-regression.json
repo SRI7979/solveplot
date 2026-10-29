@@ -1,0 +1,46 @@
+{
+  "group": "hard",
+  "source": "original",
+  "domain": "Advanced Math",
+  "topic": "Heldout radical roots regression",
+  "problem": "One solution of 2x^2 - 9x + 1 = 0 is (a + sqrt(b))/4, where a and b are integers. Find a + b.",
+  "choices": null,
+  "correctAnswer": "82",
+  "expectedResultType": "numeric",
+  "gold": [
+    "bracket-regression"
+  ],
+  "acceptable": [],
+  "bad": [
+    {
+      "technique": "quadratic-formula",
+      "why": "Manual formula setup bypasses the Desmos-first root fit."
+    }
+  ],
+  "goldRows": [
+    "y=2x^{2}-9x+1",
+    "[\\frac{a+\\sqrt{b}}{4},\\frac{a-\\sqrt{b}}{4}]\\sim[4.386000936329383,0.113999063670617]",
+    "\\operatorname{round}(a)+\\operatorname{round}(b)"
+  ],
+  "burden": {
+    "gold": {
+      "manualMath": 0,
+      "hiddenDerivation": 0
+    },
+    "algebraFirst": {
+      "manualMath": 2,
+      "hiddenDerivation": 1,
+      "description": "A manual route derives parameter relations before evaluating the requested quantity."
+    }
+  },
+  "routing": {
+    "representation": false,
+    "condition": null,
+    "integerParameters": [],
+    "continuousInterval": false,
+    "integerFactorExtremum": false
+  },
+  "explanationNotes": "Held-out coefficients, not the existing quadraticRootGold question. Exact verifier must establish a=9, b=73. Clicked decimals only approximate the roots.",
+  "labelProvenance": "agent_generated_silver",
+  "notes": "Synthetic held-out coefficient/structure variant authored by an agent; method labels remain silver, not human-verified. Held-out coefficients, not the existing quadraticRootGold question. Exact verifier must establish a=9, b=73. Clicked decimals only approximate the roots."
+}

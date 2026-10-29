@@ -1,0 +1,56 @@
+{
+  "group": "hard",
+  "source": "original",
+  "domain": "Advanced Math",
+  "topic": "User coefficient-sum identity outsourcing",
+  "problem": "For every real number x, (a/3)x^2+(b/3)x+c/3=(3x-2)(x+5)-4(x-1)^2, where a, b, and c are constants. What is a+b+c?",
+  "choices": null,
+  "correctAnswer": "18",
+  "expectedResultType": "numeric",
+  "gold": [
+    "identity-regression"
+  ],
+  "acceptable": [],
+  "bad": [
+    {
+      "technique": "direct-arithmetic",
+      "why": "The arithmetic readout alone hides the coefficient-matching derivation."
+    }
+  ],
+  "goldRows": [
+    "(a/3)x_{1}^2+(b/3)x_{1}+c/3\\sim(3x_{1}-2)(x_{1}+5)-4(x_{1}-1)^2",
+    "x_{1}=\\operatorname{random}(10)",
+    "a+b+c"
+  ],
+  "burden": {
+    "gold": {
+      "manualMath": 0,
+      "hiddenDerivation": 0
+    },
+    "algebraFirst": {
+      "manualMath": 2,
+      "hiddenDerivation": 1,
+      "description": "A manual route derives parameter relations before evaluating the requested quantity."
+    }
+  },
+  "routing": {
+    "representation": false,
+    "condition": null,
+    "integerParameters": [],
+    "continuousInterval": false,
+    "integerFactorExtremum": false
+  },
+  "explanationNotes": "User-approved random(10) identity fit preserved. A deterministic list [0,1,2] is also approved. Internally prove the degree is two and the coefficient constraints uniquely give a=-3,b=63,c=-42. Never treat a few matching samples alone as universal proof.",
+  "labelProvenance": "human_verified_gold",
+  "notes": "Exact user-approved example, not an unseen test. Strategic x=1 evaluation is valid but not preferred. Do not add this specific equation to the model prompt.",
+  "humanReview": {
+    "source": "user-provided-worked-example",
+    "reference": "2026-10-27 final Weaponized philosophy brief",
+    "example": "coefficient-sum",
+    "reviewedFields": [
+      "problem",
+      "correctAnswer",
+      "gold"
+    ]
+  }
+}

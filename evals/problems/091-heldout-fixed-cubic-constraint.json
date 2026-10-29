@@ -1,0 +1,43 @@
+{
+  "group": "hard",
+  "source": "original",
+  "domain": "Advanced Math",
+  "topic": "Heldout fixed cubic constraint",
+  "problem": "Real numbers x and y satisfy 2x + y = 20. What is the value of 8x^3 + 12x^2y + 6xy^2 + y^3?",
+  "choices": null,
+  "correctAnswer": "8000",
+  "expectedResultType": "numeric",
+  "gold": [
+    "parameter-regression"
+  ],
+  "acceptable": [
+    "bracket-regression",
+    "strategic-value-test"
+  ],
+  "bad": [],
+  "goldRows": [
+    "2u+v\\sim20",
+    "8u^{3}+12u^{2}v+6uv^{2}+v^{3}"
+  ],
+  "burden": {
+    "gold": {
+      "manualMath": 0,
+      "hiddenDerivation": 0
+    },
+    "algebraFirst": {
+      "manualMath": 2,
+      "hiddenDerivation": 1,
+      "description": "A manual route derives parameter relations before evaluating the requested quantity."
+    }
+  },
+  "routing": {
+    "representation": false,
+    "condition": null,
+    "integerParameters": [],
+    "continuousInterval": false,
+    "integerFactorExtremum": false
+  },
+  "explanationNotes": "Synthetic concrete version of the user's incomplete invariant example. The target is (2x+y)^3, hence 8000 for every satisfying pair. A fit supplies one pair only; invariance must be verified separately. u and v rename the question's x and y to avoid Desmos graph variables.",
+  "labelProvenance": "agent_generated_silver",
+  "notes": "Synthetic held-out coefficient/structure variant authored by an agent; method labels remain silver, not human-verified. Synthetic concrete version of the user's incomplete invariant example. The target is (2x+y)^3, hence 8000 for every satisfying pair. A fit supplies one pair only; invariance must be verified separately. u and v rename the question's x and y to avoid Desmos graph variables."
+}
