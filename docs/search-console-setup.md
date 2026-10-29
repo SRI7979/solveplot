@@ -1,10 +1,10 @@
 # Search setup for SolvePlot
 
-Prepared October 28, 2026. The SEO changes are local and require approval before deployment. No Search Console or Bing account has been registered or verified by this work. No sitemap or indexing request has been submitted. All steps below are free; do not buy a search package or analytics upgrade for this setup.
+Updated October 28, 2026 after the authorized production release. The SEO changes are live at `https://solveplot.com` (release commit `079fea7`). No Search Console or Bing account has been registered or verified by this work. No sitemap or indexing request has been submitted. All steps below are free; do not buy a search package or analytics upgrade for this setup.
 
-## 1. Approve the local update
+## 1. Review the live update
 
-Review `http://localhost:3000/guides` and the four worked guides. After approval, deploy the checked version to `https://solveplot.com`. The public release note is prepared with that version. Until deployment, search engines will continue seeing the previous pages and sitemap.
+Review [the public guides](https://solveplot.com/guides) and [the release note](https://solveplot.com/updates/public-desmos-guides). The hub and all four worked guides now return HTTP 200 in production, and the live sitemap includes all five guide URLs plus the anonymous solver entrance. Private pages retain their indexing and access restrictions. These release checks do not establish search-engine indexing.
 
 ## 2. Verify Google ownership
 
@@ -17,7 +17,7 @@ Open [Google Search Console](https://search.google.com/search-console/welcome) w
 
 [Google's ownership instructions](https://support.google.com/webmasters/answer/9008080) explain the available methods. DNS also covers subdomain/protocol variants. No Google verification token is invented or placed in source; the owner must obtain it from their account.
 
-## 3. Submit the real sitemap after deployment
+## 3. Submit the live sitemap
 
 Visit `https://solveplot.com/robots.txt` and `https://solveplot.com/sitemap.xml` in a signed-out browser. The robots file should name that sitemap. The XML should include the homepage, FAQ, policies, release notes, and the public guides. It should include the anonymous `/solve` entrance and exclude `/learn`, personal History, Saved tricks, Settings, profile, auth, nested solver URLs, and API URLs. Signed-in solver responses remain noindex and privately cached. Private lessons stay private; public guides are a separate resource.
 
@@ -47,7 +47,7 @@ Submit `https://solveplot.com/sitemap.xml` under Sitemaps and check read/errors.
 
 ## 6. Review results without daily maintenance
 
-Before November 1: approve/deploy, verify both properties, submit the sitemap, inspect the seven URLs, and confirm the app's existing Vercel Web Analytics dashboard is enabled. During November, set aside roughly 15 minutes each week:
+Before November 1: verify both properties, submit the sitemap, inspect the seven URLs, and confirm the app's existing Vercel Web Analytics dashboard is enabled. The production analytics script responds successfully; dashboard ownership and reporting still need your review. During November, set aside roughly 15 minutes each week:
 
 - Google Performance: impressions (search appearances), clicks, queries, and landing pages. Filter branded queries such as SolvePlot separately from topics such as regression.
 - Google Page indexing: new errors/exclusions, with private URLs expected to stay excluded. Core Web Vitals needs actual user data; small sites may have too little.
