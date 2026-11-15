@@ -22,6 +22,7 @@ export const PRODUCT_UPDATES: readonly ProductUpdate[] = [
     changes: [
       "Added page and solver journey measurements, including generation time, input type, method category, calculator openings, and account creation.",
       "Analytics excludes question text, uploaded images, tutor messages, account names, emails, and private URL parameters. Browser analytics respects Do Not Track and Global Privacy Control.",
+      "November 14 follow-up: calculator opening counts wait until the calculator is visible, excluding hidden panels prepared in the background.",
       "The privacy policy describes PostHog's use of browser storage and internal account IDs. Session replay and AI prompt logging remain disabled to protect student work.",
     ],
     visual: "progress",

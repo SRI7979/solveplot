@@ -197,6 +197,21 @@ export default function DesmosCalculator({
   }, [apiKey, loadAttempt]);
 
   useEffect(() => {
+    const element = containerRef.current;
+    if (!scriptReady || !element || analyticsOpened.current || !/^(\/solve|\/question-bank|\/learn)(\/|$)/.test(location.pathname)) return;
+    // The input screen and mobile steps can keep a mounted calculator hidden.
+    // Count opening only when its actual viewport becomes visible.
+    const observer = new IntersectionObserver((entries) => {
+      if (analyticsOpened.current || !entries.some(entry => entry.isIntersecting && entry.intersectionRect.width > 0)) return;
+      analyticsOpened.current = true;
+      captureAnalytics("calculator_opened", { surface: location.pathname.startsWith("/question-bank") ? "question-bank" : location.pathname.startsWith("/learn") ? "learn" : "solver" });
+      observer.disconnect();
+    });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [scriptReady]);
+
+  useEffect(() => {
     if (!scriptReady || !containerRef.current) return;
 
     let active = true;
@@ -205,10 +220,6 @@ export default function DesmosCalculator({
 
     try {
       if (!window.Desmos) throw new Error("Desmos did not initialize");
-      if (!analyticsOpened.current && /^(\/solve|\/question-bank|\/learn)(\/|$)/.test(location.pathname)) {
-        analyticsOpened.current = true;
-        captureAnalytics("calculator_opened", { surface: location.pathname.startsWith("/question-bank") ? "question-bank" : location.pathname.startsWith("/learn") ? "learn" : "solver" });
-      }
       instance = window.Desmos.GraphingCalculator(containerRef.current, {
         ...MATH_OPTIONS,
         autosize: false,
