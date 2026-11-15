@@ -578,6 +578,7 @@ export default function SolverWorkspace({
 
   /** Nothing can honestly be shown: say so, and show no rows at all. */
   function fail(message: string) {
+    measurement.current?.fail("validation");
     resetResult();
     request.current?.abort();
     setLoading(false);
@@ -851,6 +852,7 @@ export default function SolverWorkspace({
           (data?.kind === "daily_cap" || data?.kind === "at_capacity") &&
           typeof data.error === "string"
         ) {
+          measurement.current?.fail("limit");
           setNotice(data.error);
           return;
         }
@@ -908,6 +910,7 @@ export default function SolverWorkspace({
                 ? event.error
                 : "The solver could not finish. Please try again.",
             );
+          measurement.current?.fail("explanation");
           current.current.streamMethodId = null;
           const selected = current.current.selectedId;
           if (selected && !explained.current.has(selected))
@@ -920,6 +923,7 @@ export default function SolverWorkspace({
         );
       if (solveToken.current === token) timer.current?.finish();
     } catch (cause) {
+      if (!controller.signal.aborted || timedOut) measurement.current?.fail(timedOut ? "timeout" : "request");
       if (!controller.signal.aborted)
         setError(
           cause instanceof Error
@@ -1042,7 +1046,7 @@ export default function SolverWorkspace({
       <main className={styles.main}>
         <h1 className={styles.srOnly}>SAT Math solver</h1>
         <CalculatorVerificationProvider>
-          <SolverOutcomeAnalytics solution={solution} explanationReady={!loading && explanationStatus === "ready"} measurement={measurement.current} />
+          <SolverOutcomeAnalytics selectedMethodId={selectedMethodId} solution={solution} explanationReady={!loading && explanationStatus === "ready"} measurement={measurement.current} />
           <div
             className={styles.workspace}
             ref={(node) => {

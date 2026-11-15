@@ -14,6 +14,20 @@ export type ProductUpdate = {
 
 export const PRODUCT_UPDATES: readonly ProductUpdate[] = [
   {
+    id: "privacy-limited-product-analytics-2026-11-14",
+    date: "2026-11-14",
+    category: "Workspace",
+    title: "Privacy-limited product analytics",
+    summary: "Usage measurements help identify solver delays and failures without collecting question content.",
+    changes: [
+      "Added page and solver journey measurements, including generation time, input type, method category, calculator openings, and account creation.",
+      "Analytics excludes question text, uploaded images, tutor messages, account names, emails, and private URL parameters. Browser analytics respects Do Not Track and Global Privacy Control.",
+      "The privacy policy describes PostHog's use of browser storage and internal account IDs. Session replay and AI prompt logging remain disabled to protect student work.",
+    ],
+    visual: "progress",
+    link: { href: "/privacy", label: "Read the privacy policy" },
+  },
+  {
     id: "official-solveplot-profiles",
     date: "2026-10-29",
     category: "Workspace",

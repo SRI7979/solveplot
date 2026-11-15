@@ -1,3 +1,4 @@
+import { captureSignup } from "@/lib/posthog-server";
 import { NextResponse, type NextRequest } from "next/server";
 import { authCallbackDestination, exchangeGoogleCode } from "@/lib/google-oauth";
 import { getSiteOrigin, getSupabaseConfig } from "@/lib/supabase/config";
@@ -17,6 +18,11 @@ export async function GET(request: NextRequest) {
       const client = await createClient();
       if (google) {
         success = Boolean(await exchangeGoogleCode(client.auth, code));
+        if (success) {
+          const { data } = await client.auth.getUser();
+          const user = data.user;
+          if (user && user.last_sign_in_at && Math.abs(Date.parse(user.last_sign_in_at) - Date.parse(user.created_at)) < 5000) captureSignup(user.id, "google");
+        }
       } else {
         const { error } = await client.auth.exchangeCodeForSession(code);
         success = !error;

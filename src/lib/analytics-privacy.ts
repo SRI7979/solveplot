@@ -3,7 +3,7 @@ import type { BeforeSendEvent } from "@vercel/analytics";
 const PUBLIC_PAGES = new Set(["/", "/faq", "/privacy", "/terms", "/updates", "/guides"]);
 // Keep this tiny route list separate from guide content so public analytics does not bundle the articles.
 const GUIDE_PAGES = new Set(["/guides/desmos-sat", "/guides/systems-of-equations", "/guides/regression", "/guides/quadratics"]);
-const WORKSPACE_PAGES = new Set(["/solve", "/learn", "/history", "/tricks", "/settings", "/profile"]);
+const WORKSPACE_PAGES = new Set(["/solve", "/learn", "/history", "/tricks", "/settings", "/profile", "/question-bank"]);
 
 /** Remove URL data that can contain a problem, account identifier, or auth token.
  * Only page locations are exposed by Vercel's beforeSend API; no claim is made

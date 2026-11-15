@@ -1,5 +1,6 @@
 "use client";
 
+import { captureAnalytics } from "@/lib/posthog-client";
 import { useEffect, useRef, useState } from "react";
 import { List, RotateCcw } from "lucide-react";
 import type { RowEvaluation } from "@/lib/answer-consistency";
@@ -114,6 +115,7 @@ export default function DesmosCalculator({
   showStepTrace = true,
 }: Props) {
   const graphKey = useRef(stateKey);
+  const analyticsOpened = useRef(false);
   useEffect(() => {
     graphKey.current = stateKey;
   }, [stateKey]);
@@ -203,6 +205,10 @@ export default function DesmosCalculator({
 
     try {
       if (!window.Desmos) throw new Error("Desmos did not initialize");
+      if (!analyticsOpened.current && /^(\/solve|\/question-bank|\/learn)(\/|$)/.test(location.pathname)) {
+        analyticsOpened.current = true;
+        captureAnalytics("calculator_opened", { surface: location.pathname.startsWith("/question-bank") ? "question-bank" : location.pathname.startsWith("/learn") ? "learn" : "solver" });
+      }
       instance = window.Desmos.GraphingCalculator(containerRef.current, {
         ...MATH_OPTIONS,
         autosize: false,

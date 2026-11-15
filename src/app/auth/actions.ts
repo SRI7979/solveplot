@@ -1,5 +1,6 @@
 "use server";
 
+import { captureSignup } from "@/lib/posthog-server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -60,6 +61,7 @@ export async function authenticate(_previous: AuthState, form: FormData): Promis
       });
       if (error?.status === 429) return { error: "Too many requests. Wait a minute and try again." };
       if (error) return { error: "We could not create your account. Try a stronger password or sign in if you already have an account." };
+      if (data.user?.id && (data.user.identities?.length ?? 0) > 0) captureSignup(data.user.id, "email");
       if (!data.session) return { message: "Check your email to confirm your account. If you already have an account, sign in instead." };
     } else if (mode === "signin" && email.success) {
       const { error } = await client.auth.signInWithPassword({ email: email.data, password: password as string });

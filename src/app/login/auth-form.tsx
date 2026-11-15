@@ -59,7 +59,7 @@ export function AuthForm({
     catch { return { error: "Your question couldn’t be kept while signing in. Please try again." }; }
     return signInWithGoogle(previous, form);
   } : signInWithGoogle, {});
-  useEffect(() => { if (state.authenticated) onAuthenticated?.(); }, [state.authenticated, onAuthenticated]);
+  useEffect(() => { if (state.authenticated) { window.dispatchEvent(new Event("solveplot:auth-changed")); onAuthenticated?.(); } }, [state.authenticated, onAuthenticated]);
   const modeLink = (target: string) =>
     `/login?mode=${target}&next=${encodeURIComponent(next)}`;
   const showGoogle = mode === "signin" || mode === "signup";
