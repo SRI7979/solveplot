@@ -1,5 +1,6 @@
 import type { PostHog } from 'posthog-js';
-import { ANALYTICS_EVENTS, cleanAnalyticsProperties, type AnalyticsEvent, type AnalyticsProperties } from './posthog-privacy';
+import { type AnalyticsEvent, type AnalyticsProperties } from './posthog-privacy';
+import { filterPostHogEvent, replayOptions } from './posthog-replay';
 
 let client: Promise<PostHog | null> | undefined;
 /** One lazy singleton; SDK loading and transport are never awaited by UI/solves. */
@@ -10,19 +11,20 @@ export function analyticsClient(): Promise<PostHog | null> {
     const host = process.env.NEXT_PUBLIC_POSTHOG_HOST;
     if (!token || !host || navigator.doNotTrack === '1' || (navigator as Navigator & { globalPrivacyControl?: boolean }).globalPrivacyControl) return null;
     const { default: posthog } = await import('posthog-js');
+    // Keep the recorder version pinned with the SDK; no remote script injection.
+    // A blocked recorder must not prevent ordinary product analytics.
+    await import('posthog-js/dist/posthog-recorder').catch(() => {});
     posthog.init(token, {
       api_host: host, defaults: '2025-05-24', persistence: 'localStorage',
       capture_pageview: false, capture_pageleave: false, autocapture: false,
       capture_exceptions: false, capture_performance: false, disable_surveys: true,
       rageclick: false, capture_dead_clicks: false, disable_external_dependency_loading: true,
-      disable_session_recording: true, enable_recording_console_log: false,
-      session_recording: { maskAllInputs: true, maskTextSelector: '*', blockSelector: 'input[type="file"], img, canvas, iframe, video', recordHeaders: false, recordBody: false },
+      disable_session_recording: false, enable_recording_console_log: false,
+      session_recording: replayOptions,
       person_profiles: 'identified_only', ip: false, save_referrer: false,
-      store_google: false, custom_campaign_params: [], advanced_disable_feature_flags: true,
-      before_send: (event) => {
-        if (!event || !ANALYTICS_EVENTS.includes(event.event as AnalyticsEvent)) return null;
-        return { ...event, properties: cleanAnalyticsProperties(event.properties) };
-      },
+      store_google: false, custom_campaign_params: [], advanced_disable_feature_flags_on_first_load: true,
+      disable_capture_url_hashes: true,
+      before_send: filterPostHogEvent,
     });
     return posthog;
   })().catch(() => null);

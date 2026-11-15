@@ -14,6 +14,20 @@ export type ProductUpdate = {
 
 export const PRODUCT_UPDATES: readonly ProductUpdate[] = [
   {
+    id: "privacy-masked-session-replay-2026-11-15",
+    date: "2026-11-15",
+    category: "Workspace",
+    title: "Privacy-masked session replay",
+    summary: "Masked interaction recordings help diagnose navigation and usability issues.",
+    changes: [
+      "Enabled PostHog session replay with inputs and page text masked before recordings leave the browser.",
+      "Recordings exclude uploaded images, media, calculator content, private URL details, network bodies, and console logs. Some parts of the page appear as placeholders in replays.",
+      "Do Not Track and Global Privacy Control continue to disable browser analytics and recording. The privacy policy now describes masked replay.",
+    ],
+    visual: "progress",
+    link: { href: "/privacy", label: "Read the privacy policy" },
+  },
+  {
     id: "privacy-limited-product-analytics-2026-11-14",
     date: "2026-11-14",
     category: "Workspace",
