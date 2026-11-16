@@ -14,6 +14,18 @@ export type ProductUpdate = {
 
 export const PRODUCT_UPDATES: readonly ProductUpdate[] = [
   {
+    id: "gentler-text-field-highlight-2026-11-15",
+    date: "2026-11-15",
+    category: "Workspace",
+    title: "Gentler text-field highlights",
+    summary: "Text fields use a faint blue glow when hovered or focused.",
+    changes: [
+      "Replaced the dark hover border on shared text fields with a soft blue border and a subtle glow, keeping the field background unchanged.",
+      "Keyboard focus remains visible in both light and dark appearances.",
+    ],
+    visual: "progress",
+  },
+  {
     id: "privacy-masked-session-replay-2026-11-15",
     date: "2026-11-15",
     category: "Workspace",
