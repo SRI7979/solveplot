@@ -14,6 +14,19 @@ export type ProductUpdate = {
 
 export const PRODUCT_UPDATES: readonly ProductUpdate[] = [
   {
+    id: "signup-verification-help-2026-11-16",
+    date: "2026-11-16",
+    category: "Workspace",
+    title: "Clearer signup verification and resend controls",
+    summary: "Request another verification link and see clearer feedback when signing up.",
+    changes: [
+      "Added a resend-verification action after signup and on the sign-in page, with a retry countdown and useful email-request errors.",
+      "Confirmation messages distinguish an accepted request from email delivery and protect account privacy. Required email verification remains in place.",
+      "Email and password fields keep their entries after signup feedback, and the inbox notice uses the app’s rounded card styling.",
+    ],
+    visual: "progress",
+  },
+  {
     id: "gentler-text-field-highlight-2026-11-15",
     date: "2026-11-15",
     category: "Workspace",

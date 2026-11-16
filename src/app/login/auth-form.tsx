@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useState } from "react";
+import { MailCheck } from "lucide-react";
 import {
   authenticate,
   signInWithGoogle,
@@ -15,6 +16,7 @@ const titles: Record<AuthMode, string> = {
   signup: "Create your account",
   forgot: "Reset your password",
   reset: "Choose a new password",
+  resend: "Verify your email",
 };
 
 const labels: Record<AuthMode, string> = {
@@ -22,6 +24,7 @@ const labels: Record<AuthMode, string> = {
   signup: "Create account",
   forgot: "Send reset link",
   reset: "Save password",
+  resend: "Resend verification email",
 };
 
 export function AuthForm({
@@ -43,6 +46,12 @@ export function AuthForm({
   beforeRedirect?: () => void | Promise<void>;
   onAuthenticated?: () => void;
 }) {
+  // React actions reset uncontrolled fields on completion, including responses
+  // with validation errors or an email-confirmation message. Keep these values
+  // only in this mounted form; never return passwords in server action state.
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [state, action, pending] = useActionState<AuthState, FormData>(
     beforeRedirect ? async (previous, form) => {
       try { await beforeRedirect(); }
@@ -63,12 +72,30 @@ export function AuthForm({
   const modeLink = (target: string) =>
     `/login?mode=${target}&next=${encodeURIComponent(next)}`;
   const showGoogle = mode === "signin" || mode === "signup";
+  const verificationVisible = (mode === "signup" || mode === "resend") && state.verificationEmail === email.trim();
+  const verificationAccepted = verificationVisible && Boolean(state.resendAvailable);
+  const [secondsLeft, setSecondsLeft] = useState(0);
+  useEffect(() => {
+    if (!state.retryAt) return;
+    const deadline = state.retryAt;
+    const update = () => {
+      const remaining = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+      setSecondsLeft(remaining);
+      if (!remaining) window.clearInterval(interval);
+    };
+    const first = window.setTimeout(update, 0);
+    const interval = window.setInterval(update, 1000);
+    return () => { window.clearTimeout(first); window.clearInterval(interval); };
+  }, [state.retryAt]);
+  const emailCoolingDown = (mode === "signup" || mode === "resend") && secondsLeft > 0;
 
   return (
     <>
       <h1 id={headingId}>{titles[mode]}</h1>
       <p className={styles.subtitle}>
-        {mode === "forgot"
+        {mode === "resend"
+          ? "Request a new link using the email you signed up with."
+          : mode === "forgot"
           ? "We’ll email you a link to choose a new password."
           : mode === "reset"
             ? "Use at least 8 characters."
@@ -135,6 +162,8 @@ export function AuthForm({
               className="appField"
               name="email"
               type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
               autoComplete="email"
               required
               maxLength={254}
@@ -142,13 +171,15 @@ export function AuthForm({
             />
           </label>
         )}
-        {mode !== "forgot" && (
+        {mode !== "forgot" && mode !== "resend" && (
           <label className={styles.field}>
             {mode === "reset" ? "New password" : "Password"}
             <input
               className="appField"
               name="password"
               type="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
               autoComplete={
                 mode === "signin" ? "current-password" : "new-password"
               }
@@ -166,6 +197,8 @@ export function AuthForm({
               className="appField"
               name="confirmPassword"
               type="password"
+              value={confirmPassword}
+              onChange={(event) => setConfirmPassword(event.target.value)}
               autoComplete="new-password"
               required
               minLength={8}
@@ -183,19 +216,40 @@ export function AuthForm({
             {state.error}
           </p>
         )}
-        {state.message && (
-          <p role="status" className={styles.notice}>
-            {state.message}
-          </p>
+        {state.message && (!(mode === "signup" || mode === "resend") || verificationVisible) && (
+          <div role="status" aria-live="polite" className={styles.emailNotice}>
+            <span className={styles.emailNoticeIcon} aria-hidden="true"><MailCheck size={22} strokeWidth={1.7} /></span>
+            <div>
+              <h2>{verificationAccepted ? "Check your inbox for a verification link." : "Check your inbox"}</h2>
+              <p>{state.message}</p>
+              <p className={styles.emailNoticeHint}>{verificationAccepted ? "Open the latest link in this browser to finish signing up." : "Can’t find it? Check your spam folder."}</p>
+            </div>
+          </div>
         )}
-        <button
+        {!(mode === "signup" && verificationAccepted) && <button
           type="submit"
           className={`${styles.button} primaryButton`}
-          disabled={pending || googlePending}
+          disabled={pending || googlePending || emailCoolingDown}
         >
           {pending ? "Please wait…" : labels[mode]}
-        </button>
+        </button>}
       </form>
+      {mode === "signup" && verificationAccepted && (
+        <form action={action} className={styles.resendForm}>
+          <input type="hidden" name="mode" value="resend" />
+          <input type="hidden" name="email" value={email.trim()} />
+          <input type="hidden" name="next" value={next} />
+          <button type="submit" className={`${styles.button} secondaryButton`} disabled={pending || googlePending || emailCoolingDown}>
+            {pending ? "Requesting link…" : "Resend verification email"}
+          </button>
+        </form>
+      )}
+      {emailCoolingDown && <p className={styles.cooldown}>You can request another link in {secondsLeft}s.</p>}
+      {mode === "signin" && <p className={styles.switchMode}>
+        {onModeChange
+          ? <button type="button" className={styles.modeButton} onClick={() => onModeChange("resend")} disabled={pending || googlePending}>Need a verification email?</button>
+          : <Link href={modeLink("resend")}>Need a verification email?</Link>}
+      </p>}
       <p className={styles.switchMode}>
         {mode === "signin" ? (
           <>

@@ -20,7 +20,7 @@ export default async function LoginPage({
   const params = await searchParams;
   const next = safeAuthRedirect(params.next);
   const mode =
-    params.mode === "signup" || params.mode === "forgot"
+    params.mode === "signup" || params.mode === "forgot" || params.mode === "resend"
       ? params.mode
       : "signin";
   const user = await getCurrentUser();
@@ -34,7 +34,7 @@ export default async function LoginPage({
   const configured = Boolean(getSupabaseConfig());
   const notice =
     params.notice === "link-expired"
-      ? "This link has expired or was already used. Sign in or request a new password reset."
+      ? "This link has expired, was already used, or was opened in a different browser. Sign in, request a verification email, or reset your password."
       : params.notice === "signout-error"
         ? "Sign-out could not be completed. Please try again."
         : params.notice === "google-cancelled"
