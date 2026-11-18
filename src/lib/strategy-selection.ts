@@ -37,6 +37,7 @@ import {
   type Approach,
 } from "./method-scoring";
 import { hasUnnecessaryCoefficientLists } from "./regression-workflow";
+import { measuredSetupFloor } from "./student-input-burden";
 import {
   answerChoiceSchema,
   answerStateSchema,
@@ -748,7 +749,13 @@ function validateCandidate(candidate: Candidate, context: CandidateContext): Val
     conditionType,
     distinguishes: condition ? condition.distinguishes : candidate.distinguishes,
     graphBounds: validBounds ? bounds : null,
-    rawCost: candidate.cost,
+    rawCost: {
+      ...candidate.cost,
+      setupConstructions: Math.max(
+        candidate.cost.setupConstructions,
+        measuredSetupFloor(rows, question, choices),
+      ),
+    },
     factFloor,
     derivationFloor,
     // The generated read instruction is replaced by the explanation call.
